@@ -1,4 +1,5 @@
 # tool to decrypt and encrypt VMware vmx files
+# currently broken: https://github.com/RF3/VMwareVMX/issues/17
 { stdenvNoCC, python3, fetchFromGitHub }:
 
 let

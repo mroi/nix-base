@@ -1,11 +1,8 @@
 # tool to decrypt and encrypt VMware vmx files
-# currently broken: https://github.com/RF3/VMwareVMX/issues/17
-{ stdenvNoCC, python3, fetchFromGitHub }:
+{ stdenvNoCC, python3, fetchFromGitHub, fetchpatch }:
 
 let
-	python = python3.withPackages (pkgs:
-		[ pkgs.pycryptodome pkgs.cryptography ]
-	);
+	python = python3.withPackages (pkgs: [ pkgs.pycryptodome ]);
 
 in stdenvNoCC.mkDerivation {
 	name = "vmware-vmx";
@@ -14,8 +11,13 @@ in stdenvNoCC.mkDerivation {
 		owner = "RF3";
 		repo = "VMwareVMX";
 		# curl https://api.github.com/repos/RF3/VMwareVMX/git/refs/heads/master
-		rev = "2cabc5091c610ff175abaea67c078dbd356103c4";
-		sha256 = "tXrC0zew9nwDEGrLg2bJLV4VTS3UctXSdxsi18At4y0=";
+		rev = "82846af012019ef3a40016c36fe25c174f5407d3";
+		hash = "sha256-Fm8nczSuNwkTdr73qJRDawqD+w4ER+VZ/TVnE2EQQrw=";
+	};
+
+	patches = fetchpatch {
+		url = "https://github.com/RF3/VMwareVMX/pull/18.patch";
+		hash = "sha256-EItw6lLwyfI23DLgDXdUsg8t0HDiWrZEYFQPSAZFzrU=";
 	};
 
 	installPhase = ''

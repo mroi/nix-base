@@ -3,5 +3,4 @@ with import nixpkgs { inherit system; };
 
 mkShellNoCC {
 	packages = [];
-	shellHook = "test -r ~/.shellrc && . ~/.shellrc";
 }

@@ -8,5 +8,4 @@ let tex = texlive.combine {
 };
 in mkShellNoCC {
 	packages = [ tex ];
-	shellHook = "test -r ~/.shellrc && . ~/.shellrc";
 }

@@ -13,18 +13,6 @@ stdenvNoCC.mkDerivation {
 		cat <<- 'EOFEOF' > $out/bin/nix
 			#!/bin/sh
 
-	'' + lib.optionalString stdenvNoCC.isDarwin ''
-			# store state and cache files in temporary directory, configure shell
-			export XDG_STATE_HOME=$TMPDIR
-			export XDG_DATA_HOME=$TMPDIR
-			export XDG_CACHE_HOME=$TMPDIR/../C
-			export SHELL_SESSION_DID_INIT=1
-			export HISTFILE=/dev/null
-	'' + lib.optionalString stdenvNoCC.isLinux ''
-			# configure shell
-			export HISTFILE=/dev/null
-	'' + ''
-
 			# parse arguments to extract mode and derivation
 			for arg ; do
 				case "$arg" in
@@ -35,14 +23,29 @@ stdenvNoCC.mkDerivation {
 					if test -z "$mode" ; then
 						mode=$arg
 					else
-						drv=$arg
+						pkg=$arg
 					fi
 					;;
 				esac
 			done
 
+			# handle daemon invocation
+			if test "$mode" = daemon ; then
+				exec ${nix}/bin/nix $nix_settings --experimental-features nix-command "$@"
+			fi
+
+	'' + lib.optionalString stdenvNoCC.isDarwin ''
+			# store cache files in temporary directory, configure shell
+			export XDG_CACHE_HOME=''${TMPDIR%/T/}/C
+			export SHELL_SESSION_DID_INIT=1
+			export HISTFILE=/dev/null
+	'' + lib.optionalString stdenvNoCC.isLinux ''
+			# configure shell
+			export HISTFILE=/dev/null
+	'' + ''
+
 			# build a temporary flake from shell.nix when 'nix develop' is run
-			if test "$mode" = develop -a "$drv" = "" -a ! -r flake.nix -a -r shell.nix ; then
+			if test "$mode" = develop -a "$pkg" = "" -a ! -r flake.nix -a -r shell.nix ; then
 				tmp=$(mktemp -d -t ${tmpPattern})
 				trap 'rm -rf "$tmp"' EXIT HUP INT TERM QUIT
 
@@ -55,13 +58,19 @@ stdenvNoCC.mkDerivation {
 							forAll = list: f: nixpkgs.lib.genAttrs list f;
 						in {
 							devShells = forAll systems (system: {
-								default = import ./shell.nix { inherit nixpkgs system; };
+								default = (import ./shell.nix { 
+									inherit nixpkgs system;
+								}).overrideAttrs (attrs: {
+									shellHook = (attrs.shellHook or "") + '''
+										test -r ~/.local/config/shell/rc && . ~/.local/config/shell/rc
+									''';
+								});
 							});
 						};
 					}
 				EOF
 
-				${nix}/bin/nix --experimental-features 'nix-command flakes' "$@" --impure "$tmp"
+				${nix}/bin/nix --experimental-features 'nix-command flakes' --use-xdg-base-directories "$@" --impure "$tmp"
 
 				result=$?
 				test -r "$tmp/flake.lock" -a ! -r shell.lock && cp -p "$tmp/flake.lock" shell.lock
@@ -73,7 +82,7 @@ stdenvNoCC.mkDerivation {
 				export NIX_SHELL_POSTPROC=1
 			fi
 
-			exec ${nix}/bin/nix --experimental-features 'nix-command flakes' "$@"
+			exec ${nix}/bin/nix --experimental-features 'nix-command flakes' --use-xdg-base-directories "$@"
 		EOFEOF
 		chmod a+x $out/bin/nix
 	'';

@@ -11,13 +11,8 @@ in stdenvNoCC.mkDerivation {
 		owner = "RF3";
 		repo = "VMwareVMX";
 		# curl https://api.github.com/repos/RF3/VMwareVMX/git/refs/heads/master
-		rev = "82846af012019ef3a40016c36fe25c174f5407d3";
-		hash = "sha256-Fm8nczSuNwkTdr73qJRDawqD+w4ER+VZ/TVnE2EQQrw=";
-	};
-
-	patches = fetchpatch {
-		url = "https://github.com/RF3/VMwareVMX/pull/18.patch";
-		hash = "sha256-EItw6lLwyfI23DLgDXdUsg8t0HDiWrZEYFQPSAZFzrU=";
+		rev = "0cdfe49c486fd41de73dd8decb2b4a83791ec28f";
+		hash = "sha256-cIA0qLwxuBtEyRnWug/pLtm2PaCLWruuvp9HQSwBy0M=";
 	};
 
 	installPhase = ''

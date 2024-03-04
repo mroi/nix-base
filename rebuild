@@ -1,0 +1,49 @@
+#!/bin/sh -e
+
+# find directory enclosing the script
+self=$(
+	test -d "$(dirname "$0")" && cd "$(dirname "$0")"
+	test "$(dirname "$0")" = . && cd "$(dirname "$(command -v "$0")")"
+	test -L "$(basename "$0")" && cd "$(dirname "$(readlink "$(basename "$0")")")"
+	pwd
+)
+
+. "$self/modules/system/utils.sh"
+
+machine=$(
+	# shellcheck disable=SC3028
+	if command -v scutil > /dev/null ; then
+		scutil --get LocalHostName
+	elif test "$HOSTNAME" ; then
+		echo "$HOSTNAME"
+	else
+		hostname
+	fi
+)
+machine=${machine%.local}
+
+# check if a configuration exists
+if ! test -d "$self/machines/$machine" ; then
+	printError "No configuration for this machine: $machine"
+	exit 68  # EX_NOHOST
+fi
+
+# make sure Nix is installed
+if ! command -v nix > /dev/null ; then
+	# TODO: run Nix install script
+	exit
+fi
+
+# self-update flake
+if checkArgs --update-flake --update -u ; then
+	trace nix flake update "$self"
+fi
+
+# generate activation script for this machine
+script=$(
+	nix build --no-link --print-out-paths --no-warn-dirty \
+		"${self}#baseConfigurations.${machine}.config.system.build.toplevel"
+)
+
+# run activation script
+exec "$script" "$@"

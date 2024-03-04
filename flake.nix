@@ -36,6 +36,7 @@
 			builder-linux = { type = "app"; program = "${self.packages.${system}.builder-linux}/bin/run-nixos-vm"; };
 			run-linux = { type = "app"; program = "${self.packages.${system}.run-linux}"; };
 		});
+		baseModules = import ./modules/all.nix;
 		templates = {
 			default = self.templates.shell;
 			shell = {

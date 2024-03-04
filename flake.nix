@@ -37,6 +37,14 @@
 			run-linux = { type = "app"; program = "${self.packages.${system}.run-linux}"; };
 		});
 		baseModules = import ./modules/all.nix;
+		baseConfigurations = forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
+			lib.evalModules {
+				modules = [ ./machines/${machine}/configuration.nix ]
+					++ (builtins.attrValues self.baseModules)
+					++ [ { nixpkgs.input = lib.mkDefault nixpkgs; } ];
+				class = "base";
+			}
+		);
 		templates = {
 			default = self.templates.shell;
 			shell = {

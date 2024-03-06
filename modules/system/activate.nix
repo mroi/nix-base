@@ -13,6 +13,7 @@
 		executable = true;
 		text = ''#!/bin/sh -e
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+			${builtins.readFile ./utils.sh}
 		'';
 		checkPhase = ''
 			${pkgs.stdenv.shellDryRun} "$target"

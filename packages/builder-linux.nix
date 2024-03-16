@@ -16,6 +16,6 @@ let nixos = import "${path}/nixos" {
 		};
 		boot.binfmt.emulatedSystems = if binfmt then [ "aarch64-linux" ] else [];
 	};
-	system = "x86_64-linux";
+	system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system;
 };
 in nixos.config.system.build.vm

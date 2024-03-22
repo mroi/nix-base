@@ -57,3 +57,7 @@ trace() {
 		"$@"
 	fi
 }
+fatalError() {
+	printError "$@"
+	exit 69  # EX_UNAVAILABLE
+}

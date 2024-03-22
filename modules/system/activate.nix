@@ -96,6 +96,7 @@
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 			isLinux=${lib.boolToString pkgs.stdenv.isLinux}
 			isDarwin=${lib.boolToString pkgs.stdenv.isDarwin}
+			${lib.fileContents ./state.sh}
 			${lib.fileContents ./utils.sh}
 			${assertions}
 			${warnings}

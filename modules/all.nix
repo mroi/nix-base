@@ -5,4 +5,7 @@
 
 	# Nix setup
 	"nixpkgs" = ./nix/nixpkgs.nix;
+
+	# root account, groups, and users
+	"root" = ./users/root.nix;
 }

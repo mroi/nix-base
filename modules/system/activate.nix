@@ -64,6 +64,23 @@
 				lib.concatLines
 			];
 
+			setup = ''
+				# warn when running on NixOS
+				if test -r /etc/os-release ; then
+					# shellcheck disable=SC1091
+					. /etc/os-release
+					if test "$ID" = nixos ; then
+						printWarning 'Execution on NixOS installations is not recommended'
+					fi
+				fi
+				# transition to a temporary directory
+				tmpdir=$(mktemp -d -t "rebuild$($isDarwin || echo .XXXXXXXX)")
+				# shellcheck disable=SC2064
+				trap "rm -rf \"$tmpdir\"" EXIT HUP INT TERM QUIT
+				cd "$tmpdir"
+				unset tmpdir
+			'';
+
 			scripts = lib.pipe config.system.activationScripts [
 				(lib.mapAttrs (_: v: if lib.isString v then lib.noDepEntry v else v))
 				(lib.mapAttrs (n: v: v // { text = ''
@@ -82,6 +99,7 @@
 			${lib.fileContents ./utils.sh}
 			${assertions}
 			${warnings}
+			${setup}
 			${scripts}
 		'';
 		checkPhase = ''

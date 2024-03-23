@@ -77,6 +77,8 @@
 		in ''#!/bin/sh -e
 			# shellcheck disable=SC2317
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+			isLinux=${lib.boolToString pkgs.stdenv.isLinux}
+			isDarwin=${lib.boolToString pkgs.stdenv.isDarwin}
 			${lib.fileContents ./utils.sh}
 			${assertions}
 			${warnings}

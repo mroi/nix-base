@@ -61,3 +61,12 @@ fatalError() {
 	printError "$@"
 	exit 69  # EX_UNAVAILABLE
 }
+
+# system recognition
+
+isLinux=${isLinux:-$(if test "$(uname)" = Linux ; then echo true ; else echo false ; fi)}
+isDarwin=${isDarwin:-$(if test "$(uname)" = Darwin ; then echo true ; else echo false ; fi)}
+
+if ! test "${isLinux#false}${isDarwin#false}" = true ; then
+	fatalError 'Exactly one of isLinux, isDarwin must be true.'
+fi

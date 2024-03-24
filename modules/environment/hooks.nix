@@ -50,6 +50,16 @@
 		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
 		]);
 
+		preservePasswords = source: target: ''
+			# existing ${target} in staging may contain passwords which should be kept
+			if test -r "${config.users.root.stagingDirectory}/${target}" ; then
+				expr="$(sed -nE '/_PASSWORD=/{s/^[[:space:]]*([^=]*)=(.*)/\/\1=\/s|=.*|=\2|;/;p;}' "${config.users.root.stagingDirectory}/${target}")"
+				sed "$expr" ${source} > ${target}
+			else
+				cp ${source} ${target}
+			fi
+		'';
+
 	in {
 
 		assertions = [
@@ -59,6 +69,9 @@
 
 		system.activationScripts.hooks = lib.stringAfter [ "staging" ] ''
 			storeHeading
+
+			${preservePasswords loginHook "login-hook.sh"}
+			${preservePasswords logoutHook "logout-hook.sh"}
 
 			${pkgs.stdenv.shellDryRun} login-hook.sh
 			${pkgs.stdenv.shellDryRun} logout-hook.sh

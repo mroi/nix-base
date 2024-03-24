@@ -1,4 +1,4 @@
-{ config, lib, ... }: {
+{ config, lib, options, ... }: {
 
 	options.users.root = {
 
@@ -28,6 +28,14 @@
 		if ! test -d "${config.users.root.stagingDirectory}" ; then
 			trace mkdir -p "${config.users.root.stagingDirectory}"
 		fi
+		# migrate from default directory, if current setting is different
+		if test "${config.users.root.stagingDirectory}" != "${options.users.root.stagingDirectory.default}" ; then
+			if test -d "${options.users.root.stagingDirectory.default}" ; then
+				printWarning "Default staging directory ${options.users.root.stagingDirectory.default} exists while a different one has been configured: ${config.users.root.stagingDirectory}"
+				trace rsync --verbose --archive --update "${options.users.root.stagingDirectory.default}" "${config.users.root.stagingDirectory}"
+			fi
+		fi
+
 		rootStagingChecksumBefore=$(
 			find "${config.users.root.stagingDirectory}" -print0 | \
 				LC_ALL=C sort --zero-terminated | \

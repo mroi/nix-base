@@ -4,6 +4,7 @@
 	"setup" = ./system/setup.nix;
 
 	# Nix setup
+	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
 
 	# root account, groups, and users

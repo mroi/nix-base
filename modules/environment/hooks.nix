@@ -16,7 +16,7 @@
 
 	config = let
 	
-		knownFragments = [];
+		knownFragments = [ "nix" ];
 
 		unknownFragmentAssertion = name: set:
 			let unknownFragments = lib.subtractLists knownFragments (lib.attrNames set);
@@ -41,6 +41,7 @@
 			""
 			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
 		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
+			(stripTabs (config.environment.loginHook.nix or ""))
 		]);
 
 		logoutHook = pkgs.writeText "logout-hook.sh" (lib.concatLines [

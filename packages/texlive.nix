@@ -37,7 +37,7 @@ in stdenv.mkDerivation rec {
 	fontsConf = makeFontsConf { fontDirectories = [
 		"/Library/Fonts"
 		"/System/Library/Fonts"
-		"~/.nix-profile/share/texmf/fonts"
+		"~/.local/state/nix/profile/share/texmf/fonts"
 	]; };
 	phases = "installPhase fixupPhase installCheckPhase";
 	installPhase = ''

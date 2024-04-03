@@ -30,8 +30,8 @@ fi
 
 # make sure Nix is installed
 if ! command -v nix > /dev/null ; then
-	# TODO: run Nix install script
-	exit
+	. "$self/modules/system/state.sh"
+	. "$self/modules/nix/install.sh"
 fi
 
 # self-update flake

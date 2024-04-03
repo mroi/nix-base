@@ -95,3 +95,59 @@ updateFile() {
 	fi
 	_setPermissions "$_target"
 }
+
+# user and group management
+
+createGroup() {
+	# shellcheck disable=SC1091
+	. /dev/stdin  # named parameters: name gid members description
+	# shellcheck disable=SC2154
+	if $isLinux ; then
+		if ! getent group "$name" > /dev/null ; then
+			trace sudo addgroup --gid "$gid" "$name"
+		fi
+		if ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
+			deleteGroup "$name"
+			createGroup < /dev/null
+		fi
+		echo "$members" | tr ' ' '\n' | while read -r member && test "$member" ; do
+			if ! groups "$name" | grep -Fwq "$member" ; then
+				trace sudo usermod --append --groups "$name" "$member"
+			fi
+		done
+	fi
+	# shellcheck disable=SC2154
+	if $isDarwin ; then
+		if ! dscl . -read "/Groups/$name" > /dev/null 2>&1 ; then
+			trace sudo dseditgroup -o create -r "$description" -i "$gid" "$name"
+		fi
+		dsclRead() {
+			dscl -plist . -read "/Groups/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
+		}
+		if test "$(dsclRead PrimaryGroupID)" != "$gid" ; then
+			trace sudo dseditgroup -o edit -i "$gid" "$name"
+		fi
+		echo "$members" | tr ' ' '\n' | while read -r member && test "$member" ; do
+			if ! dsclRead GroupMembership | grep -Fwq "$member" ; then
+				trace sudo dseditgroup -o edit -t user -a "$member" "$name"
+			fi
+		done
+		if test "$(dsclRead RealName)" != "$description" ; then
+			trace sudo dseditgroup -o edit -r "$description" "$name"
+		fi
+	fi
+	unset name gid members member description dsclRead
+}
+
+deleteGroup() {
+	if $isLinux ; then
+		if getent group "$1" > /dev/null ; then
+			trace sudo delgroup "$1"
+		fi
+	fi
+	if $isDarwin ; then
+		if dscl . -read "/Groups/$1" > /dev/null 2>&1 ; then
+			trace sudo dseditgroup -q -o delete "$1"
+		fi
+	fi
+}

@@ -8,4 +8,7 @@
 
 	# root account, groups, and users
 	"root" = ./users/root.nix;
+
+	# system environment setup
+	"hooks" = ./environment/hooks.nix;
 }

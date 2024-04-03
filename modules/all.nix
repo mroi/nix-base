@@ -7,6 +7,7 @@
 	"nixpkgs" = ./nix/nixpkgs.nix;
 
 	# root account, groups, and users
+	"groups" = ./users/groups.nix;
 	"root" = ./users/root.nix;
 
 	# system environment setup

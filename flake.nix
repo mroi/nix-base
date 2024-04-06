@@ -24,9 +24,9 @@
 				callPackage system ./packages/${package}.nix {}
 			)
 		);
-		overlays.default = self: super: (
+		overlays.default = final: prev: (
 			forAll (lib.flatten lib.attrValues systemPackages) (package:
-				self.callPackage ./packages/${package}.nix {}
+				final.callPackage ./packages/${package}.nix {}
 			)
 		);
 		legacyPackages = forAll (builtins.attrNames systemPackages) (system: {
@@ -44,6 +44,13 @@
 					++ [ { nixpkgs.input = lib.mkDefault nixpkgs; } ];
 				class = "base";
 			}
+		);
+		checks = forAll (builtins.attrNames systemPackages) (system:
+			(forAll systemPackages.${system} (package:
+				self.packages.${system}.${package}
+			)) // (forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
+				self.baseConfigurations.${machine}.config.system.build.toplevel
+			))
 		);
 		templates = {
 			default = self.templates.shell;

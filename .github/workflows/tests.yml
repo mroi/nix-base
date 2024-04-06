@@ -1,0 +1,42 @@
+# run rebuild tests on Ubuntu and macOS
+name: Rebuild Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        machine: [carpo, jupiter]
+        include:
+        - machine: carpo
+          os: macos-latest
+        - machine: jupiter
+          os: macos-12
+    name: Rebuild ${{ matrix.machine }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      HOSTNAME: ${{ matrix.machine }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run rebuild
+      run: ./rebuild
+
+    - name: Rerun rebuild
+      run: |
+        ! ./rebuild | grep .
+        test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
+
+# TODO: enable this step when rebuild installs Nix to the profile
+#    - name: Check flake
+#      run: .local/state/nix/profile/bin/nix flake check --all-systems

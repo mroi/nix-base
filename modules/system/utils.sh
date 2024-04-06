@@ -13,9 +13,12 @@ checkArgs() {
 
 # colored output
 
-if test "$(tput colors)" -ge 16 ; then
+if tput colors > /dev/null 2>&1 && test "$(tput colors)" -ge 16 ; then
 	if test -t 1 ; then _hasColorStdout=true ; else _hasColorStdout=false ; fi
 	if test -t 2 ; then _hasColorStderr=true ; else _hasColorStderr=false ; fi
+else
+	_hasColorStdout=false
+	_hasColorStderr=false
 fi
 
 _headingColor=$(if $_hasColorStdout ; then tput bold ; fi)

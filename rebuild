@@ -12,10 +12,10 @@ self=$(
 
 machine=$(
 	# shellcheck disable=SC3028
-	if command -v scutil > /dev/null ; then
-		scutil --get LocalHostName
-	elif test "$HOSTNAME" ; then
+	if test "$HOSTNAME" ; then
 		echo "$HOSTNAME"
+	elif command -v scutil > /dev/null ; then
+		scutil --get LocalHostName
 	else
 		hostname
 	fi

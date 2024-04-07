@@ -9,6 +9,7 @@
 	# root account, groups, and users
 	"groups" = ./users/groups.nix;
 	"root" = ./users/root.nix;
+	"users" = ./users/users.nix;
 
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;

@@ -98,6 +98,79 @@ updateFile() {
 
 # user and group management
 
+createUser() {
+	name= ; uid= ; gid= ; group= ; isHidden= ; home= ; shell= ; description=
+	# shellcheck disable=SC1091
+	. /dev/stdin  # read named parameters
+	if $isLinux ; then
+		if ! getent passwd "$name" > /dev/null ; then
+			trace sudo adduser \
+				--uid "$uid" \
+				--ingroup "$group" \
+				--home "$home" \
+				--shell "$shell" \
+				--gecos "$description" \
+				--no-create-home \
+				--disabled-password \
+				--force-badname \
+				"$name"
+		fi
+		if ! getent passwd "$name" | grep -q "^$name:x:$uid:$gid:$description,,,:$home:$shell$" ; then
+			deleteUser "$name"
+			createUser < /dev/null
+		fi
+	fi
+	if $isDarwin ; then
+		if ! dscl . -read "/Users/$name" > /dev/null 2>&1 ; then
+			trace sudo dscl . -create "/Users/$name"
+		fi
+		_dsclRead() {
+			dscl -plist . -read "/Users/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
+		}
+		if test "$(_dsclRead AuthenticationAuthority)" ; then
+			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
+		fi
+		if test "$(_dsclRead Password)" != '*' ; then
+			trace sudo dscl . -create "/Users/$name" Password '*'
+		fi
+		if test "$(_dsclRead UniqueID)" != "$uid" ; then
+			trace sudo dscl . -create "/Users/$name" UniqueID "$uid"
+		fi
+		if test "$(_dsclRead PrimaryGroupID)" != "$gid" ; then
+			trace sudo dscl . -create "/Users/$name" PrimaryGroupID "$gid"
+		fi
+		if ! dseditgroup -o checkmember -m "$name" "$group" > /dev/null ; then
+			trace sudo dseditgroup -o edit -t user -a "$name" "$group"
+		fi
+		if test "$(_dsclRead IsHidden)" != "${isHidden:-0}" ; then
+			trace sudo dscl . -create "/Users/$name" IsHidden "${isHidden:-0}"
+		fi
+		if test "$(_dsclRead NFSHomeDirectory)" != "$home" ; then
+			trace sudo dscl . -create "/Users/$name" NFSHomeDirectory "$home"
+		fi
+		if test "$(_dsclRead UserShell)" != "$shell" ; then
+			trace sudo dscl . -create "/Users/$name" UserShell "$shell"
+		fi
+		if test "$(_dsclRead RealName)" != "$description" ; then
+			trace sudo dscl . -create "/Users/$name" RealName "$description"
+		fi
+	fi
+	unset name uid gid group isHidden home shell description
+}
+
+deleteUser() {
+	if $isLinux ; then
+		if getent passwd "$1" > /dev/null ; then
+			trace sudo deluser "$1"
+		fi
+	fi
+	if $isDarwin ; then
+		if dscl . -read "/Users/$1" > /dev/null 2>&1 ; then
+			trace sudo dscl . -delete "/Users/$1"
+		fi
+	fi
+}
+
 createGroup() {
 	name= ; gid= ; members= ; description=
 	# shellcheck disable=SC1091

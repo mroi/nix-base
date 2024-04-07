@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, options, ... }: {
 
 	options = {
 		system.build = lib.mkOption {
@@ -108,4 +108,6 @@
 			${lib.getExe pkgs.shellcheck} "$target"
 		'';
 	};
+
+	config.system.build.manual = (pkgs.nixosOptionsDoc { inherit options; }).optionsCommonMark;
 }

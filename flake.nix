@@ -49,7 +49,15 @@
 			(forAll systemPackages.${system} (package:
 				self.packages.${system}.${package}
 			)) // (forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
-				self.baseConfigurations.${machine}.config.system.build.toplevel
+				nixpkgs.legacyPackages.${system}.stdenvNoCC.mkDerivation {
+					name = machine;
+					phases = [ "installPhase" ];
+					installPhase = ''
+						mkdir $out
+						ln -s ${self.baseConfigurations.${machine}.config.system.build.toplevel} $out/activate
+						ln -s ${self.baseConfigurations.${machine}.config.system.build.manual} $out/manual
+					'';
+				}
 			))
 		);
 		templates = {

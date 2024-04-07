@@ -6,6 +6,7 @@
 			type = lib.types.pkgs;
 			example = lib.literalExpression "import <nixpkgs> {}";
 			default = config.nixpkgs.input.legacyPackages.${config.nixpkgs.system};
+			defaultText = lib.literalMD "The `legacyPackages` set of `config.nixpkgs.input`.";
 			description = lib.mdDoc "If set, the pkgs argument to all modules is the value of this option.";
 		};
 		system = lib.mkOption {

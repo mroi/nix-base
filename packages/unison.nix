@@ -8,7 +8,10 @@ if stdenv.isDarwin then (
 		xcode = (xcodeenv.composeXcodeWrapper {
 				version = "14.2";
 			}).overrideAttrs (attrs: {
-				buildCommand = attrs.buildCommand + ''
+				buildCommand = ''
+					# see https://github.com/NixOS/nixpkgs/pull/322641
+					set +o pipefail
+				'' + attrs.buildCommand + ''
 					ln -s /usr/bin/ar $out/bin/
 					ln -s /usr/bin/ld $out/bin/
 					ln -s clang $out/bin/cc

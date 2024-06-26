@@ -64,7 +64,7 @@ if stdenv.isDarwin then (
 	# Linux build
 	(unison.override {
 		enableX11 = false;
-		wrapGAppsHook = null;
+		wrapGAppsHook3 = null;
 	}).overrideAttrs (attrs:
 		if static then {
 			# optionally build a static binary that can be copied to other systems

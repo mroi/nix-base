@@ -28,7 +28,7 @@ in stdenv.mkDerivation {
 			error = "source URL changed:";
 		};
 		hash = expect {
-			expected = "sha256-3xtzeLcU8GkLKF7Z5OWK/icKyY28nKWDlYnBr8yjOrE=";
+			expected = "sha256-YUyfVkPNB5nfOROV+mu8NklCe7g5cizjsRTTu8GjslA=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
 				"/usr/bin/python3 -c 'import urllib.request,hashlib,base64,string;print(\"sha256-\"+base64.b64encode(hashlib.sha256(urllib.request.urlopen(\"" + fish.src.url + "\").read()).digest()).decode())' ; echo");

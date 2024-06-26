@@ -4,7 +4,7 @@
 		system.build = lib.mkOption {
 			internal = true;
 			type = lib.types.attrsOf lib.types.unspecified;
-			description = lib.mdDoc "Attribute set of derivations for system setup.";
+			description = "Attribute set of derivations for system setup.";
 		};
 		system.activationScripts = lib.mkOption {
 			type = lib.types.attrsOf (lib.types.either
@@ -13,28 +13,28 @@
 					deps = lib.mkOption {
 						type = lib.types.listOf lib.types.str;
 						default = [];
-						description = lib.mdDoc "Dependencies after which the script can run.";
+						description = "Dependencies after which the script can run.";
 					};
 					text = lib.mkOption {
 						type = lib.types.lines;
-						description = lib.mdDoc "Activation script text.";
+						description = "Activation script text.";
 					};
 				};})
 			);
 			default = {};
-			description = lib.mdDoc "A set of idempotent shell script fragments to build the system configuration.";
+			description = "A set of idempotent shell script fragments to build the system configuration.";
 		};
 		assertions = lib.mkOption {
 			internal = true;
 			type = lib.types.listOf lib.types.unspecified;
 			default = [];
-			description = lib.mdDoc "Conditions that must hold during evaluation of the configuration.";
+			description = "Conditions that must hold during evaluation of the configuration.";
 		};
 		warnings = lib.mkOption {
 			internal = true;
 			type = lib.types.listOf lib.types.str;
 			default = [];
-			description = lib.mdDoc "Warnings collected during evaluation of the configuration.";
+			description = "Warnings collected during evaluation of the configuration.";
 		};
 	};
 

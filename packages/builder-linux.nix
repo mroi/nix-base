@@ -1,7 +1,11 @@
 # launch a NixOS Linux VM as a builder for Linux derivations on Darwin
 { system, path, binfmt ? false }:
 
+# The necessary packages should be in the Nix binary cache, but sometimes the local store
+# needs to be populated using: nix build --no-link nixpkgs#darwin.linux-builder
+
 let nixos = import "${path}/nixos" {
+
 	configuration = { lib, modulesPath, ... }: {
 		imports = [ "${modulesPath}/profiles/macos-builder.nix"	];
 		virtualisation = {
@@ -14,8 +18,11 @@ let nixos = import "${path}/nixos" {
 			}];
 			sharedDirectories.keys.source = lib.mkForce "/nix/var/ssh";
 		};
+		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] system;
 		boot.binfmt.emulatedSystems = if binfmt then [ "aarch64-linux" ] else [];
 	};
-	system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system;
+
+	system = null;
 };
+
 in nixos.config.system.build.vm

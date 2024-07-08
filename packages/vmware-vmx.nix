@@ -18,10 +18,10 @@ in stdenvNoCC.mkDerivation {
 	installPhase = ''
 		mkdir -p $out/share $out/bin
 		cp *.py $out/share
-		cat <<- EOF > $out/bin/vmwarevmx
+		cat <<- EOF > $out/bin/vmware-vmx
 			#!/bin/sh
 			exec ${python}/bin/python $out/share/main.py "\$@"
 		EOF
-		chmod a+x $out/bin/vmwarevmx
+		chmod a+x $out/bin/vmware-vmx
 	'';
 }

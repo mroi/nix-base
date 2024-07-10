@@ -36,7 +36,7 @@ stdenvNoCC.mkDerivation {
 
 	'' + lib.optionalString stdenvNoCC.isDarwin ''
 			# store cache files in temporary directory, configure shell
-			export XDG_CACHE_HOME=''${TMPDIR%/T/}/C
+			export XDG_CACHE_HOME=''${XDG_CACHE_HOME:-''${TMPDIR%/T/}/C}
 			export SHELL_SESSION_DID_INIT=1
 			export HISTFILE=/dev/null
 	'' + lib.optionalString stdenvNoCC.isLinux ''

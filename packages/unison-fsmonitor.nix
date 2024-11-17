@@ -6,11 +6,17 @@ rustPlatform.buildRustPackage {
 	src = fetchFromGitHub {
 		owner = "autozimu";
 		repo = "unison-fsmonitor";
-		rev = "v0.3.3";
-		hash = "sha256-JA0WcHHDNuQOal/Zy3yDb+O3acZN3rVX1hh0rOtRR+8=";
+		rev = "v0.3.8";
+		hash = "sha256-1W05b9s0Pg2LzNu0mFo/JKpPw0QORqZkXhbbSuCZIUo=";
 	};
-	cargoHash = "sha256-iqq66JLmAMCXnvtiN9yf0dY/AGzlo+wAqj9ZM3UYIP0=";
+
+	cargoHash = "sha256-EXAAd2fWdq8kh5mP7WC+SV8ta4Gv8iSZJgUU/EvQD7A=";
 	buildInputs = lib.optionals stdenv.isDarwin [
 		darwin.apple_sdk.frameworks.CoreServices
+	];
+	
+	checkFlags = [
+		# test uses a symlink escaping the nix sandbox
+		"--skip=test::test_follow_link"
 	];
 }

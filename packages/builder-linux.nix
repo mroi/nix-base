@@ -7,7 +7,7 @@
 let nixos = import "${path}/nixos" {
 
 	configuration = { lib, modulesPath, ... }: {
-		imports = [ "${modulesPath}/profiles/macos-builder.nix"	];
+		imports = [ "${modulesPath}/profiles/nix-builder-vm.nix" ];
 		virtualisation = {
 			host.pkgs = import path { inherit system; };
 			forwardPorts = lib.mkForce [{

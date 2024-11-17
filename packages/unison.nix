@@ -6,15 +6,13 @@ if stdenv.isDarwin then (
 	# build Unison.app from sources
 	let
 		xcode = (xcodeenv.composeXcodeWrapper {
-				version = "14.2";
+				versions = [ "14.2" ];
 			}).overrideAttrs (attrs: {
-				buildCommand = ''
-					# see https://github.com/NixOS/nixpkgs/pull/322641
-					set +o pipefail
-				'' + attrs.buildCommand + ''
-					ln -s /usr/bin/ar $out/bin/
-					ln -s /usr/bin/ld $out/bin/
-					ln -s clang $out/bin/cc
+				buildCommand = attrs.buildCommand + ''
+					ln -s /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild $out/bin/
+					ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar $out/bin/
+					ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld $out/bin/
+					rm $out/bin/clang
 				'';
 			});
 		# for building a back-deployable version for macOS

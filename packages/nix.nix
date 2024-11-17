@@ -71,7 +71,7 @@ stdenvNoCC.mkDerivation {
 					}
 				EOF
 
-				${nix}/bin/nix --experimental-features 'nix-command flakes' --use-xdg-base-directories "$@" --impure "$tmp"
+				${nix}/bin/nix --experimental-features 'nix-command flakes' "$@" --impure "$tmp"
 
 				result=$?
 				test -r "$tmp/flake.lock" -a ! -r shell.lock && cp -p "$tmp/flake.lock" shell.lock
@@ -83,7 +83,7 @@ stdenvNoCC.mkDerivation {
 				export NIX_SHELL_POSTPROC=1
 			fi
 
-			exec ${nix}/bin/nix --experimental-features 'nix-command flakes' --use-xdg-base-directories "$@"
+			exec ${nix}/bin/nix --experimental-features 'nix-command flakes' "$@"
 		EOFEOF
 		chmod a+x $out/bin/nix
 	'';

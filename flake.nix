@@ -2,15 +2,19 @@
 	description = "custom Nix packages";
 	outputs = { self, nixpkgs }: let
 		systemPackages = {
-			aarch64-linux = [
-				"unison"
-			];
-			x86_64-linux = [
-				"fish" "nix" "texlive" "unison"
+			aarch64-darwin = [
+				"arq-restore" "builder-linux" "fish" "hires" "nix" "run-linux" "texlive"
+				"unison" "unison-fsmonitor" "vmware-vmx"
 			];
 			x86_64-darwin = [
 				"arq-restore" "builder-linux" "fish" "hires" "nix" "run-linux" "texlive"
 				"unison" "unison-fsmonitor" "vmware-vmx"
+			];
+			aarch64-linux = [
+				"fish" "nix" "texlive" "unison"
+			];
+			x86_64-linux = [
+				"fish" "nix" "texlive" "unison"
 			];
 		};
 

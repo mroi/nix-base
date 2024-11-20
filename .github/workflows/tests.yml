@@ -19,7 +19,7 @@ jobs:
         - machine: carpo
           os: macos-latest
         - machine: jupiter
-          os: macos-12
+          os: macos-14
     name: Rebuild ${{ matrix.machine }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:

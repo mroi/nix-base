@@ -3,7 +3,7 @@
 
 let
 	host = import path { inherit system; };
-	linux64 = import path { system = "x86_64-linux"; };
+	linux64 = import path { system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system; };
 
 	vmTools = host.vmTools.override {
 		# instead of full cross compilation: surgically replace some packages with host versions

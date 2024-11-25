@@ -47,7 +47,7 @@ stdenvNoCC.mkDerivation {
 
 			# build a temporary flake from shell.nix when 'nix develop' is run
 			if test "$mode" = develop -a "$pkg" = "" -a ! -r flake.nix -a -r shell.nix ; then
-				tmp=$(mktemp -d -t ${tmpPattern})
+				tmp=$(realpath $(mktemp -d -t ${tmpPattern}))
 				trap 'rm -rf "$tmp"' EXIT HUP INT TERM QUIT
 
 				cp shell.nix "$tmp/"

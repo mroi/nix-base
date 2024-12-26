@@ -9,10 +9,9 @@ if stdenv.isDarwin then (
 				versions = [ "14.2" ];
 			}).overrideAttrs (attrs: {
 				buildCommand = attrs.buildCommand + ''
-					ln -s /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild $out/bin/
-					ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar $out/bin/
-					ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld $out/bin/
-					rm $out/bin/clang
+					ln -s /usr/bin/xcodebuild $out/bin/
+					ln -s /usr/bin/ar $out/bin/
+					ln -s /usr/bin/ld $out/bin/
 				'';
 			});
 		# for building a back-deployable version for macOS

@@ -95,3 +95,132 @@ updateFile() {
 	fi
 	_setPermissions "$_target"
 }
+
+# user and group management
+
+createUser() {
+	# shellcheck disable=SC1091
+	. /dev/stdin  # named parameters: name uid gid group isHidden home shell description
+	# shellcheck disable=SC2154
+	if $isLinux ; then
+		if ! getent passwd "$name" > /dev/null ; then
+			trace sudo adduser \
+				--uid "$uid" \
+				--ingroup "$group" \
+				--home "$home" \
+				--shell "$shell" \
+				--gecos "$description" \
+				--no-create-home \
+				--disabled-password \
+				"$name"
+		fi
+		if ! getent passwd "$name" | grep -q "^$name:x:$uid:$gid:$description:$home:$shell$" ; then
+			deleteUser "$name"
+			createUser < /dev/null
+		fi
+	fi
+	# shellcheck disable=SC2154
+	if $isDarwin ; then
+		if ! dscl . -read "/Users/$name" > /dev/null 2>&1 ; then
+			trace sudo dscl . -create "/Users/$name"
+		fi
+		dsclRead() {
+			dscl -plist . -read "/Users/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
+		}
+		if test "$(dsclRead AuthenticationAuthority)" ; then
+			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
+		fi
+		if test "$(dsclRead Password)" != '*' ; then
+			trace sudo dscl . -create "/Users/$name" Password '*'
+		fi
+		if test "$(dsclRead UniqueID)" != "$uid" ; then
+			trace sudo dscl . -create "/Users/$name" UniqueID "$uid"
+		fi
+		if test "$(dsclRead PrimaryGroupID)" != "$gid" ; then
+			trace sudo dscl . -create "/Users/$name" PrimaryGroupID "$gid"
+		fi
+		if ! dseditgroup -o checkmember -m "$name" "$group" > /dev/null ; then
+			trace sudo dseditgroup -o edit -t user -a "$name" "$group"
+		fi
+		if test "$(dsclRead IsHidden)" != "${isHidden:-0}" ; then
+			trace sudo dscl . -create "/Users/$name" IsHidden "${isHidden:-0}"
+		fi
+		if test "$(dsclRead NFSHomeDirectory)" != "$home" ; then
+			trace sudo dscl . -create "/Users/$name" NFSHomeDirectory "$home"
+		fi
+		if test "$(dsclRead UserShell)" != "$shell" ; then
+			trace sudo dscl . -create "/Users/$name" UserShell "$shell"
+		fi
+		if test "$(dsclRead RealName)" != "$description" ; then
+			trace sudo dscl . -create "/Users/$name" RealName "$description"
+		fi
+	fi
+	unset name uid gid group isHidden home shell description dsclRead
+}
+
+deleteUser() {
+	if $isLinux ; then
+		if getent passwd "$1" > /dev/null ; then
+			trace sudo deluser "$1"
+		fi
+	fi
+	if $isDarwin ; then
+		if dscl . -read "/Users/$1" > /dev/null 2>&1 ; then
+			trace sudo dscl . -delete "/Users/$1"
+		fi
+	fi
+}
+
+createGroup() {
+	# shellcheck disable=SC1091
+	. /dev/stdin  # named parameters: name gid members description
+	# shellcheck disable=SC2154
+	if $isLinux ; then
+		if ! getent group "$name" > /dev/null ; then
+			trace sudo addgroup --gid "$gid" "$name"
+		fi
+		if ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
+			deleteGroup "$name"
+			createGroup < /dev/null
+		fi
+		echo "$members" | tr ' ' '\n' | while read -r member && test "$member" ; do
+			if ! groups "$name" | grep -Fwq "$member" ; then
+				trace sudo usermod --append --groups "$name" "$member"
+			fi
+		done
+	fi
+	# shellcheck disable=SC2154
+	if $isDarwin ; then
+		if ! dscl . -read "/Groups/$name" > /dev/null 2>&1 ; then
+			trace sudo dseditgroup -o create -r "$description" -i "$gid" "$name"
+		fi
+		dsclRead() {
+			dscl -plist . -read "/Groups/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
+		}
+		if test "$(dsclRead PrimaryGroupID)" != "$gid" ; then
+			trace sudo dseditgroup -o edit -i "$gid" "$name"
+		fi
+		echo "$members" | tr ' ' '\n' | while read -r member && test "$member" ; do
+			if ! dsclRead GroupMembership | grep -Fwq "$member" ; then
+				trace sudo dseditgroup -o edit -t user -a "$member" "$name"
+			fi
+		done
+		if test "$(dsclRead RealName)" != "$description" ; then
+			trace sudo dseditgroup -o edit -r "$description" "$name"
+		fi
+	fi
+	unset name gid members member description dsclRead
+}
+
+deleteGroup() {
+	if $isLinux ; then
+		if getent group "$1" > /dev/null ; then
+			trace sudo delgroup "$1"
+		fi
+	fi
+	if $isDarwin ; then
+		if dscl . -read "/Groups/$1" > /dev/null 2>&1 ; then
+			trace sudo dseditgroup -q -o delete "$1"
+		fi
+	fi
+}

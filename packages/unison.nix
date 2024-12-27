@@ -38,6 +38,9 @@ if stdenv.isDarwin then (
 			 # cltool was added into the .app after it was signed, so the signature is now
 			 # broken. It must be removed, cltool separately signed, and then the entire
 		'';
+		postPatch = ''
+			cp ${./unison.icns} src/uimac/Unison.icns
+		'';
 		preBuild = ''
 			unset LD
 			unset DEVELOPER_DIR SDKROOT

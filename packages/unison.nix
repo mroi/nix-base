@@ -41,14 +41,15 @@ if stdenv.isDarwin then (
 		preBuild = ''
 			unset LD
 			unset DEVELOPER_DIR SDKROOT
-			export XCODEFLAGS="-arch x86_64 -scheme uimac -configuration Default -derivedDataPath $NIX_BUILD_TOP/DerivedData"
+			export XCODEFLAGS='-arch ${stdenv.hostPlatform.darwinArch} -scheme uimac -configuration Default -derivedDataPath $$NIX_BUILD_TOP/DerivedData MACOSX_DEPLOYMENT_TARGET=$$MACOSX_DEPLOYMENT_TARGET'
+		'' + lib.optionalString (!backDeploy) ''
+			export MACOSX_DEPLOYMENT_TARGET=14.0
+		'' + lib.optionalString backDeploy ''
+			export MACOSX_DEPLOYMENT_TARGET=10.7
 		'';
 		makeFlags = [
 			"-C src"
-		] ++ lib.optionals (!backDeploy) [
-			"MACOSX_DEPLOYMENT_TARGET=12.0"
 		] ++ lib.optionals backDeploy [
-			"MACOSX_DEPLOYMENT_TARGET=10.7"
 			"UISTYLE=text"
 		];
 		installPhase = ''

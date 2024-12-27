@@ -1,19 +1,17 @@
 # my custom build of the unison sync tool
-{ lib, stdenv, ocaml, xcodeenv, writeText, glibc, patchelf, unison, backDeploy ? false, static ? false }:
+{ lib, stdenv, stdenvNoCC, ocaml, xcodeenv, writeText, glibc, patchelf, unison, backDeploy ? false, static ? false }:
 
 if stdenv.isDarwin then (
 
 	# build Unison.app from sources
 	let
-		xcode = (xcodeenv.composeXcodeWrapper {
-				versions = [ "14.2" ];
-			}).overrideAttrs (attrs: {
-				buildCommand = attrs.buildCommand + ''
-					ln -s /usr/bin/xcodebuild $out/bin/
-					ln -s /usr/bin/ar $out/bin/
-					ln -s /usr/bin/ld $out/bin/
-				'';
-			});
+		xcode = (xcodeenv.composeXcodeWrapper {}).overrideAttrs (attrs: {
+			buildCommand = attrs.buildCommand + ''
+				ln -s /usr/bin/ar $out/bin/
+				ln -s /usr/bin/cc $out/bin/
+				ln -s /usr/bin/ld $out/bin/
+			'';
+		});
 		# for building a back-deployable version for macOS
 		ocaml' = ocaml.overrideAttrs (attrs:
 			if backDeploy then {
@@ -21,7 +19,7 @@ if stdenv.isDarwin then (
 			} else {}
 		);
 
-	in stdenv.mkDerivation rec {
+	in stdenvNoCC.mkDerivation rec {
 		pname = "unison";
 		version = unison.version;
 		src = unison.src;
@@ -30,7 +28,7 @@ if stdenv.isDarwin then (
 		patches = writeText "unison-fixes.patch" ''
 			--- a/src/Makefile.OCaml
 			+++ b/src/Makefile.OCaml
-			@@ -231,7 +231,7 @@
+			@@ -316,7 +316,7 @@
 			 	$(CC) $(CFLAGS) $(UIMACDIR)/cltool.c -o $(UIMACDIR)/build/Default/Unison.app/Contents/MacOS/cltool -framework Carbon
 			 	codesign --remove-signature $(UIMACDIR)/build/Default/Unison.app
 			 	codesign --force --sign - $(UIMACDIR)/build/Default/Unison.app/Contents/MacOS/cltool
@@ -42,6 +40,7 @@ if stdenv.isDarwin then (
 		'';
 		preBuild = ''
 			unset LD
+			unset DEVELOPER_DIR SDKROOT
 			export XCODEFLAGS="-arch x86_64 -scheme uimac -configuration Default -derivedDataPath $NIX_BUILD_TOP/DerivedData"
 		'';
 		makeFlags = [

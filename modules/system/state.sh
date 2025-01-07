@@ -88,12 +88,57 @@ updateFile() {
 
 	_target=$1
 	_source=$2
+	_update=none
 
-	if ! test -f "$_target" || ! cmp --quiet "$_source" "$_target" ; then
+	if ! test -f "$_target" || ! cmp --quiet "$_source" "$_target" && test "$_source" ; then
+		# print a diff if it is small (50 lines)
+		if test -r "$_target" -a -r "$_source" ; then
+			_length=$(diff -u "$_target" "$_source" 2> /dev/null | sed 51q | wc -l)
+			if test "$_length" -gt 3 -a "$_length" -lt 51 ; then
+				flushHeading
+				diff -u --color=auto "$_target" "$_source" || true
+			fi
+		fi
+		if ! test -f "$_target" ; then
+			_update=created
+		else
+			_update=modified
+		fi
 		# shellcheck disable=SC2086
 		trace $_sudo cp -a "$_source" "$_target"
 	fi
+	if ! test -f "$_target" && ! test "$_source" ; then
+		trace $_sudo touch "$_target"
+		_update=created
+	fi
 	_setPermissions "$_target"
+}
+
+updateDidCreate() {
+	if test "$_update" = created ; then return 0 ; else return 1 ; fi
+}
+
+updateDidModify() {
+	if test "$_update" = modified ; then return 0 ; else return 1 ; fi
+}
+
+deleteFile() {
+	_deleted=false
+    for _file ; do
+		if test -e "$_file" ; then
+			if test -w "${_file%/*}" ; then
+				_sudo=
+			else
+				_sudo=sudo
+			fi
+			trace $_sudo rm "$_file"
+			_deleted=true
+		fi
+	done
+}
+
+deleteDidRemove() {
+	if "$_deleted" ; then return 0 ; else return 1 ; fi
 }
 
 # user and group management

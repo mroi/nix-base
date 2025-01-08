@@ -268,3 +268,164 @@ deleteGroup() {
 		fi
 	fi
 }
+
+# service management
+
+createService() {
+	name= ; label= ; description= ; command= ; environment= ; group= ; socket= ; waitForPath=
+	# shellcheck disable=SC1091
+	. /dev/stdin  # read named parameters
+	if $isLinux ; then
+		if test "$waitForPath" ; then
+			_conditionEntries="RequiresMountsFor=$waitForPath
+"
+		else
+			_conditionEntries=
+		fi
+		if test "$socket" ; then
+			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}
+"
+		fi
+		if test "$environment" ; then
+			_environmentEntry=Environment=
+			IFS=$(printf '\n\t')
+			for _line in $environment ; do
+				_environmentEntry="$_environmentEntry\"${_line}\" "
+			done
+			IFS=$(printf ' \n\t')
+			_environmentEntry="${_environmentEntry% }
+"
+		else
+			_environmentEntry=
+		fi
+		if test "$group" ; then
+			_groupEntry="Group=$group
+"
+		else
+			_groupEntry=
+		fi
+		if test "$socket" ; then
+			cat > "$name.socket" <<- EOF
+				[Unit]
+				Description=$description Socket
+				Before=multi-user.target
+				$_conditionEntries
+				[Socket]
+				ListenStream=$socket
+
+				[Install]
+				WantedBy=sockets.target
+			EOF
+			updateFile 644:root:root "/etc/systemd/system/$name.socket" "$name.socket"
+			rm "$name.socket"
+		fi
+		cat > "$name.service" <<- EOF
+			[Unit]
+			Description=$description
+			$_conditionEntries
+			[Service]
+			${_groupEntry}StandardOutput=null
+			StandardError=null
+			${_environmentEntry}ExecStart=$command
+			KillMode=process
+		EOF
+		updateFile 644:root:root "/etc/systemd/system/$name.service" "$name.service"
+		rm "$name.service"
+		if updateDidCreate ; then
+			trace sudo systemctl daemon-reload
+			if test "$socket" ; then
+				trace sudo systemctl enable "$name.socket"
+				trace sudo systemctl start "$name.socket"
+			else
+				trace sudo systemctl enable "$name.service"
+				trace sudo systemctl start "$name.service"
+			fi
+		elif updateDidModify ; then
+			trace sudo systemctl daemon-reload
+			restartService "$name"
+		fi
+	fi
+	if $isDarwin ; then
+		if test "$waitForPath" ; then
+			_commandEntry="\"ProgramArguments\": [\"/bin/sh\",\"-c\",\"/bin/wait4path $waitForPath && exec $command\"],"
+		else
+			_commandEntry="\"ProgramArguments\": ["
+			for _part in $command ; do _commandEntry=$_commandEntry\"$_part\", ; done
+			_commandEntry="$_commandEntry],"
+		fi
+		if test "$environment" ; then
+			_environmentEntry="\"EnvironmentVariables\": {"
+			IFS=$(printf '\n\t')
+			for _line in $environment ; do
+				_environmentEntry="$_environmentEntry\"${_line%%=*}\":\"${_line#*=}\","
+			done
+			IFS=$(printf ' \n\t')
+			_environmentEntry="$_environmentEntry},"
+		else
+			_environmentEntry=
+		fi
+		if test "$group" ; then
+			_groupEntry="\"GroupName\": \"$group\","
+		else
+			_groupEntry=
+		fi
+		plutil -convert xml1 -o "$label.plist" - <<- EOF
+			{
+				$_environmentEntry
+				$_groupEntry
+				"KeepAlive": true,
+				"Label": "$label",
+				$_commandEntry
+				"RunAtLoad": true,
+				"StandardErrorPath": "/dev/null",
+				"StandardOutPath": "/dev/null"
+			}
+		EOF
+		updateFile 644:root:wheel "/Library/LaunchDaemons/$label.plist" "$label.plist"
+		rm "$label.plist"
+		if updateDidCreate ; then
+			trace sudo launchctl bootstrap system "/Library/LaunchDaemons/$label.plist"
+		elif updateDidModify ; then
+			restartService "$name"
+		fi
+	fi
+	unset name label description command environment group socket waitForPath
+}
+
+deleteService() {
+	if $isLinux ; then
+		if systemctl list-unit-files "$1.socket" > /dev/null 2>&1 ; then
+			trace sudo systemctl disable --now "$1.socket"
+		fi
+		if systemctl list-unit-files "$1.service" > /dev/null 2>&1 ; then
+			trace sudo systemctl disable --now "$1.service"
+		fi
+		deleteFile "/etc/systemd/system/$1.socket" "/etc/systemd/system/$1.service"
+		if deleteDidRemove ; then
+			trace sudo systemctl daemon-reload
+		fi
+	fi
+	if $isDarwin ; then
+		# translate the service name to a launchd reverse DNS service label
+		_label=$(launchctl print system | grep -Fw "$1" | cut -f4)
+		if test "$_label" ; then
+			trace sudo launchctl bootout "system/$_label"
+		fi
+		deleteFile "/Library/LaunchDaemons/$_label.plist"
+	fi
+}
+
+restartService() {
+	if $isLinux ; then
+		if systemctl list-unit-files "$1.service" > /dev/null 2>&1 ; then
+			trace sudo systemctl restart "$1.service"
+		fi
+	fi
+	if $isDarwin ; then
+		# translate the service name to a launchd reverse DNS service label
+		_label=$(launchctl print system | grep -Fw "$1" | cut -f4)
+		if test "$_label" ; then
+			trace sudo launchctl kill TERM "system/$_label"
+		fi
+	fi
+}

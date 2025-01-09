@@ -46,17 +46,17 @@ _setPermissions() {
 	if $isLinux ; then
 		if test "$_statFormatLinux" && test "$(stat -c "$_statFormatLinux" "$1")" != "$_statExpected" ; then
 			test -z "$_perms" || test "$(stat -c %a "$1")" = "$_perms" || trace $_sudo chmod "$_perms" "$1"
-			test -z "$_owner" || test "$(stat -c %U "$1")" = "$_owner" || trace $_sudo chown "$_owner" "$1"
-			test -z "$_group" || test "$(stat -c %G "$1")" = "$_group" || trace $_sudo chgrp "$_group" "$1"
+			test -z "$_owner" || test "$(stat -c %U "$1")" = "$_owner" || trace $_sudo chown -h "$_owner" "$1"
+			test -z "$_group" || test "$(stat -c %G "$1")" = "$_group" || trace $_sudo chgrp -h "$_group" "$1"
 		fi
 	fi
 	# shellcheck disable=SC2086
 	if $isDarwin ; then
 		if test "$_statFormatDarwin" && test "$(stat -f "$_statFormatDarwin" "$1")" != "$_statExpected" ; then
-			test -z "$_perms" || test "$(stat -f %Mp%Lp "$1")" -eq "$_perms" || trace $_sudo chmod "$_perms" "$1"
-			test -z "$_owner" || test "$(stat -f %Su "$1")" = "$_owner" || trace $_sudo chown "$_owner" "$1"
-			test -z "$_group" || test "$(stat -f %Sg "$1")" = "$_group" || trace $_sudo chgrp "$_group" "$1"
-			test -z "$_flags" || test "$(stat -f %Sf "$1")" = "$_flags" || trace $_sudo chflags "$_flags" "$1"
+			test -z "$_perms" || test "$(stat -f %Mp%Lp "$1")" -eq "$_perms" || trace $_sudo chmod -h "$_perms" "$1"
+			test -z "$_owner" || test "$(stat -f %Su "$1")" = "$_owner" || trace $_sudo chown -h "$_owner" "$1"
+			test -z "$_group" || test "$(stat -f %Sg "$1")" = "$_group" || trace $_sudo chgrp -h "$_group" "$1"
+			test -z "$_flags" || test "$(stat -f %Sf "$1")" = "$_flags" || trace $_sudo chflags -h "$_flags" "$1"
 		fi
 	fi
 }
@@ -74,6 +74,38 @@ makeDir() {
 		# shellcheck disable=SC2086
 		test -d "$_dir" || trace $_sudo mkdir "$_dir"
 		_setPermissions "$_dir"
+	done
+}
+
+makeLink() {
+	# first argument: optional permission descriptor
+	if test "$1" != "${1#[0-9]}" ; then
+		_parsePermissions "$1"
+		shift
+	else
+		_parsePermissions ''
+	fi
+
+	_target=$1
+	shift
+
+	if $isLinux ; then
+		_ln='ln -snf'
+		# ignore link permissions on Linux
+		if test "$_statFormatLinux" != "${_statFormatDarwin#%a:}" ; then
+			_statFormatLinux=${_statFormatDarwin#%a:}
+			_statExpected=${_statExpected#*:}
+			_perms=''
+		fi
+	fi
+	if $isDarwin ; then
+		_ln='ln -shf'
+	fi
+
+	for _link ; do
+		# shellcheck disable=SC2086
+		test -L "$_link" -a "$(readlink "$_link")" = "$_target" || trace $_sudo $_ln "$_target" "$_link"
+		_setPermissions "$_link"
 	done
 }
 

@@ -98,6 +98,25 @@ else
 fi
 makeDir 1777:root:nix /nix/var/tmp
 
+# Nix configuration file
+if ! test "$nixConfigFile" ; then
+	if test -f /nix/nix.conf ; then
+		nixConfigFile=/nix/nix.conf
+	else
+		cat > nix.conf <<- EOF
+			experimental-features = nix-command flakes
+			use-xdg-base-directories = true
+
+			build-users-group = nix
+			keep-build-log = false
+			sandbox = relaxed
+		EOF
+		nixConfigFile=nix.conf
+	fi
+fi
+updateFile 644:root:nix /nix/nix.conf "$nixConfigFile"
+if updateDidModify ; then restartService nix-daemon ; fi
+
 # download initial store
 if ! test -f /nix/var/nix/db/db.sqlite ; then
 	url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-linux/latest/download/1

@@ -5,6 +5,10 @@
 		enable = lib.mkEnableOption "Install Nix systemwide." // {
 			default = config.system.systemwideSetup;
 		};
+		config = lib.mkOption {
+			type = lib.types.lines;
+			description = "The Nix configuration options for `/nix/nix.conf`.";
+		};
 	};
 
 	config = lib.mkIf config.nix.enable {
@@ -52,6 +56,7 @@
 		# because the script is run standalone by rebuild when Nix is not yet installed
 		system.activationScripts.nix = lib.stringAfter [ "users" "groups" "staging" ] ''
 			rootStagingDir=${config.users.root.stagingDirectory}
+			nixConfigFile=${pkgs.writeText "nix.conf" config.nix.config}
 			${lib.readFile ./install.sh}
 		'';
 

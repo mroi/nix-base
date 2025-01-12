@@ -9,6 +9,18 @@
 			type = lib.types.lines;
 			description = "The Nix configuration options for `/nix/nix.conf`.";
 		};
+		ssh = {
+			config = lib.mkOption {
+				type = lib.types.lines;
+				description = "Configuration options for SSH operations performed by the Nix daemon";
+			};
+			knownHosts = lib.mkOption {
+				type = lib.types.lines;
+				default = "";
+				description = "Known host keys for SSH operations performed by the Nix daemon";
+			};
+			keygen = lib.mkEnableOption "Create an SSH identity.";
+		};
 	};
 
 	config = lib.mkIf config.nix.enable {
@@ -52,13 +64,30 @@
 			waitForPath = "/nix/store";
 		};
 
+		nix.ssh.config = lib.concatLines ([
+			"UserKnownHostsFile /nix/var/ssh/known_hosts"
+		] ++ lib.optionals config.nix.ssh.keygen [
+			"IdentityFile /nix/var/ssh/id_ed25519"
+		]);
+
 		# setup of user, group, nix.conf, systemd/launchd service duplicated in install script,
 		# because the script is run standalone by rebuild when Nix is not yet installed
-		system.activationScripts.nix = lib.stringAfter [ "users" "groups" "staging" ] ''
+		system.activationScripts.nix-install = lib.stringAfter [ "users" "groups" "staging" ] (''
 			rootStagingDir=${config.users.root.stagingDirectory}
 			nixConfigFile=${pkgs.writeText "nix.conf" config.nix.config}
+			sshConfigFile=${pkgs.writeText "ssh-config" config.nix.ssh.config}
+			sshKnownHostsFile=${pkgs.writeText "ssh-known_hosts" config.nix.ssh.knownHosts}
 			${lib.readFile ./install.sh}
-		'';
+		'' + lib.optionalString config.nix.ssh.keygen ''
+			if ! test -f /nix/var/ssh/id_ed25519 ; then
+				trace sudo ssh-keygen -q -t ed25519 -N ''' -C ''' -f /nix/var/ssh/id_ed25519
+				updateFile 600:root:nix /nix/var/ssh/id_ed25519
+			fi
+		'');
+
+		# Nix setup internally consists of two activation script fragments, but other fragments
+		# should only need to depend on plain "nix", so we add a final dummy fragment
+		system.activationScripts.nix = lib.stringAfter [ "nix-install" "nix-builders" ] "";
 
 		system.activationScripts.root.deps = [ "nix" ];
 		system.activationScripts.services.deps = [ "nix" ];

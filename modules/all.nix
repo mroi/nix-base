@@ -4,6 +4,7 @@
 	"setup" = ./system/setup.nix;
 
 	# Nix setup
+	"builders" = ./nix/builders.nix;
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
 	"settings" = ./nix/settings.nix;

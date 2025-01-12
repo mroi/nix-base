@@ -117,6 +117,13 @@ fi
 updateFile 644:root:nix /nix/nix.conf "$nixConfigFile"
 if updateDidModify ; then restartService nix-daemon ; fi
 
+# Nix daemon SSH configuration
+if test "$sshConfigFile" -a "$sshKnownHostsFile" ; then
+	makeDir 755:root:nix /nix/var/ssh
+	updateFile 644:root:nix /nix/var/ssh/config "$sshConfigFile"
+	updateFile 644:root:nix /nix/var/ssh/known_hosts "$sshKnownHostsFile"
+fi
+
 # download initial store
 if ! test -f /nix/var/nix/db/db.sqlite ; then
 	url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-linux/latest/download/1

@@ -47,4 +47,5 @@ script=$(
 )
 
 # run activation script
+export self
 exec "$script" "$@"

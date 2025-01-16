@@ -22,6 +22,12 @@
 		forAll = list: f: lib.genAttrs list f;
 		callPackage = system: lib.callPackageWith nixpkgs.legacyPackages.${system};
 
+		machines = lib.pipe ./machines [
+			builtins.readDir
+			(lib.filterAttrs (file: type: type == "directory"))
+			builtins.attrNames
+		];
+
 	in {
 		packages = forAll (builtins.attrNames systemPackages) (system:
 			forAll systemPackages.${system} (package:
@@ -41,7 +47,7 @@
 			run-linux = { type = "app"; program = "${self.packages.${system}.run-linux}"; };
 		});
 		baseModules = import ./modules/all.nix;
-		baseConfigurations = forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
+		baseConfigurations = forAll machines (machine:
 			lib.evalModules {
 				modules = [ ./machines/${machine}/configuration.nix ]
 					++ (builtins.attrValues self.baseModules)
@@ -52,7 +58,7 @@
 		checks = forAll (builtins.attrNames systemPackages) (system:
 			(forAll systemPackages.${system} (package:
 				self.packages.${system}.${package}
-			)) // (forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
+			)) // (forAll machines (machine:
 				nixpkgs.legacyPackages.${system}.stdenvNoCC.mkDerivation {
 					name = machine;
 					phases = [ "installPhase" ];

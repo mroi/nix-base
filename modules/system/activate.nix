@@ -1,6 +1,7 @@
 { config, lib, pkgs, options, ... }: {
 
 	options = {
+
 		system.build = lib.mkOption {
 			internal = true;
 			type = lib.types.attrsOf lib.types.unspecified;
@@ -24,6 +25,7 @@
 			default = {};
 			description = "A set of idempotent shell script fragments to build the system configuration.";
 		};
+
 		assertions = lib.mkOption {
 			internal = true;
 			type = lib.types.listOf lib.types.unspecified;

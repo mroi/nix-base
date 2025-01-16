@@ -30,8 +30,9 @@ fi
 
 # make sure Nix is installed
 if ! command -v nix > /dev/null ; then
-	# TODO: run Nix install script
-	exit
+	. "$self/modules/system/state.sh"
+	. "$self/modules/nix/install.sh"
+	while ! test -S /nix/var/nix/daemon-socket/socket ; do sleep 1 ; done
 fi
 
 # self-update flake

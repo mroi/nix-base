@@ -11,6 +11,19 @@ checkArgs() {
 	return 1
 }
 
+# line-wise iteration of variable content
+
+_ifsPrevious=$IFS
+_ifsLines=$(printf '\n\t')
+
+forLines() {
+	IFS=$_ifsLines
+	for _line in $1 ; do
+		"$2" "$_line"
+	done
+	IFS=$_ifsPrevious
+}
+
 # colored output
 
 if tput colors > /dev/null 2>&1 && test "$(tput colors)" -ge 16 ; then

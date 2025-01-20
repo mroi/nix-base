@@ -1,4 +1,7 @@
 { lib, ...}: {
+
+	imports = [ ../common.nix ];
+
 	nixpkgs.system = "x86_64-linux";
 
 	# use BIOS as additional binary Nix cache

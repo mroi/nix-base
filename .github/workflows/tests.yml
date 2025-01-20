@@ -14,12 +14,14 @@ jobs:
   tests:
     strategy:
       matrix:
-        machine: [carpo, jupiter]
+        machine: [carpo, jupiter, kalyke]
         include:
         - machine: carpo
           os: macos-latest
         - machine: jupiter
           os: macos-14
+        - machine: kalyke
+          os: ubuntu-latest
     name: Rebuild ${{ matrix.machine }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:

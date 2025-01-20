@@ -24,6 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       HOSTNAME: ${{ matrix.machine }}
+      NIX_CONFIG: access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Checkout repository

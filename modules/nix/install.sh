@@ -128,7 +128,7 @@ fi
 if ! test -f /nix/var/nix/db/db.sqlite ; then
 	url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-linux/latest/download/1
 	if $isLinux ; then
-		trace wget --no-hsts --output-document=nix.tar $url
+		trace wget --progress=bar:force:noscroll --no-hsts --output-document=nix.tar $url
 		trace sudo tar -x --file=nix.tar --directory=/nix/store --group=nix --strip-components=2 --wildcards nix-\*/store
 		# shellcheck disable=SC2211
 		tar -x --file=nix.tar --to-stdout --wildcards nix-\*/.reginfo | trace sudo /nix/store/*-nix-*/bin/nix-store --load-db

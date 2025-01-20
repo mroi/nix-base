@@ -42,7 +42,7 @@ fi
 
 # generate activation script for this machine
 script=$(
-	nix build --no-link --print-out-paths --no-warn-dirty \
+	nix build --quiet --no-link --print-out-paths --no-warn-dirty \
 		"${self}#baseConfigurations.${machine}.config.system.build.toplevel"
 )
 

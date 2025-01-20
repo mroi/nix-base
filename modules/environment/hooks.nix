@@ -69,7 +69,7 @@
 		];
 
 		system.activationScripts.hooks = lib.stringAfter [ "staging" ] ''
-			storeHeading
+			storeHeading 'Updating login and logout hook scripts'
 
 			${preservePasswords loginHook "login-hook.sh"}
 			${preservePasswords logoutHook "logout-hook.sh"}

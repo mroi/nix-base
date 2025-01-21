@@ -115,7 +115,7 @@ if ! test "$nixConfigFile" ; then
 	fi
 fi
 updateFile 644:root:nix /nix/nix.conf "$nixConfigFile"
-if updateDidModify ; then restartService nix-daemon ; fi
+if updateDidCreate || updateDidModify ; then restartService nix-daemon ; fi
 
 # Nix daemon SSH configuration
 if test "$sshConfigFile" -a "$sshKnownHostsFile" ; then
@@ -178,6 +178,7 @@ createService << EOF
 	"
 	group=nix ; socket=$socket ; waitForPath=/nix/store
 EOF
+while ! test -S /nix/var/nix/daemon-socket/socket ; do sleep 1 ; done
 
 # ensure Nix command is runnable
 if ! command -v nix > /dev/null ; then

@@ -38,6 +38,11 @@ jobs:
         ! ./rebuild | grep .
         test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
 
-# TODO: enable this step when rebuild installs Nix to the profile
-#    - name: Check flake
-#      run: .local/state/nix/profile/bin/nix flake check --all-systems
+    - name: Check flake
+      run: |
+        # reset to default Nix configuration without remote builders
+        sudo rm /nix/nix.conf
+        . modules/system/utils.sh
+        . modules/system/state.sh
+        . modules/nix/install.sh
+        ~/.local/state/nix/profile/bin/nix flake check

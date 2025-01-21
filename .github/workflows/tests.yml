@@ -38,6 +38,9 @@ jobs:
         ! ./rebuild | grep .
         test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
 
-# TODO: enable this step when rebuild installs Nix to the profile
-#    - name: Check flake
-#      run: .local/state/nix/profile/bin/nix flake check --all-systems
+    - name: Pre-heat store for Linux builder
+      if: ${{ runner.os == 'macOS' }}
+      run: ~/.local/state/nix/profile/bin/nix build --no-link nixpkgs/$(jq --raw-output .nodes.nixpkgs.locked.rev flake.lock)#darwin.linux-builder
+
+    - name: Check flake
+      run: ~/.local/state/nix/profile/bin/nix flake check

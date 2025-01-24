@@ -22,6 +22,12 @@
 		forAll = list: f: lib.genAttrs list f;
 		callPackage = system: lib.callPackageWith nixpkgs.legacyPackages.${system};
 
+		machines = lib.pipe ./machines [
+			builtins.readDir
+			(lib.filterAttrs (file: type: type == "directory"))
+			builtins.attrNames
+		];
+
 	in {
 		packages = forAll (builtins.attrNames systemPackages) (system:
 			forAll systemPackages.${system} (package:
@@ -41,7 +47,7 @@
 			run-linux = { type = "app"; program = "${self.packages.${system}.run-linux}"; };
 		});
 		baseModules = import ./modules/all.nix;
-		baseConfigurations = forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
+		baseConfigurations = forAll machines (machine:
 			lib.evalModules {
 				modules = [ ./machines/${machine}/configuration.nix ]
 					++ (builtins.attrValues self.baseModules)
@@ -52,17 +58,14 @@
 		checks = forAll (builtins.attrNames systemPackages) (system:
 			(forAll systemPackages.${system} (package:
 				self.packages.${system}.${package}
-			)) // (forAll (builtins.attrNames (builtins.readDir ./machines)) (machine:
-				nixpkgs.legacyPackages.${system}.stdenvNoCC.mkDerivation {
-					name = machine;
-					phases = [ "installPhase" ];
-					installPhase = ''
-						mkdir $out
-						ln -s ${self.baseConfigurations.${machine}.config.system.build.toplevel} $out/activate
-						ln -s ${self.baseConfigurations.${machine}.config.system.build.manual} $out/manual
-					'';
-				}
-			))
+			)) // (lib.pipe (forAll machines lib.id) [
+				(lib.mapAttrs (name: value: self.baseConfigurations.${name}.config))
+				(lib.filterAttrs (name: value: value.nixpkgs.system == system))
+				(lib.concatMapAttrs (name: value: {
+					${name + "-activate"} = value.system.build.toplevel;
+					${name + "-manual"} = value.system.build.manual;
+				}))
+			])
 		);
 		templates = {
 			default = self.templates.shell;

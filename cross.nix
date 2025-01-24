@@ -2,10 +2,10 @@
 # obtain the actual cross compiler from the buildPackages attribute set
 { system ? builtins.currentSystem, nixpkgs ? <nixpkgs> }:
 
-let cross = self: super: {
+let cross = final: prev: {
 
 	# https://github.com/NixOS/nixpkgs/pull/103517
-	glibcCross = super.glibcCross.overrideAttrs (attrs: {
+	glibcCross = prev.glibcCross.overrideAttrs (attrs: {
 		preConfigure = attrs.preConfigure + "unset NIX_COREFOUNDATION_RPATH";
 	});
 };

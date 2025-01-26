@@ -34,13 +34,17 @@ stdenvNoCC.mkDerivation {
 				exec ${nix}/bin/nix $nix_settings --experimental-features nix-command "$@"
 			fi
 
+			# environment variables
+			export NIX_CONF_DIR=/nix
 	'' + lib.optionalString stdenvNoCC.isDarwin ''
+			export NIX_SSL_CERT_FILE=/etc/ssl/cert.pem
 			# store cache files in temporary directory, configure shell
 			export XDG_CACHE_HOME=''${XDG_CACHE_HOME:-''${TMPDIR%/T/}/C}
 			export TMPDIR=/nix/var/tmp
 			export SHELL_SESSION_DID_INIT=1
 			export HISTFILE=/dev/null
 	'' + lib.optionalString stdenvNoCC.isLinux ''
+			export NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 			# configure shell
 			export HISTFILE=/dev/null
 	'' + ''

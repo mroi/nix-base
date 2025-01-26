@@ -1,22 +1,28 @@
 # tex wrapper package with useful environment variables and a fonts.conf file
 # pass a package set for a custom tex distribution, otherwise defaults apply
-{ extend, texPkgs ? {} }:
+{ lib, extend, texPkgs ? {} }:
 
-with extend (self: super: {
+with extend (final: prev: {
 	# modify derivation construction so XeTeX builds with CoreText rendering
-	stdenv = super.stdenv // {
+	stdenv = prev.stdenv // {
 		mkDerivation = arg: if builtins.isAttrs arg then
-			super.stdenv.mkDerivation (arg // (
+			prev.stdenv.mkDerivation (arg // (
 				if builtins.elem "xetex" (arg.outputs or []) then {
-					buildInputs = arg.buildInputs ++ self.lib.optionals super.stdenv.isDarwin [
-						self.darwin.apple_sdk.frameworks.ApplicationServices
-						self.darwin.apple_sdk.frameworks.Cocoa
-						self.darwin.libobjc
+					buildInputs = arg.buildInputs ++ final.lib.optionals prev.stdenv.isDarwin [
+						final.darwin.apple_sdk.frameworks.ApplicationServices
+						final.darwin.apple_sdk.frameworks.Cocoa
+						final.darwin.libobjc
 					];
 				} else {}
 			))
-		else super.stdenv.mkDerivation arg;
+		else prev.stdenv.mkDerivation arg;
 	};
+	# sandboxing fails on Darwin due to overly large sandbox pattern
+	runCommand = name: env:
+		if final.stdenv.buildPlatform.isDarwin && (final.lib.hasPrefix "texlive-combined" name || final.lib.hasPrefix "fonts.conf" name) then
+			prev.runCommand name (env // { __noChroot = true; })
+		else
+			prev.runCommand name env;
 });
 
 let tex = texlive.combine (
@@ -29,17 +35,22 @@ let tex = texlive.combine (
 	}
 );
 
-in stdenv.mkDerivation rec {
+in stdenv.mkDerivation ({
+
 	# wrap the TeXLive binaries to add custom environment variables
 	name = "texlive-" + (builtins.parseDrvName tex.name).version;
 	src = null;
 	propagatedUserEnvPkgs = [ tex ];
+	phases = "installPhase fixupPhase installCheckPhase";
+
+} // lib.optionalAttrs stdenv.isDarwin rec {
+
+	__noChroot = true;
 	fontsConf = makeFontsConf { fontDirectories = [
 		"/Library/Fonts"
 		"/System/Library/Fonts"
 		"~/.local/state/nix/profile/share/texmf/fonts"
 	]; };
-	phases = "installPhase fixupPhase installCheckPhase";
 	installPhase = ''
 		mkdir -p $out/etc
 		cp ${fontsConf} $out/etc/fonts.conf
@@ -79,4 +90,4 @@ in stdenv.mkDerivation rec {
 		EOF
 		$out/bin/xelatex test.tex
 	'';
-}
+})

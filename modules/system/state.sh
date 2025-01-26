@@ -320,11 +320,8 @@ createService() {
 		fi
 		if test "$environment" ; then
 			_environmentEntry=Environment=
-			IFS=$(printf '\n\t')
-			for _line in $environment ; do
-				_environmentEntry="$_environmentEntry\"${_line}\" "
-			done
-			IFS=$(printf ' \n\t')
+			_() { _environmentEntry="$_environmentEntry\"$1\" " ; }
+			forLines "$environment" _
 			_environmentEntry="${_environmentEntry% }
 "
 		else
@@ -387,11 +384,8 @@ createService() {
 		fi
 		if test "$environment" ; then
 			_environmentEntry="\"EnvironmentVariables\": {"
-			IFS=$(printf '\n\t')
-			for _line in $environment ; do
-				_environmentEntry="$_environmentEntry\"${_line%%=*}\":\"${_line#*=}\","
-			done
-			IFS=$(printf ' \n\t')
+			_() { _environmentEntry="$_environmentEntry\"${1%%=*}\":\"${1#*=}\"," ; }
+			forLines "$environment" _
 			_environmentEntry="$_environmentEntry},"
 		else
 			_environmentEntry=

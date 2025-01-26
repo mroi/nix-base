@@ -1,4 +1,7 @@
 { lib, ...}: {
+
+	imports = [ ../common.nix ];
+
 	nixpkgs.system = "x86_64-linux";
 
 	# use BIOS as additional binary Nix cache
@@ -22,4 +25,17 @@
 			keygen = true;
 		};
 	};
+
+	environment.profile = [
+		# Unison file sync
+		"nix-base#unison"
+		"github:mroi/aws-ssh-proxy/unison-sync#unison-sync"
+
+		# remote mouse and keyboard server
+		"nixpkgs#synergy"
+
+		# development tools
+		"nixpkgs#git"
+		"nixpkgs#swift"
+	];
 }

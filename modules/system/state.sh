@@ -194,7 +194,9 @@ createUser() {
 		fi
 		if ! getent passwd "$name" | grep -q "^$name:x:$uid:$gid:$description,,,:$home:$shell$" ; then
 			deleteUser "$name"
-			createUser < /dev/null
+			createUser <<- EOF
+				name="$name" ; uid="$uid" ; gid="$gid" ; group="$group" ; isHidden="$isHidden" ; home="$home" ; shell="$shell" ; description="$description"
+			EOF
 		fi
 	fi
 	if $isDarwin ; then
@@ -258,7 +260,9 @@ createGroup() {
 		fi
 		if ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
 			deleteGroup "$name"
-			createGroup < /dev/null
+			createGroup <<- EOF
+				name="$name" ; gid="$gid" ; members="$members" ; description="$description"
+			EOF
 		fi
 		echo "$members" | tr ' ' '\n' | while read -r _member && test "$_member" ; do
 			if ! getent group "$name" | grep -Fwq "$_member" ; then

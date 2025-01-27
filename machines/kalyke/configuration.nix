@@ -7,7 +7,7 @@
 	# use BIOS as additional binary Nix cache
 	nix = {
 		settings = {
-			trusted-substituters = [ "ssh://bios.local"	];
+			trusted-substituters = [ "ssh://bios.local" ];
 			trusted-public-keys = [
 				"cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 				"bios-1:+redacted+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="

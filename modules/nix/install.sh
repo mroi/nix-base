@@ -128,7 +128,7 @@ fi
 if ! test -f /nix/var/nix/db/db.sqlite ; then
 	if $isLinux ; then
 		url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-linux/latest/download/1
-		trace wget --progress=bar:force:noscroll --no-hsts --output-document=nix.tar $url
+		trace wget --progress=bar:force:noscroll --no-hsts --output-document=nix.tar "$url"
 		trace sudo tar -x --file=nix.tar --directory=/nix/store --group=nix --strip-components=2 --wildcards nix-\*/store
 		# shellcheck disable=SC2211
 		tar -x --file=nix.tar --to-stdout --wildcards nix-\*/.reginfo | trace sudo --set-home /nix/store/*-nix-*/bin/nix-store --option build-users-group nix --load-db
@@ -137,7 +137,7 @@ if ! test -f /nix/var/nix/db/db.sqlite ; then
 #		FIXME: current master build creates broken manifest.json files in profiles on Darwin
 #		url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-darwin/latest/download/1
 		url=https://hydra.nixos.org/build/274231650/download/1/nix-2.25.0pre20241001_96ba7f9-x86_64-darwin.tar.xz
-		trace curl --location --output nix.tar $url
+		trace curl --location --output nix.tar "$url"
 		trace sudo tar -x --file nix.tar --directory /nix/store --gname nix --strip-components 2 nix-\*/store
 		# shellcheck disable=SC2211
 		tar -x --file nix.tar --to-stdout nix-\*/.reginfo | trace sudo --set-home /nix/store/*-nix-*/bin/nix-store --option build-users-group nix --load-db

@@ -140,6 +140,7 @@ updateFile() {
 		trace $_sudo cp -a "$_source" "$_target"
 	fi
 	if ! test -f "$_target" && ! test "$_source" ; then
+		# shellcheck disable=SC2086
 		trace $_sudo touch "$_target"
 		_update=created
 	fi
@@ -156,13 +157,14 @@ updateDidModify() {
 
 deleteFile() {
 	_deleted=false
-    for _file ; do
+	for _file ; do
 		if test -e "$_file" ; then
 			if test -w "${_file%/*}" ; then
 				_sudo=
 			else
 				_sudo=sudo
 			fi
+			# shellcheck disable=SC2086
 			trace $_sudo rm "$_file"
 			_deleted=true
 		fi

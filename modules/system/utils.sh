@@ -62,6 +62,10 @@ printWarning() {
 	flushHeading
 	echo "$_warningColor$*$_resetStderr" >&2
 }
+printInfo() {
+	flushHeading
+	echo "$*" >&2
+}
 trace() {
 	flushHeading
 	if test "$1" = sudo ; then

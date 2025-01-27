@@ -2,6 +2,7 @@
 	# toplevel activation script and base system setup
 	"activate" = ./system/activate.nix;
 	"setup" = ./system/setup.nix;
+	"sip" = ./system/sip.nix;
 
 	# Nix setup
 	"builders" = ./nix/builders.nix;

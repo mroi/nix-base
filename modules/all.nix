@@ -17,6 +17,9 @@
 	"root" = ./users/root.nix;
 	"users" = ./users/users.nix;
 
+	# network setup
+	"firewall" = ./networking/firewall.nix;
+
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;
 	"profile" = ./environment/profile.nix;

@@ -8,6 +8,7 @@
 	"builders" = ./nix/builders.nix;
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
+	"noinstall" = ./nix/noinstall.nix;
 	"settings" = ./nix/settings.nix;
 
 	# root account, groups, and users

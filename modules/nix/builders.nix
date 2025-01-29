@@ -7,7 +7,7 @@
 		};
 	};
 
-	config = lib.mkMerge [
+	config = lib.mkIf config.nix.enable (lib.mkMerge [
 
 		{ system.activationScripts.nix-builders = lib.stringAfter [ "nix-install" ] ""; }
 
@@ -33,5 +33,5 @@
 				fi
 			'';
 		})
-	];
+	]);
 }

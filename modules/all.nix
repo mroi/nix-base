@@ -12,6 +12,7 @@
 	"settings" = ./nix/settings.nix;
 
 	# root account, groups, and users
+	"directory" = ./users/directory.nix;
 	"groups" = ./users/groups.nix;
 	"root" = ./users/root.nix;
 	"users" = ./users/users.nix;

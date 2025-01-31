@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: {
 
 	options.environment.profile = lib.mkOption {
-		type = lib.types.listOf (lib.types.strMatching ".*#.*");
+		type = lib.types.nullOr (lib.types.listOf (lib.types.strMatching ".*#.*"));
 		default = [];
 		example = [ "nixpkgs#hello" ];
 		description = "The Nix packages to be installed in the Nix profile, given as flake references with short (no `packages` or `legacyPackages` prefix) package names.";
@@ -24,7 +24,7 @@
 			Darwin = lib.getExe pkgs.jq;  # TODO: plain "jq" when we drop support for macOS <15
 		};
 
-	in {
+	in lib.mkIf (config.environment.profile != null) {
 		system.activationScripts.profile = lib.stringAfter [ "nix" ] ''
 			storeHeading 'Updating the Nix profile'
 

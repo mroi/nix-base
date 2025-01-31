@@ -22,7 +22,7 @@
 	};
 
 	config.system.activationScripts.staging = ''
-		storeHeading
+		storeHeading -
 
 		# set up staging directory
 		if ! test -d "${config.users.root.stagingDirectory}" ; then

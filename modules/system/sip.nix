@@ -20,7 +20,7 @@
 		}];
 
 		system.activationScripts.sip = ''
-			storeHeading
+			storeHeading -
 
 		'' + lib.optionalString config.system.checkSIP ''
 			if ! csrutil status | head -n1 | grep -Fqw enabled ; then

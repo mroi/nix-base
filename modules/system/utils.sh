@@ -50,7 +50,9 @@ flushHeading() {
 	# actually print heading
 	if test "$_heading" ; then
 		echo
-		echo "$_headingColor$_heading$_resetStdout"
+		if test "$_heading" != - ; then
+			echo "$_headingColor$_heading$_resetStdout"
+		fi
 		unset _heading
 	fi
 }

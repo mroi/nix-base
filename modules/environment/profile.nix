@@ -38,28 +38,28 @@
 			currentProfile="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("[^.]*\\.[^.]*\\."; ""))"')"
 
 			# remove packages not in target profile
-			current() {
+			forCurrent() {
 				currentPackage=''${1#*=}
 				found=false
-				target() { if test "$currentPackage" = "$1" ; then found=true ; fi }
-				forLines "$targetProfile" target
+				forTarget() { if test "$currentPackage" = "$1" ; then found=true ; fi }
+				forLines "$targetProfile" forTarget
 				if ! $found ; then
 					toRemove="$toRemove ''${1%=*}"
 				fi
 			}
-			forLines "$currentProfile" current
+			forLines "$currentProfile" forCurrent
 
 			# install packages not in current profile
-			target() {
+			forTarget() {
 				targetPackage=$1
 				found=false
-				current() { if test "$targetPackage" = "''${1#*=}" ; then found=true ; fi }
-				forLines "$currentProfile" current
+				forCurrent() { if test "$targetPackage" = "''${1#*=}" ; then found=true ; fi }
+				forLines "$currentProfile" forCurrent
 				if ! $found ; then
 					toInstall="$toInstall $1"
 				fi
 			}
-			forLines "$targetProfile" target
+			forLines "$targetProfile" forTarget
 
 			# execute all changes
 			if test "$toRemove" ; then

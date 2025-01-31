@@ -1,5 +1,5 @@
 {
-	# toplevel activation script and base system setup
+	# base system setup and toplevel scripts
 	"activate" = ./system/activate.nix;
 	"setup" = ./system/setup.nix;
 	"sip" = ./system/sip.nix;

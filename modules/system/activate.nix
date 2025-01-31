@@ -40,7 +40,7 @@
 		};
 	};
 
-	config.system.build.toplevel = pkgs.writeTextFile {
+	config.system.build.activate = pkgs.writeTextFile {
 		name = "base-activate";
 		executable = true;
 		text = let

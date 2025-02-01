@@ -9,10 +9,6 @@
 		"nixpkgs#shellcheck"
 		"nixpkgs#smartmontools"
 
-		# video
-		"github:mroi/video-tools#video-tools"
-		"github:mroi/video-tools#ffmpeg"
-
 		# tools for research work
 		"nix-base#texlive"
 	];

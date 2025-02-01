@@ -326,7 +326,13 @@ createService() {
 		fi
 		if test "$environment" ; then
 			_environmentEntry=Environment=
-			_() { _environmentEntry="$_environmentEntry\"$1\" " ; }
+			_() {
+				if test "$1" = "${1#* }" ; then
+					_environmentEntry="$_environmentEntry$1 "
+				else
+					_environmentEntry="$_environmentEntry\"$1\" "
+				fi
+			}
 			forLines "$environment" _
 			_environmentEntry="${_environmentEntry% }
 "

@@ -22,6 +22,7 @@
 
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;
+	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
 	"services" = ./environment/services.nix;
 }

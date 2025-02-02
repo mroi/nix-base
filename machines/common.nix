@@ -11,6 +11,8 @@
 			"/System/Library/CoreServices/UniversalControl.app/Contents/MacOS/UniversalControl"
 			"/System/Library/PrivateFrameworks/ChronoCore.framework/Support/chronod"
 			"/System/Library/PrivateFrameworks/IDS.framework/identityservicesd.app/Contents/MacOS/identityservicesd"
+			"/usr/libexec/AirPlayXPCHelper"
+			"/usr/libexec/audioclocksyncd"
 			"/usr/libexec/rapportd"
 			"/usr/libexec/sharingd"
 		];

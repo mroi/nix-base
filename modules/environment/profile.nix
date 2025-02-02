@@ -28,38 +28,35 @@
 		system.activationScripts.profile = lib.stringAfter [ "nix" ] ''
 			storeHeading 'Updating the Nix profile'
 
-			targetProfile="${lib.concatLines normalizedProfile}"
+			target="${lib.concatLines normalizedProfile}"
 			if ! nix registry list | grep -Fq ' flake:nix-base ' ; then
 				# use the origin of the rebuild script when nix-base is not a registered flake
 				# shellcheck disable=SC2154
-				targetProfile=$(echo "$targetProfile" | sed "s|^flake:nix-base#|path:''${self}#|")
+				target=$(echo "$target" | sed "s|^flake:nix-base#|path:''${self}#|")
 			fi
 
-			currentProfile="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("[^.]*\\.[^.]*\\."; ""))"')"
+			current="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("[^.]*\\.[^.]*\\."; ""))"')"
 
 			# remove packages not in target profile
 			forCurrent() {
-				currentPackage=''${1#*=}
-				found=false
-				forTarget() { if test "$currentPackage" = "$1" ; then found=true ; fi }
-				forLines "$targetProfile" forTarget
-				if ! $found ; then
+				package=''${1#*=}
+				if ! hasLine "$target" "$package" ; then
 					toRemove="$toRemove ''${1%=*}"
 				fi
 			}
-			forLines "$currentProfile" forCurrent
+			forLines "$current" forCurrent
 
 			# install packages not in current profile
 			forTarget() {
-				targetPackage=$1
+				package=$1
 				found=false
-				forCurrent() { if test "$targetPackage" = "''${1#*=}" ; then found=true ; fi }
-				forLines "$currentProfile" forCurrent
+				forCurrent() { if test "$package" = "''${1#*=}" ; then found=true ; fi ; }
+				forLines "$current" forCurrent
 				if ! $found ; then
 					toInstall="$toInstall $1"
 				fi
 			}
-			forLines "$targetProfile" forTarget
+			forLines "$target" forTarget
 
 			# execute all changes
 			if test "$toRemove" ; then

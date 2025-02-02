@@ -79,12 +79,8 @@
 				status="''${1%% *}"
 				path="''${1#* }"
 
-				shouldAllow=false
-				forAllow() { if test "$path" = "$1" ; then shouldAllow=true ; fi }
-				forLines "$allow" forAllow
-				shouldBlock=false
-				forBlock() { if test "$path" = "$1" ; then shouldBlock=true ; fi }
-				forLines "$block" forBlock
+				if hasLine "$allow" "$path" ; then shouldAllow=true ; else shouldAllow=false ; fi
+				if hasLine "$block" "$path" ; then shouldBlock=true ; else shouldBlock=false ; fi
 
 				if ! $shouldAllow && ! $shouldBlock ; then
 					trace sudo ${socketfilterfw} --remove "$path"
@@ -107,15 +103,11 @@
 
 			# scan for missing allow entries
 			forAllow() {
-				path="$1"
-				needsAllow=true
-				forCurrent() { if test "Allow $path" = "$1" ; then needsAllow=false ; fi }
-				forLines "$current" forCurrent
-				if $needsAllow ; then
-					${checkExe "$path"}
-					if test -x "$path" ; then
-						trace sudo ${socketfilterfw} --add "$path"
-						trace sudo ${socketfilterfw} --unblockapp "$path"
+				if ! hasLine "$current" "Allow $1" ; then
+					${checkExe "$1"}
+					if test -x "$1" ; then
+						trace sudo ${socketfilterfw} --add "$1"
+						trace sudo ${socketfilterfw} --unblockapp "$1"
 					fi
 				fi
 			}
@@ -123,15 +115,11 @@
 
 			# scan for missing block entries
 			forBlock() {
-				path="$1"
-				needsBlock=true
-				forCurrent() { if test "Block $path" = "$1" ; then needsBlock=false ; fi }
-				forLines "$current" forCurrent
-				if $needsBlock ; then
-					${checkExe "$path"}
-					if test -x "$path" ; then
-						trace sudo ${socketfilterfw} --add "$path"
-						trace sudo ${socketfilterfw} --blockapp "$path"
+				if ! hasLine "$current" "Block $1" ; then
+					${checkExe "$1"}
+					if test -x "$1" ; then
+						trace sudo ${socketfilterfw} --add "$1"
+						trace sudo ${socketfilterfw} --blockapp "$1"
 					fi
 				fi
 			}

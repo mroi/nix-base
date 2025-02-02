@@ -11,7 +11,7 @@ checkArgs() {
 	return 1
 }
 
-# line-wise iteration of variable content
+# tools for of multi-line variable content
 
 _ifsPrevious=$IFS
 _ifsLines=$(printf '\n\t')
@@ -22,6 +22,13 @@ forLines() {
 		"$2" "$_line"
 	done
 	IFS=$_ifsPrevious
+}
+hasLine() {
+	_needle="$2"
+	_found=false
+	_() { if test "$1" = "$_needle" ; then _found=true ; fi ; }
+	forLines "$1" _
+	if $_found ; then return 0 ; else return 1 ; fi
 }
 
 # colored output

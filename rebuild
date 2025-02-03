@@ -18,7 +18,7 @@ machine=$(
 		scutil --get LocalHostName
 	else
 		hostname
-	fi
+	fi | tr '[:upper:]' '[:lower:]'
 )
 machine=${machine%.local}
 

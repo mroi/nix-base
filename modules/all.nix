@@ -25,4 +25,7 @@
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
 	"services" = ./environment/services.nix;
+
+	# service configurations
+	"ssh" = ./services/ssh.nix;
 }

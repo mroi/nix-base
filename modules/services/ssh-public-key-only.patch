@@ -1,0 +1,11 @@
+Harden SSH by disabling all authentication method but public key-based authentication.
+
+--- /dev/null	2022-10-25 10:04:45
++++ /etc/ssh/sshd_config.d/100-public-key-only.conf	2022-10-25 10:03:50
+@@ -0,0 +1,6 @@
++# disable all authentication mechanisms but public keys
++PubkeyAuthentication yes
++PasswordAuthentication no
++KbdInteractiveAuthentication no
++KerberosAuthentication no
++GSSAPIAuthentication no

@@ -1,0 +1,7 @@
+Enable Touch ID for sudo.
+
+--- /dev/null	2023-10-16 15:25:09
++++ /private/etc/pam.d/sudo_local	2023-10-16 15:24:34
+@@ -0,0 +1,2 @@
++# enable Touch ID for sudo
++auth	sufficient	pam_tid.so

@@ -22,6 +22,7 @@
 
 	# security settings
 	"sip" = ./security/sip.nix;
+	"sudo" = ./security/sudo.nix;
 
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;

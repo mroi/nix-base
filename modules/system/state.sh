@@ -375,11 +375,9 @@ createService() {
 		if updateDidCreate ; then
 			trace sudo systemctl daemon-reload
 			if test "$socket" ; then
-				trace sudo systemctl enable "$name.socket"
-				trace sudo systemctl start "$name.socket"
+				trace sudo systemctl enable --now "$name.socket"
 			else
-				trace sudo systemctl enable "$name.service"
-				trace sudo systemctl start "$name.service"
+				trace sudo systemctl enable --now "$name.service"
 			fi
 		elif updateDidModify ; then
 			trace sudo systemctl daemon-reload

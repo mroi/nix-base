@@ -3,7 +3,6 @@
 	"rebuild" = ./system/rebuild.nix;
 	"scripts" = ./system/scripts.nix;
 	"setup" = ./system/setup.nix;
-	"sip" = ./system/sip.nix;
 
 	# Nix setup
 	"builders" = ./nix/builders.nix;
@@ -20,6 +19,9 @@
 
 	# network setup
 	"firewall" = ./networking/firewall.nix;
+
+	# security settings
+	"sip" = ./security/sip.nix;
 
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;

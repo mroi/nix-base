@@ -26,4 +26,7 @@
 	"profile" = ./environment/profile.nix;
 	"rootpaths" = ./environment/rootpaths.nix;
 	"services" = ./environment/services.nix;
+
+	# service configurations
+	"ssh" = ./services/ssh.nix;
 }

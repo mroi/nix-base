@@ -2,7 +2,6 @@
 	# base system setup and toplevel scripts
 	"activate" = ./system/activate.nix;
 	"setup" = ./system/setup.nix;
-	"sip" = ./system/sip.nix;
 
 	# Nix setup
 	"builders" = ./nix/builders.nix;
@@ -20,8 +19,16 @@
 	# network setup
 	"firewall" = ./networking/firewall.nix;
 
+	# security settings
+	"sip" = ./security/sip.nix;
+	"sudo" = ./security/sudo.nix;
+
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;
+	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
 	"services" = ./environment/services.nix;
+
+	# service configurations
+	"ssh" = ./services/ssh.nix;
 }

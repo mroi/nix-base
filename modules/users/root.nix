@@ -28,6 +28,10 @@
 		if ! test -d "${config.users.root.stagingDirectory}" ; then
 			trace mkdir -p "${config.users.root.stagingDirectory}"
 		fi
+		# set permissions
+		if $isLinux ; then makeDir 700 "${config.users.root.stagingDirectory}" ; fi
+		if $isDarwin ; then makeDir 750 "${config.users.root.stagingDirectory}" ; fi
+
 		# migrate from default directory, if current setting is different
 		if test "${config.users.root.stagingDirectory}" != "${options.users.root.stagingDirectory.default}" ; then
 			if test -d "${options.users.root.stagingDirectory.default}" ; then

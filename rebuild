@@ -36,7 +36,7 @@ fi
 
 # self-update flake
 if checkArgs --update-flake --update -u ; then
-	trace nix flake update "$self"
+	trace nix flake update --flake "$self"
 fi
 
 # generate activation script for this machine

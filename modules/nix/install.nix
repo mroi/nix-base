@@ -40,6 +40,8 @@
 			};
 		};
 
+		environment.rootPaths = [ (lib.getExe pkgs.nix) ];
+
 		environment.services.nix-daemon = {
 			label = "org.nixos.nix-daemon";
 			description = "Nix Package Manager Daemon";

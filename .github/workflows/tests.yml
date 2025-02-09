@@ -14,11 +14,11 @@ jobs:
   tests:
     strategy:
       matrix:
-        machine: [jupiter, thyone]
+        machine: [ test-darwin, test-linux ]
         include:
-        - machine: jupiter
+        - machine: test-darwin
           os: macos-latest
-        - machine: thyone
+        - machine: test-linux
           os: ubuntu-latest
     name: Rebuild ${{ matrix.machine }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

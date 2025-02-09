@@ -40,6 +40,14 @@
 			};
 		};
 
+		environment.loginHook.nix = lib.optionalString pkgs.stdenv.isDarwin ''
+			# mount Nix volume
+			if test "$(stat -f %d /)" = "$(stat -f %d /nix)" ; then
+				NIX_VOLUME_PASSWORD= # placeholder, will be filled at runtime
+				echo "$NIX_VOLUME_PASSWORD" | diskutil quiet apfs unlock Nix -stdinpassphrase -mountpoint /nix
+			fi
+		'';
+
 		environment.rootPaths = [ (lib.getExe pkgs.nix) ];
 
 		environment.services.nix-daemon = {
@@ -93,13 +101,5 @@
 
 		system.activationScripts.root.deps = [ "nix" ];
 		system.activationScripts.services.deps = [ "nix" ];
-
-		environment.loginHook.nix = lib.optionalString pkgs.stdenv.isDarwin ''
-			# mount Nix volume
-			if test "$(stat -f %d /)" = "$(stat -f %d /nix)" ; then
-				NIX_VOLUME_PASSWORD= # placeholder, will be filled at runtime
-				echo "$NIX_VOLUME_PASSWORD" | diskutil quiet apfs unlock Nix -stdinpassphrase -mountpoint /nix
-			fi
-		'';
 	};
 }

@@ -21,51 +21,54 @@
 		};
 	};
 
-	config.system.activationScripts.staging = ''
-		storeHeading -
+	config = lib.mkIf config.system.systemwideSetup {
 
-		# set up staging directory
-		if ! test -d "${config.users.root.stagingDirectory}" ; then
-			trace mkdir -p "${config.users.root.stagingDirectory}"
-		fi
-		# set permissions
-		if $isLinux ; then makeDir 700 "${config.users.root.stagingDirectory}" ; fi
-		if $isDarwin ; then makeDir 750 "${config.users.root.stagingDirectory}" ; fi
+		system.activationScripts.staging = ''
+			storeHeading -
 
-		# migrate from default directory, if current setting is different
-		if test "${config.users.root.stagingDirectory}" != "${options.users.root.stagingDirectory.default}" ; then
-			if test -d "${options.users.root.stagingDirectory.default}" ; then
-				printWarning "Default staging directory ${options.users.root.stagingDirectory.default} exists while a different one has been configured: ${config.users.root.stagingDirectory}"
-				trace rsync --verbose --archive --update "${options.users.root.stagingDirectory.default}" "${config.users.root.stagingDirectory}"
+			# set up staging directory
+			if ! test -d "${config.users.root.stagingDirectory}" ; then
+				trace mkdir -p "${config.users.root.stagingDirectory}"
 			fi
-		fi
+			# set permissions
+			if $isLinux ; then makeDir 700 "${config.users.root.stagingDirectory}" ; fi
+			if $isDarwin ; then makeDir 750 "${config.users.root.stagingDirectory}" ; fi
 
-		rootStagingChecksumBefore=$(
-			find "${config.users.root.stagingDirectory}" -print0 | \
-				LC_ALL=C sort --zero-terminated | \
-				tar --create --null --files-from=- --no-recursion 2> /dev/null | \
-				cksum
-		)
-	'';
+			# migrate from default directory, if current setting is different
+			if test "${config.users.root.stagingDirectory}" != "${options.users.root.stagingDirectory.default}" ; then
+				if test -d "${options.users.root.stagingDirectory.default}" ; then
+					printWarning "Default staging directory ${options.users.root.stagingDirectory.default} exists while a different one has been configured: ${config.users.root.stagingDirectory}"
+					trace rsync --verbose --archive --update "${options.users.root.stagingDirectory.default}" "${config.users.root.stagingDirectory}"
+				fi
+			fi
 
-	config.system.activationScripts.root = lib.stringAfter [ "staging" ] ''
-		storeHeading "Updating files in root’s home directory"
+			rootStagingChecksumBefore=$(
+				find "${config.users.root.stagingDirectory}" -print0 | \
+					LC_ALL=C sort --zero-terminated | \
+					tar --create --null --files-from=- --no-recursion 2> /dev/null | \
+					cksum
+			)
+		'';
 
-		rootStagingChecksumAfter=$(
-			find "${config.users.root.stagingDirectory}" -print0 | \
-				LC_ALL=C sort --zero-terminated | \
-				tar --create --null --files-from=- --no-recursion 2> /dev/null | \
-				cksum
-		)
+		system.activationScripts.root = lib.stringAfter [ "staging" ] ''
+			storeHeading "Updating files in root’s home directory"
 
-		if test "$rootStagingChecksumBefore" != "$rootStagingChecksumAfter" ; then
-			trace sudo ${config.users.root.syncCommand}
-		fi
+			rootStagingChecksumAfter=$(
+				find "${config.users.root.stagingDirectory}" -print0 | \
+					LC_ALL=C sort --zero-terminated | \
+					tar --create --null --files-from=- --no-recursion 2> /dev/null | \
+					cksum
+			)
 
-		for file in ${lib.escapeShellArgs config.users.root.deletions} ; do
-			test -e "${config.users.root.stagingDirectory}/$file" || continue
-			sudo rm -rf ~root/"$file"
-			rm -rf "${config.users.root.stagingDirectory}/$file"
-		done
-	'';
+			if test "$rootStagingChecksumBefore" != "$rootStagingChecksumAfter" ; then
+				trace sudo ${config.users.root.syncCommand}
+			fi
+
+			for file in ${lib.escapeShellArgs config.users.root.deletions} ; do
+				test -e "${config.users.root.stagingDirectory}/$file" || continue
+				sudo rm -rf ~root/"$file"
+				rm -rf "${config.users.root.stagingDirectory}/$file"
+			done
+		'';
+	};
 }

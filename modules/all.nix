@@ -20,6 +20,7 @@
 	"firewall" = ./networking/firewall.nix;
 
 	# security settings
+	"password" = ./security/password.nix;
 	"sip" = ./security/sip.nix;
 	"sudo" = ./security/sudo.nix;
 

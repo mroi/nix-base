@@ -13,6 +13,9 @@ checkArgs() {
 
 # tools for of multi-line variable content
 
+newline='
+'
+
 _ifsPrevious=$IFS
 _ifsLines=$(printf '\n\t')
 

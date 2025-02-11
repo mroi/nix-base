@@ -315,24 +315,19 @@ createService() {
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
 		if test "$dependencies" ; then
-			_conditionEntries="Requires=$dependencies
-"
-			_conditionEntries="${_conditionEntries}After=$dependencies
-"
+			_conditionEntries="Requires=$dependencies$newline"
+			_conditionEntries="${_conditionEntries}After=$dependencies$newline"
 		else
 			_conditionEntries=
 		fi
 		if test "$waitForPath" ; then
-			_conditionEntries="${_conditionEntries}RequiresMountsFor=$waitForPath
-"
+			_conditionEntries="${_conditionEntries}RequiresMountsFor=$waitForPath$newline"
 		fi
 		if test "$socket" ; then
-			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}
-"
+			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}$newline"
 		fi
 		if test "$oneshot" ; then
-			_typeEntry="Type=oneshot
-"
+			_typeEntry="Type=oneshot$newline"
 		else
 			_typeEntry=
 		fi
@@ -346,14 +341,12 @@ createService() {
 				fi
 			}
 			forLines "$environment" _
-			_environmentEntry="${_environmentEntry% }
-"
+			_environmentEntry="${_environmentEntry% }$newline"
 		else
 			_environmentEntry=
 		fi
 		if test "$group" ; then
-			_groupEntry="Group=$group
-"
+			_groupEntry="Group=$group$newline"
 		else
 			_groupEntry=
 		fi

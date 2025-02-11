@@ -16,7 +16,7 @@
 					default = [];
 					description = "Other services or service targets this service depends upon.";
 				};
-				oneshot = lib.mkEnableOption "Service runs to completion instead of as a continuous daemon.";
+				oneshot = lib.mkEnableOption "run-to-completion behavior";
 				command = lib.mkOption {
 					type = lib.types.nonEmptyStr;
 					description = "Command to start the service.";

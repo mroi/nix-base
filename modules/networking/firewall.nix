@@ -2,11 +2,11 @@
 
 	options.networking.firewall = {
 
-		enable = lib.mkEnableOption "Enable the macOS application firewall.";
-		blockAll = lib.mkEnableOption "Block listening sockets for all applications.";
-		allowSystem = lib.mkEnableOption "Allow listening sockets for system software.";
-		allowApps = lib.mkEnableOption "Allow listening sockets for downloaded software.";
-		stealth = lib.mkEnableOption "Operate the network stack in stealth mode.";
+		enable = lib.mkEnableOption "macOS application firewall";
+		blockAll = lib.mkEnableOption "blocking of listening sockets for all applications";
+		allowSystem = lib.mkEnableOption "listening sockets for system software";
+		allowApps = lib.mkEnableOption "listening sockets for downloaded software";
+		stealth = lib.mkEnableOption "stealth mode for the network stack";
 
 		allow = lib.mkOption {
 			type = lib.types.listOf lib.types.path;

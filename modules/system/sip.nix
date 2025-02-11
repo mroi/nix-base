@@ -2,8 +2,8 @@
 
 	options.system = {
 
-		checkSIP = lib.mkEnableOption "Warn if System Integrity Protection is not enabled.";
-		checkSSV = lib.mkEnableOption "Warn if the Signed System Volume is not enabled.";
+		checkSIP = lib.mkEnableOption "checking for System Integrity Protection";
+		checkSSV = lib.mkEnableOption "checking for Signed System Volume";
 	};
 
 	config = {

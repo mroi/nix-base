@@ -2,7 +2,7 @@
 
 	options.nix = {
 
-		enable = lib.mkEnableOption "Install Nix systemwide." // {
+		enable = lib.mkEnableOption "Nix systemwide" // {
 			default = config.system.systemwideSetup;
 		};
 		config = lib.mkOption {
@@ -19,7 +19,7 @@
 				default = "";
 				description = "Known host keys for SSH operations performed by the Nix daemon";
 			};
-			keygen = lib.mkEnableOption "Create an SSH identity.";
+			keygen = lib.mkEnableOption "Nix daemon SSH identity creation";
 		};
 	};
 

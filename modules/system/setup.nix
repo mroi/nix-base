@@ -2,7 +2,7 @@
 
 	options.system = {
 
-		systemwideSetup = lib.mkEnableOption "Enable default options performing systemwide setup.";
+		systemwideSetup = lib.mkEnableOption "option defaults performing systemwide setup";
 	};
 
 	config.system.systemwideSetup = lib.mkDefault true;

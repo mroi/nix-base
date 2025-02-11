@@ -11,6 +11,12 @@
 					type = lib.types.singleLineStr;
 					description = "Description line for the service.";
 				};
+				dependencies = lib.mkOption {
+					type = lib.types.listOf lib.types.singleLineStr;
+					default = [];
+					description = "Other services or service targets this service depends upon.";
+				};
+				oneshot = lib.mkEnableOption "Service runs to completion instead of as a continuous daemon.";
 				command = lib.mkOption {
 					type = lib.types.nonEmptyStr;
 					description = "Command to start the service.";
@@ -18,7 +24,7 @@
 				environment = lib.mkOption {
 					type = lib.types.listOf (lib.types.strMatching "[[:alnum:]_]{1,}=.*");
 					default = [];
-					description = "";
+					description = "Environment variables in the form `<variable>=<value>`.";
 				};
 				group = lib.mkOption {
 					type = lib.types.nullOr (lib.types.passwdEntry lib.types.str);
@@ -50,6 +56,7 @@
 			createService <<- EOF
 				name=${service.name}
 				${lib.toShellVars (service.value // {
+					dependencies = lib.concatStringsSep " " service.value.dependencies;
 					environment = lib.concatLines service.value.environment;
 				})}
 			EOF
@@ -72,6 +79,7 @@
 		warnings = lib.pipe config.environment.services [
 			lib.attrValues
 			(lib.catAttrs "group")
+			(lib.filter (group: group != null))
 			(lib.subtractLists (lib.attrNames config.users.groups))
 			(lib.subtractLists [ "" ])
 			(map (group: "Group ${group} referenced by a service is not known to exist."))

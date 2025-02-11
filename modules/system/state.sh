@@ -310,19 +310,31 @@ deleteGroup() {
 # service management
 
 createService() {
-	name= ; label= ; description= ; command= ; environment= ; group= ; socket= ; waitForPath=
+	name= ; label= ; description= ; dependencies= ; oneshot= ; command= ; environment= ; group= ; socket= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
-		if test "$waitForPath" ; then
-			_conditionEntries="RequiresMountsFor=$waitForPath
+		if test "$dependencies" ; then
+			_conditionEntries="Requires=$dependencies
+"
+			_conditionEntries="${_conditionEntries}After=$dependencies
 "
 		else
 			_conditionEntries=
 		fi
+		if test "$waitForPath" ; then
+			_conditionEntries="${_conditionEntries}RequiresMountsFor=$waitForPath
+"
+		fi
 		if test "$socket" ; then
 			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}
 "
+		fi
+		if test "$oneshot" ; then
+			_typeEntry="Type=oneshot
+"
+		else
+			_typeEntry=
 		fi
 		if test "$environment" ; then
 			_environmentEntry=Environment=
@@ -367,8 +379,10 @@ createService() {
 			[Service]
 			${_groupEntry}StandardOutput=null
 			StandardError=null
-			${_environmentEntry}ExecStart=$command
-			KillMode=process
+			${_typeEntry}${_environmentEntry}ExecStart=$command
+
+			[Install]
+			WantedBy=multi-user.target
 		EOF
 		updateFile 644:root:root "/etc/systemd/system/$name.service" "$name.service"
 		rm "$name.service"
@@ -400,6 +414,11 @@ createService() {
 		else
 			_environmentEntry=
 		fi
+		if test "$oneshot" ; then
+			_keepaliveEntry=
+		else
+			_keepaliveEntry='"KeepAlive": true,'
+		fi
 		if test "$group" ; then
 			_groupEntry="\"GroupName\": \"$group\","
 		else
@@ -409,7 +428,7 @@ createService() {
 			{
 				$_environmentEntry
 				$_groupEntry
-				"KeepAlive": true,
+				$_keepaliveEntry
 				"Label": "$label",
 				$_commandEntry
 				"RunAtLoad": true,
@@ -425,7 +444,7 @@ createService() {
 			restartService "$name"
 		fi
 	fi
-	unset name label description command environment group socket waitForPath
+	unset name label description dependencies oneshot command environment group socket waitForPath
 }
 
 deleteService() {

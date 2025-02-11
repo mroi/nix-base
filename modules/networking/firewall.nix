@@ -58,6 +58,9 @@
 		} {
 			assertion = cfg.enable || !(cfg.blockAll || cfg.allowSystem || cfg.allowApps || cfg.stealth || cfg.allow != [] || cfg.block != []);
 			message = "Detailed application firewall settings require enabling the firewall";
+		} {
+			assertion = (lib.intersectLists cfg.allow cfg.block) == [];
+			message = "An application cannot be simultaneously allowed and blocked by the application firewall";
 		}];
 
 		system.activationScripts.firewall = lib.mkIf applicable ''
@@ -92,10 +95,12 @@
 				Allow)
 					if ! $shouldAllow && $shouldBlock ; then
 						trace sudo ${socketfilterfw} --blockapp "$path"
+						current="$current''${newline}Block $path"
 					fi ;;
 				Block)
 					if $shouldAllow && ! $shouldBlock ; then
 						trace sudo ${socketfilterfw} --unblockapp "$path"
+						current="$current''${newline}Allow $path"
 					fi ;;
 				esac
 			}

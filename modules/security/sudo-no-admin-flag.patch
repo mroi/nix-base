@@ -1,0 +1,17 @@
+Prevent creation and use of the .sudo_as_admin_successful file in home directories.
+
+--- /dev/null	2024-02-23 19:21:52.674004109 +0100
++++ /etc/sudoers.d/no-admin-flag	2024-02-23 19:54:48.078683062 +0100
+@@ -0,0 +1 @@
++Defaults !admin_flag
+--- /etc/bash.bashrc	2020-02-25 13:03:22.000000000 +0100
++++ /etc/bash.bashrc	2024-02-23 19:57:56.171079403 +0100
+@@ -41,7 +41,7 @@
+ #fi
+ 
+ # sudo hint
+-if [ ! -e "$HOME/.sudo_as_admin_successful" ] && [ ! -e "$HOME/.hushlogin" ] ; then
++if false ; then
+     case " $(groups) " in *\ admin\ *|*\ sudo\ *)
+     if [ -x /usr/bin/sudo ]; then
+ 	cat <<-EOF

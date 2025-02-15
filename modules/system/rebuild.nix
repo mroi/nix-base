@@ -78,6 +78,7 @@
 			${warnings}
 			${setup}
 			${config.system.build.activate}
+			${config.system.build.update}
 		'';
 		checkPhase = ''
 			${pkgs.stdenv.shellDryRun} "$target"

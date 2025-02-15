@@ -35,6 +35,8 @@
 in {
 
 	options.system.activationScripts = scriptOption "A set of idempotent shell script fragments to build the system configuration.";
+	options.system.updateScripts = scriptOption "A set of shell script fragments to update the system.";
 
 	config.system.build.activate = scriptBuild "activate" config.system.activationScripts;
+	config.system.build.update = scriptBuild "update" config.system.updateScripts;
 }

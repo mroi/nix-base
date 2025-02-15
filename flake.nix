@@ -62,7 +62,7 @@
 				(lib.mapAttrs (name: value: self.baseConfigurations.${name}.config))
 				(lib.filterAttrs (name: value: value.nixpkgs.system == system))
 				(lib.concatMapAttrs (name: value: {
-					${name + "-activate"} = value.system.build.activate;
+					${name + "-rebuild"} = value.system.build.rebuild;
 					${name + "-manual"} = value.system.build.manual;
 				}))
 			])

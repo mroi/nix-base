@@ -39,12 +39,15 @@ if checkArgs update-flake update all ; then
 	trace nix flake update --flake "$self"
 fi
 
-# generate activation script for this machine
+# generate rebuild script for this machine
 script=$(
 	nix build --quiet --no-link --print-out-paths --no-warn-dirty \
-		"${self}#baseConfigurations.${machine}.config.system.build.activate"
+		"${self}#baseConfigurations.${machine}.config.system.build.rebuild"
 )
 
-# run activation script
+# default subcommand is ‘activate’
+if test "$#" -eq 0 ; then set activate ; fi
+
+# run rebuild script
 export self
 exec "$script" "$@"

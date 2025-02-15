@@ -11,6 +11,10 @@ download this repository, create a configuration, and run `rebuild`.
 
 The `rebuild` script supports a series of subcommands as arguments:
 
+**`activate`**  
+This is the default when no subcommands are given. It manifests the configuration on the host 
+and is intended to be idempotent, reducing to a no-op on subsequent executions.
+
 **`all`**  
 Runs all the above subcommands.
 

@@ -9,9 +9,10 @@ The main entry point is the `rebuild` script. It manifests the configuration of 
 host within the underlying system. To set up a brand new machine, it is sufficient to 
 download this repository, create a configuration, and run `rebuild`.
 
-The standard `rebuild` run is intended to be idempotent and reduces to a no-op on subsequent 
-executions. The option `--update` or `-u` pulls external sources for package updates. 
-Sub-categories can be enabled individually using `--update-<category>`.
+The `rebuild` script supports a series of subcommands as arguments:
+
+**`all`**  
+Runs all the above subcommands.
 
 The flake outputs are driven by subdirectories in this repository:
 

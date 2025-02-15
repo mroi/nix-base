@@ -14,11 +14,13 @@ jobs:
   tests:
     strategy:
       matrix:
-        machine: [ test-darwin, test-linux ]
+        machine: [ test-darwin, test-linux, test-nosys ]
         include:
         - machine: test-darwin
           os: macos-latest
         - machine: test-linux
+          os: ubuntu-latest
+        - machine: test-nosys
           os: ubuntu-latest
     name: Rebuild ${{ matrix.machine }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -37,6 +39,10 @@ jobs:
       run: |
         ! ./rebuild | grep .
         test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
+
+    - name: Check for empty state directory
+      if: ${{ runner.name == 'test-nosys' }}
+      run: test ! -d ~/.local/state/rebuild
 
     - name: Pre-heat store for Linux builder
       if: ${{ runner.os == 'macOS' }}

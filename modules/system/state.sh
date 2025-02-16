@@ -229,6 +229,13 @@ createVolume() {
 	unset name container encrypted keyStorage keyVariable fsType mountPoint ownership
 }
 
+deleteVolume() {
+	if $isDarwin ; then
+		trace diskutil unmount "$1"
+		trace sudo diskutil apfs deleteVolume "$1"
+	fi
+}
+
 # user and group management
 
 createUser() {

@@ -11,6 +11,9 @@
 	"runnable" = ./nix/runnable.nix;
 	"settings" = ./nix/settings.nix;
 
+	# volumes and file systems
+	"volumes" = ./filesystems/volumes.nix;
+
 	# root account, groups, and users
 	"directory" = ./users/directory.nix;
 	"groups" = ./users/groups.nix;

@@ -1,0 +1,22 @@
+Allow guest user access to the /home/shared and the /nix folder.
+
+--- /etc/apparmor.d/abstractions/lightdm	2019-09-16 16:55:35.437591724 +0200
++++ /etc/apparmor.d/abstractions/lightdm	2019-09-16 16:56:07.953506759 +0200
+@@ -35,6 +35,8 @@
+   /etc/gdm/Xsession ix,
+   /etc/X11/xdm/** ix, # needed for openSUSE's default session-wrapper
+   /etc/X11/xinit/** ix, # needed for openSUSE's default session-wrapper
++  /home/shared/ r,
++  /home/shared/** rmixk,
+   /lib/ r,
+   /lib/** rmixk,
+   /lib32/ r,
+@@ -43,6 +45,8 @@
+   /lib64/** rmixk,
+   owner /{,run/}media/ r,
+   owner /{,run/}media/** rmwlixk,  # we want access to USB sticks and the like
++  /nix/ r,
++  /nix/** rmixk,
+   /opt/ r,
+   /opt/** rmixk,
+   @{PROC}/ r,

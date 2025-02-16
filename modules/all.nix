@@ -14,6 +14,7 @@
 	# root account, groups, and users
 	"directory" = ./users/directory.nix;
 	"groups" = ./users/groups.nix;
+	"guest" = ./users/guest.nix;
 	"root" = ./users/root.nix;
 	"users" = ./users/users.nix;
 

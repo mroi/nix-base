@@ -52,5 +52,5 @@ script=$(
 if test "$#" -eq 0 ; then set activate ; fi
 
 # run rebuild script
-export self
+export self _helpCommandsPrinted
 exec "$script" "$@"

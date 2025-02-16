@@ -25,6 +25,7 @@
 		};
 
 	in lib.mkIf (config.environment.profile != null) {
+
 		system.activationScripts.profile = lib.stringAfter [ "nix" ] ''
 			storeHeading 'Updating the Nix profile'
 
@@ -67,9 +68,10 @@
 				# shellcheck disable=SC2086
 				trace nix profile install --quiet $toInstall
 			fi
-			if checkArgs --update-profile --update -u ; then
-				trace nix profile upgrade --all
-			fi
+		'';
+
+		system.updateScripts.profile = ''
+			trace nix profile upgrade --all
 		'';
 	};
 }

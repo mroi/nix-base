@@ -11,6 +11,32 @@ checkArgs() {
 	return 1
 }
 
+# help printing mode
+
+if checkArgs --help -h ; then
+	if test -z "$_helpCommandsPrinted" ; then
+		echo "Usage: ${0##*/} [ <subcommands> ]"
+		echo
+		echo "Available subcommands are:"
+		echo
+	fi
+
+	checkArgs() {
+		# collect and print all commands checked with checkArgs
+		_toPrint=
+		for _arg in "$@" ; do
+			if ! hasLine "$_helpCommandsPrinted" "$_arg" ; then
+				_toPrint="$_toPrint$_arg$newline"
+			fi
+		done
+		# print commands ordered by their length to illustrate hierarchy
+		printf %s "$_toPrint" | awk 'BEGIN { OFS="\t" }; { print length(), $0 }' | sort -n | cut -f2
+		_helpCommandsPrinted="$_helpCommandsPrinted$_toPrint$newline"
+		# return false from checkArgs to prevent actual command execution
+		return 1
+	}
+fi
+
 # tools for of multi-line variable content
 
 newline='

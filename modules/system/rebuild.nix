@@ -7,24 +7,6 @@
 			type = lib.types.attrsOf lib.types.unspecified;
 			description = "Attribute set of derivations for system setup.";
 		};
-		system.activationScripts = lib.mkOption {
-			type = lib.types.attrsOf (lib.types.either
-				lib.types.str
-				(lib.types.submodule { options = {
-					deps = lib.mkOption {
-						type = lib.types.listOf lib.types.str;
-						default = [];
-						description = "Dependencies after which the script can run.";
-					};
-					text = lib.mkOption {
-						type = lib.types.lines;
-						description = "Activation script text.";
-					};
-				};})
-			);
-			default = {};
-			description = "A set of idempotent shell script fragments to build the system configuration.";
-		};
 
 		assertions = lib.mkOption {
 			internal = true;
@@ -40,8 +22,8 @@
 		};
 	};
 
-	config.system.build.activate = pkgs.writeTextFile {
-		name = "base-activate";
+	config.system.build.rebuild = pkgs.writeTextFile {
+		name = "rebuild";
 		executable = true;
 		text = let
 
@@ -83,16 +65,6 @@
 				unset tmpdir
 			'';
 
-			scripts = lib.pipe config.system.activationScripts [
-				(lib.mapAttrs (_: v: if lib.isString v then lib.noDepEntry v else v))
-				(lib.mapAttrs (n: v: v // { text = ''
-					# ${n}
-					${v.text}
-				'';}))
-				# dependency resolution magic from NixOS’ activation-script.nix
-				(x: lib.textClosureMap lib.id x (lib.attrNames x))
-			];
-
 		in ''#!/bin/sh -e
 			# shellcheck disable=SC2317
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -105,7 +77,8 @@
 			${assertions}
 			${warnings}
 			${setup}
-			${scripts}
+			${config.system.build.activate}
+			${config.system.build.update}
 		'';
 		checkPhase = ''
 			${pkgs.stdenv.shellDryRun} "$target"

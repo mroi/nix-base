@@ -3,6 +3,8 @@
 
 	nixpkgs.system = "x86_64-linux";
 
+	users.guest.enable = false;
+
 	environment.profile = [
 		# Unison file sync
 		"nix-base#unison"

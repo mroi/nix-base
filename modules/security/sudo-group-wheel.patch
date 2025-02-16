@@ -1,0 +1,11 @@
+This patch allows members of the group wheel to use sudo without a password. On a standard 
+installation, this is no problem, because the only member of the wheel group is root. 
+However, on systems with a hidden admin user available exclusively via remote shell, this 
+allows this admin root-level access without a password, which the user would otherwise not 
+posess.
+
+--- /dev/null	2022-10-25 10:20:11
++++ /etc/sudoers.d/group-wheel	2022-10-25 10:19:34
+@@ -0,0 +1,2 @@
++# group wheel does not need a password
++%wheel	ALL = (ALL) NOPASSWD: ALL

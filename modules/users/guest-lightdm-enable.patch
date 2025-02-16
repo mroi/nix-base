@@ -1,0 +1,10 @@
+Enables guest sessions in lightdm.
+
+--- /usr/share/lightdm/lightdm.conf.d/50-disable-guest.conf	2023-01-29 13:40:54.000000000 +0000
++++ /usr/share/lightdm/lightdm.conf.d/50-disable-guest.conf	2023-03-08 15:59:47.508252768 +0000
+@@ -2,4 +2,4 @@
+ # CVE-2017-8900
+ # https://bugs.launchpad.net/bugs/1663157
+ [Seat:*]
+-allow-guest=false
++allow-guest=true

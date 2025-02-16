@@ -1,7 +1,7 @@
 {
 	# base system setup and toplevel scripts
-	"activate" = ./system/activate.nix;
 	"rebuild" = ./system/rebuild.nix;
+	"scripts" = ./system/scripts.nix;
 	"setup" = ./system/setup.nix;
 	"sip" = ./system/sip.nix;
 

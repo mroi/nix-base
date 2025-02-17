@@ -25,6 +25,12 @@
 
 	config = lib.mkIf config.nix.enable {
 
+		fileSystems."/nix" = lib.mkIf pkgs.stdenv.isDarwin {
+			fsType = "APFSX";
+			encrypted = true;
+			ownership = true;
+		};
+
 		users = {
 			users._nix = {
 				uid = 600;
@@ -39,14 +45,6 @@
 				description = "Nix Build Group";
 			};
 		};
-
-		environment.loginHook.nix = lib.optionalString pkgs.stdenv.isDarwin ''
-			# mount Nix volume
-			if test "$(stat -f %d /)" = "$(stat -f %d /nix)" ; then
-				NIX_VOLUME_PASSWORD= # placeholder, will be filled at runtime
-				echo "$NIX_VOLUME_PASSWORD" | diskutil quiet apfs unlock Nix -stdinpassphrase -mountpoint /nix
-			fi
-		'';
 
 		environment.rootPaths = [ (lib.getExe pkgs.nix) ];
 
@@ -80,9 +78,9 @@
 			"IdentityFile /nix/var/ssh/id_ed25519"
 		]);
 
-		# setup of user, group, nix.conf, systemd/launchd service duplicated in install script,
+		# setup of volume, user, group, nix.conf, systemd/launchd service duplicated in install script,
 		# because the script is run standalone by rebuild when Nix is not yet installed
-		system.activationScripts.nix-install = lib.stringAfter [ "users" "groups" "staging" ] (''
+		system.activationScripts.nix-install = lib.stringAfter [ "volumes" "users" "groups" "staging" ] (''
 			rootStagingDir=${config.users.root.stagingDirectory}
 			nixConfigFile=${pkgs.writeText "nix.conf" config.nix.config}
 			sshConfigFile=${pkgs.writeText "ssh-config" config.nix.ssh.config}
@@ -99,7 +97,6 @@
 		# should only need to depend on plain "nix", so we add a final dummy fragment
 		system.activationScripts.nix = lib.stringAfter [ "nix-install" "nix-builders" ] "";
 
-		system.activationScripts.root.deps = [ "nix" ];
 		system.activationScripts.services.deps = [ "nix" ];
 	};
 }

@@ -11,38 +11,12 @@ if $isDarwin ; then
 		trace sudo /System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -t || true
 		test -d /nix || fatalError 'Creating /nix firmlink failed'
 	fi
-	# obtain Nix volume password
-	if test -f "$rootStagingDir/login-hook.sh" ; then
-		if grep -qF 'NIX_VOLUME_PASSWORD=' "$rootStagingDir/login-hook.sh" ; then
-			password=$(sed -nE '/NIX_VOLUME_PASSWORD=/{s/^[^=]*=([^[:space:]#]*)/\1/;p;}' "$rootStagingDir/login-hook.sh")
-		else
-			echo 'NIX_VOLUME_PASSWORD=' >> "$rootStagingDir/login-hook.sh"
-		fi
-	else
-		mkdir -p "$rootStagingDir"
-		echo 'NIX_VOLUME_PASSWORD=' > "$rootStagingDir/login-hook.sh"
-	fi
-	if test -z "$password" ; then
-		password=$(dd if=/dev/urandom bs=24 count=1 2> /dev/null | base64)
-		sed -i_ "/NIX_VOLUME_PASSWORD=/{s|=.*|=$password|;}" "$rootStagingDir/login-hook.sh"
-		rm "$rootStagingDir/login-hook.sh_"
-	fi
 	# create the Nix volume
-	if ! diskutil list Nix > /dev/null 2>&1 ; then
-		container=$(diskutil info -plist / | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
-		test "$container" != "${container#disk}" || fatalError 'Could not find primary APFS container'
-		echo "$password" | trace sudo diskutil apfs addVolume "$container" APFSX Nix -stdinpassphrase -mountpoint /nix
-		diskutil list Nix > /dev/null 2>&1 || fatalError 'Could not create the Nix volume'
-	fi
-	# Nix volume should be mounted
-	if test "$(stat -f %d /)" = "$(stat -f %d /nix)" ; then
-		fatalError 'The Nix volume is not mounted'
-	fi
-	# enable file ownership on the Nix volume
-	ownershipStatus=$(diskutil info -plist Nix | xmllint --xpath '/plist/dict/key[text()="GlobalPermissionsEnabled"]/following-sibling::*[1]' -)
-	if ! test "$ownershipStatus" = "<true/>" ; then
-		trace sudo diskutil enableOwnership /nix
-	fi
+	createVolume <<- EOF
+		name=Nix ; mountPoint=/nix ; container=/
+		fsType=APFSX ; encrypted=1 ; ownership=1
+		keyStorage="$rootStagingDir/login-hook.sh" ; keyVariable=NIX_VOLUME_PASSWORD
+	EOF
 	# setup /nix directory
 	makeDir 755:root:wheel:hidden /nix
 	# disable Spotlight indexing

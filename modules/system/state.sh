@@ -175,6 +175,67 @@ deleteDidRemove() {
 	if "$_deleted" ; then return 0 ; else return 1 ; fi
 }
 
+# volume management
+
+createVolume() {
+	name= ; container= ; encrypted= ; keyStorage= ; keyVariable= ; fsType= ; mountPoint= ; ownership=
+	# shellcheck disable=SC1091
+	. /dev/stdin  # read named parameters
+	if $isDarwin ; then
+		if test "$encrypted" ; then
+			# obtain volume password
+			_password=
+			if test -f "$keyStorage" ; then
+				if grep -qF "${keyVariable}=" "$keyStorage" ; then
+					_password=$(sed -nE "/${keyVariable}=/{s/^[^=]*=([^[:space:]#]*)/\1/;p;}" "$keyStorage")
+				else
+					echo "${keyVariable}=" >> "$keyStorage"
+				fi
+			else
+				mkdir -p "${keyStorage%/*}"
+				echo "${keyVariable}=" > "$keyStorage"
+			fi
+			if test -z "$_password" ; then
+				_password=$(dd if=/dev/urandom bs=24 count=1 2> /dev/null | base64)
+				sed -i_ "/${keyVariable}=/{s|=.*|=${_password}|;}" "$keyStorage"
+				rm "${keyStorage}_"
+			fi
+		fi
+		# create the volume
+		if ! diskutil list "$name" > /dev/null 2>&1 ; then
+			container=$(diskutil info -plist "$container" | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
+			test "$container" != "${container#disk}" || fatalError "Could not find APFS container for volume $name"
+			if test "$encrypted" ; then
+				echo "$_password" | trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -stdinpassphrase -mountpoint "$mountPoint"
+			else
+				trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -mountpoint "$mountPoint"
+			fi
+			diskutil list "$name" > /dev/null 2>&1 || fatalError "Could not create the volume $name"
+		fi
+		# volume should be mounted
+		if test "$(stat -f %d /)" = "$(stat -f %d "$mountPoint")" ; then
+			fatalError "The volume $name is not mounted"
+		fi
+		# enable file ownership on the volume
+		_ownershipStatus=$(diskutil info -plist "$name" | xmllint --xpath '/plist/dict/key[text()="GlobalPermissionsEnabled"]/following-sibling::*[1]' -)
+		case "$_ownershipStatus,$ownership" in
+			'<true/>,') trace sudo diskutil disableOwnership "$mountPoint" ;;
+			'<true/>,1') ;;
+			'<false/>,') ;;
+			'<false/>,1') trace sudo diskutil enableOwnership "$mountPoint" ;;
+			*) fatalError "Inconsistent ownership status on the volume $name" ;;
+		esac
+	fi
+	unset name container encrypted keyStorage keyVariable fsType mountPoint ownership
+}
+
+deleteVolume() {
+	if $isDarwin ; then
+		trace diskutil unmount "$1"
+		trace sudo diskutil apfs deleteVolume "$1"
+	fi
+}
+
 # user and group management
 
 createUser() {

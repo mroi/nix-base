@@ -18,6 +18,9 @@ and is intended to be idempotent, reducing to a no-op on subsequent executions.
 **`update`**  
 This subcommand pulls external sources for package updates.
 
+**`clean`**  
+Run regular maintenance tasks to check and clean the system.
+
 **`all`**  
 Runs all the above subcommands.
 

@@ -128,8 +128,8 @@ isx86_64=${isx86_64:-$(case "$(uname -m)" in (x86_64) echo true ;; (*) echo fals
 isAarch64=${isAarch64:-$(case "$(uname -m)" in (aarch64|arm64) echo true ;; (*) echo false ;; esac )}
 
 if ! test "${isLinux#false}${isDarwin#false}" = true ; then
-	fatalError 'Exactly one of isLinux, isDarwin must be true.'
+	fatalError 'Exactly one of isLinux, isDarwin must be true'
 fi
 if ! test "${isx86_64#false}${isAarch64#false}" = true ; then
-	fatalError 'Exactly one of isx86_64, isAarch64 must be true.'
+	fatalError 'Exactly one of isx86_64, isAarch64 must be true'
 fi

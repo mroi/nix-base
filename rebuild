@@ -35,9 +35,6 @@ if ! command -v nix > /dev/null ; then
 fi
 
 # self-update flake
-if checkArgs update-git update all ; then
-	trace git -C "$self" pull
-fi
 if checkArgs update-flake update all ; then
 	trace nix flake update --flake "$self"
 fi

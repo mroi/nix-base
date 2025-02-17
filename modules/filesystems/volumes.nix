@@ -81,5 +81,28 @@
 		);
 
 		system.activationScripts.hooks.deps = [ "volumes" ];
+
+		system.cleanupScripts.volumes = lib.optionalString pkgs.stdenv.isDarwin ''
+			storeHeading 'Checking volume and file system integrity'
+
+			{
+				trace diskutil verifyDisk disk0
+				container=$(diskutil info -plist / | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
+				trace diskutil verifyVolume "$container"
+			} | {
+				if $_hasColorStdout ; then
+					# highlight some of the output with colors
+					sed "
+						/^Checking volume/{s/^/$(tput smul)/;s/\$/$(tput rmul)/;}
+						/^warning:/{s/^/$(tput setaf 11)/;s/\$/$(tput sgr0)/;}
+						/^Skipped .* repairs/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
+						/needs to be repaired\$/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
+						/appears to be OK\$/{s/^/$(tput setaf 2)/;s/\$/$(tput sgr0)/;}
+					"
+				else
+					cat
+				fi
+			}
+		'';
 	};
 }

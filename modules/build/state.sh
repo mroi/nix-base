@@ -243,6 +243,9 @@ createUser() {
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
+		if ! test "$gid" ; then
+			gid=$(getent group "$group" | cut -d: -f3)
+		fi
 		if ! getent passwd "$name" > /dev/null ; then
 			trace sudo adduser \
 				--uid "$uid" \
@@ -263,6 +266,9 @@ createUser() {
 		fi
 	fi
 	if $isDarwin ; then
+		if ! test "$gid" ; then
+			gid=$(dscl -plist . -read "/Groups/$group" PrimaryGroupID | xmllint --xpath '//string/text()' - 2> /dev/null)
+		fi
 		if ! dscl . -read "/Users/$name" > /dev/null 2>&1 ; then
 			trace sudo dscl . -create "/Users/$name"
 		fi

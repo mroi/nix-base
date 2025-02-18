@@ -24,6 +24,12 @@ Run regular maintenance tasks to check and clean the system.
 **`all`**  
 Runs all the above subcommands.
 
+The command line option `-i` or `--interactive` prompts for any state-changing commands, 
+are confirmed by pressing `Enter`.
+
+Repository Structure
+--------------------
+
 The flake outputs are driven by subdirectories in this repository:
 
 **[`machines`](/machines)**  

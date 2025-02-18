@@ -40,15 +40,20 @@
 			"#!/bin/sh -e"
 			""
 			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
-			(stripTabs (config.environment.loginHook.volumes or ""))
+		] + lib.pipe knownFragments [
+			(map (f: config.environment.loginHook."${f}" or ""))
+			(map stripTabs)
+			(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
 		]);
 
 		logoutHook = pkgs.writeText "logout-hook.sh" (lib.concatLines [
 			"#!/bin/sh -e"
 			""
 			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
+		] + lib.pipe knownFragments [
+			(map (f: config.environment.logoutHook."${f}" or ""))
+			(map stripTabs)
+			(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
 		]);
 
 		preservePasswords = source: target: ''

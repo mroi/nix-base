@@ -290,7 +290,7 @@ makeUser() {
 		if test "$(_dsclRead AuthenticationAuthority)" ; then
 			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
 		fi
-		if test "$(_dsclRead Password)" != '*' ; then
+		if test "$isHidden" -a "$(_dsclRead Password)" != '*' ; then
 			trace sudo dscl . -create "/Users/$name" Password '*'
 		fi
 		if test "$(_dsclRead UniqueID)" != "$uid" ; then
@@ -302,8 +302,13 @@ makeUser() {
 		if ! dseditgroup -o checkmember -m "$name" "$group" > /dev/null ; then
 			trace sudo dseditgroup -o edit -t user -a "$name" "$group"
 		fi
-		if test "$(_dsclRead IsHidden)" != "${isHidden:-0}" ; then
-			trace sudo dscl . -create "/Users/$name" IsHidden "${isHidden:-0}"
+		case "$isHidden" in (0) isHidden=NO ;; (1) isHidden=YES ;; esac
+		if test "$(_dsclRead IsHidden)" != "$isHidden" ; then
+			if test "$isHidden" ; then
+				trace sudo dscl . -create "/Users/$name" IsHidden "$isHidden"
+			else
+				trace sudo dscl . -delete "/Users/$name" IsHidden
+			fi
 		fi
 		if test "$(_dsclRead NFSHomeDirectory)" != "$home" ; then
 			trace sudo dscl . -create "/Users/$name" NFSHomeDirectory "$home"

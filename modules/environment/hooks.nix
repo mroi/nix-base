@@ -36,20 +36,25 @@
 			(lib.removeSuffix "\n")
 		];
 
-		loginHook = pkgs.writeText "login-hook.sh" (lib.concatLines [
-			"#!/bin/sh -e"
-			""
-			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
-			(stripTabs (config.environment.loginHook.volumes or ""))
-		]);
+		generateHook = type: pkgs.writeTextFile {
+			name = "${type}-hook.sh";
+			text = lib.concatLines [
+				"#!/bin/sh -e"
+				""
+				"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
+			] + lib.pipe knownFragments [
+				(map (f: config.environment."${type}Hook"."${f}" or ""))
+				(map stripTabs)
+				(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
+			];
+			checkPhase = ''
+				${pkgs.stdenv.shellDryRun} "$out"
+				${lib.getExe pkgs.shellcheck} "$out"
+			'';
+		};
 
-		logoutHook = pkgs.writeText "logout-hook.sh" (lib.concatLines [
-			"#!/bin/sh -e"
-			""
-			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
-		]);
+		loginHook = generateHook "login";
+		logoutHook = generateHook "logout";
 
 		preservePasswords = source: target: ''
 			# existing ${target} in staging may contain passwords which should be kept
@@ -73,10 +78,6 @@
 
 			${preservePasswords loginHook "login-hook.sh"}
 			${preservePasswords logoutHook "logout-hook.sh"}
-
-			${pkgs.stdenv.shellDryRun} login-hook.sh
-			${pkgs.stdenv.shellDryRun} logout-hook.sh
-			${lib.getExe pkgs.shellcheck} login-hook.sh logout-hook.sh
 
 			updateFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
 			updateFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh

@@ -8,7 +8,6 @@
 	"builders" = ./nix/builders.nix;
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
-	"runnable" = ./nix/runnable.nix;
 	"settings" = ./nix/settings.nix;
 
 	# volumes and file systems

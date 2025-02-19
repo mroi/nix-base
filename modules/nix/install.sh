@@ -163,14 +163,3 @@ createService << EOF
 	group=nix ; socket=$socket ; waitForPath=/nix/store
 EOF
 while ! test -S /nix/var/nix/daemon-socket/socket ; do sleep 1 ; done
-
-# ensure Nix command is runnable
-if ! command -v nix > /dev/null ; then
-	nix() {
-		if test -x "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" ; then
-			NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$sslCertFile "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" "$@"
-		else
-			NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$sslCertFile "$(find /nix/store/*-nix-*/bin/nix | sort --field-separator=- --key=3 --version-sort | tail -n1)" "$@"
-		fi
-	}
-fi

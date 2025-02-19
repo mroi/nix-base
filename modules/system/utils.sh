@@ -135,3 +135,19 @@ fi
 if ! test "${isx86_64#false}${isAarch64#false}" = true ; then
 	fatalError 'Exactly one of isx86_64, isAarch64 must be true'
 fi
+
+# ensure the Nix command is runnable
+
+if ! command -v nix > /dev/null ; then
+	if $isLinux ; then _sslCertFile=/etc/ssl/certs/ca-certificates.crt ; fi
+	if $isDarwin ; then _sslCertFile=/etc/ssl/cert.pem ; fi
+	nix() {
+		if test -x "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" ; then
+			NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$_sslCertFile "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" "$@"
+		elif test -x "${_nixExe:=$(find /nix/store/*-nix-*/bin/nix 2> /dev/null | sort --field-separator=- --key=3 --version-sort | tail -n1)}" ; then
+			NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$_sslCertFile "$_nixExe" "$@"
+		else
+			false
+		fi
+	}
+fi

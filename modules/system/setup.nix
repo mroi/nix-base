@@ -24,6 +24,7 @@
 		users.root.stagingDirectory = localNullOr options.users.root.stagingDirectory.default;
 
 		# reconfigure depending on systemwide option
+		environment.shared.enable = isSystemwide;
 		networking.firewall.enable = isSystemwide && pkgs.stdenv.isDarwin;
 		nix.enable = isSystemwide;
 		security.sudo.touchId = isSystemwide && pkgs.stdenv.isDarwin;

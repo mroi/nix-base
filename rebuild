@@ -29,7 +29,7 @@ if ! test -d "$self/machines/$machine" ; then
 fi
 
 # make sure Nix is installed
-if ! command -v nix > /dev/null ; then
+if ! nix --version > /dev/null 2>&1 ; then
 	. "$self/modules/system/state.sh"
 	. "$self/modules/nix/install.sh"
 fi

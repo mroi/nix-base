@@ -1,0 +1,8 @@
+Enable login and logout hooks for the lightdm login manager.
+
+--- /dev/null	2018-08-08 16:04:30.547785842 +0200
++++ /etc/lightdm/lightdm.conf.d/hooks.conf	2018-08-08 16:29:24.899440222 +0200
+@@ -0,0 +1,3 @@
++[SeatDefaults]
++session-setup-script=/root/login-hook.sh
++session-cleanup-script=/root/logout-hook.sh

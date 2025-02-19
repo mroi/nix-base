@@ -80,7 +80,7 @@
 			rmdir "${patchStaging}" 2> /dev/null || true
 		'';
 
-	in lib.mkIf config.system.systemwideSetup {
+	in lib.mkIf (config.environment.patches != []) {
 
 		assertions = [{
 			assertion = lib.allUnique patchNames;

@@ -2,7 +2,9 @@
 
 	options.networking.firewall = {
 
-		enable = lib.mkEnableOption "macOS application firewall";
+		enable = lib.mkEnableOption "macOS application firewall" // {
+			default = pkgs.stdenv.isDarwin;
+		};
 		blockAll = lib.mkEnableOption "blocking of listening sockets for all applications";
 		allowSystem = lib.mkEnableOption "listening sockets for system software";
 		allowApps = lib.mkEnableOption "listening sockets for downloaded software";
@@ -23,7 +25,6 @@
 	config = let
 
 		cfg = config.networking.firewall;
-		applicable = config.system.systemwideSetup && pkgs.stdenv.isDarwin;
 
 		socketfilterfw = "/usr/libexec/ApplicationFirewall/socketfilterfw";
 
@@ -47,14 +48,9 @@
 
 	in {
 
-		networking.firewall.enable = lib.mkDefault applicable;
-
 		assertions = [{
 			assertion = ! cfg.enable || pkgs.stdenv.isDarwin;
 			message = "Application firwall is only available on Darwin";
-		} {
-			assertion = ! cfg.enable || config.system.systemwideSetup;
-			message = "Application firwall requires system-wide setup";
 		} {
 			assertion = cfg.enable || !(cfg.blockAll || cfg.allowSystem || cfg.allowApps || cfg.stealth || cfg.allow != [] || cfg.block != []);
 			message = "Detailed application firewall settings require enabling the firewall";
@@ -63,7 +59,7 @@
 			message = "An application cannot be simultaneously allowed and blocked by the application firewall";
 		}];
 
-		system.activationScripts.firewall = lib.mkIf applicable ''
+		system.activationScripts.firewall = lib.mkIf cfg.enable ''
 			storeHeading Configuring the application firewall
 
 			${settingScript cfg.enable "globalstate"}

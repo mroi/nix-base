@@ -16,7 +16,7 @@
 
 	config = let
 
-		knownFragments = [ "volumes" ];
+		knownFragments = [ "volumes" "guest" ];
 
 		unknownFragmentAssertion = name: set:
 			let unknownFragments = lib.subtractLists knownFragments (lib.attrNames set);
@@ -40,15 +40,20 @@
 			"#!/bin/sh -e"
 			""
 			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
-			(stripTabs (config.environment.loginHook.volumes or ""))
+		] + lib.pipe knownFragments [
+			(map (f: config.environment.loginHook."${f}" or ""))
+			(map stripTabs)
+			(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
 		]);
 
 		logoutHook = pkgs.writeText "logout-hook.sh" (lib.concatLines [
 			"#!/bin/sh -e"
 			""
 			"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-		] + lib.concatMapStrings (s: if s == "" then "" else "\n" + s) [
+		] + lib.pipe knownFragments [
+			(map (f: config.environment.logoutHook."${f}" or ""))
+			(map stripTabs)
+			(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
 		]);
 
 		preservePasswords = source: target: ''
@@ -61,14 +66,14 @@
 			fi
 		'';
 
-	in lib.mkIf config.system.systemwideSetup {
+	in lib.mkIf (config.environment.loginHook != {} || config.environment.logoutHook != {}) {
 
 		assertions = [
 			(unknownFragmentAssertion "loginHook" config.environment.loginHook)
 			(unknownFragmentAssertion "logoutHook" config.environment.logoutHook)
 		];
 
-		system.activationScripts.hooks = lib.stringAfter [ "staging" ] ''
+		system.activationScripts.hooks = lib.stringAfter [ "staging" ] (''
 			storeHeading 'Updating login and logout hook scripts'
 
 			${preservePasswords loginHook "login-hook.sh"}
@@ -80,8 +85,19 @@
 
 			updateFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
 			updateFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
-		'';
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+
+			makeDir 700 \
+				"${config.users.root.stagingDirectory}/Library" \
+				"${config.users.root.stagingDirectory}/Library/Preferences"
+			updateFile 644 "${config.users.root.stagingDirectory}/Library/Preferences/com.apple.loginwindow.plist" ${./hooks-loginwindow.plist}
+		'');
 
 		system.activationScripts.root.deps = [ "hooks" ];
+
+		environment.patches = lib.mkIf pkgs.stdenv.isLinux [
+			./hooks-lightdm.patch
+		];
 	};
 }

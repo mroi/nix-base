@@ -29,7 +29,7 @@
 			makeLink 755 "${path}" "${config.users.root.stagingDirectory}/.nix/profile/${file}"
 		'') (relativePath path);
 
-	in lib.mkIf config.system.systemwideSetup {
+	in lib.mkIf (config.environment.rootPaths != []) {
 
 		system.activationScripts.rootpaths = lib.stringAfter [ "nix" "staging" ] ''
 			storeHeading 'Updating Nix profile paths for the root user'

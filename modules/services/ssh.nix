@@ -1,14 +1,15 @@
 { config, lib, pkgs, ... }: {
 
 	options.services.openssh = {
-		enable = lib.mkEnableOption "SSH server";
-		harden = lib.mkEnableOption "only key-based authentication with SSH";
+		enable = lib.mkOption {
+			type = lib.types.nullOr lib.types.bool;
+			default = true;
+			description = "Enable SSH server.";
+		};
+		harden = lib.mkEnableOption "only key-based authentication with SSH" // { default = true; };
 	};
 
-	config = lib.mkIf config.system.systemwideSetup {
-
-		services.openssh.enable = lib.mkDefault true;
-		services.openssh.harden = lib.mkDefault true;
+	config = lib.mkIf (config.services.openssh.enable != null) {
 
 		system.activationScripts.ssh = ''
 			storeHeading 'SSH server setup'

@@ -8,7 +8,6 @@
 	"builders" = ./nix/builders.nix;
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
-	"runnable" = ./nix/runnable.nix;
 	"settings" = ./nix/settings.nix;
 
 	# volumes and file systems
@@ -19,6 +18,7 @@
 	"groups" = ./users/groups.nix;
 	"guest" = ./users/guest.nix;
 	"root" = ./users/root.nix;
+	"shell" = ./users/shell.nix;
 	"users" = ./users/users.nix;
 
 	# network setup
@@ -35,7 +35,9 @@
 	"profile" = ./environment/profile.nix;
 	"rootpaths" = ./environment/rootpaths.nix;
 	"services" = ./environment/services.nix;
+	"shared" = ./environment/shared.nix;
 
 	# service configurations
 	"ssh" = ./services/ssh.nix;
+	"unison" = ./services/unison.nix;
 }

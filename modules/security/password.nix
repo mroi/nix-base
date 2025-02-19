@@ -16,7 +16,7 @@
 				--subst-var-by ROUNDS "${toString config.security.password.yescrypt.rounds}"
 		'';
 
-	in lib.mkIf config.system.systemwideSetup {
+	in {
 
 		environment.patches = lib.optionals yescryptApplicable [ yescryptPatch ];
 	};

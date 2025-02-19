@@ -26,7 +26,7 @@
 
 	in lib.mkIf (config.environment.profile != null) {
 
-		system.activationScripts.profile = lib.stringAfter [ "nix" ] ''
+		system.activationScripts.profile = lib.stringAfter (if config.nix.enable then [ "nix" ] else []) ''
 			storeHeading 'Updating the Nix profile'
 
 			target="${lib.concatLines normalizedProfile}"

@@ -16,6 +16,7 @@
 		system.systemwideSetup = true;
 
 		# mute these settings for local-only setups
+		environment.shared.folder = localNullOr options.environment.shared.folder.default;
 		security.password.yescrypt.rounds = localNullOr options.security.password.yescrypt.rounds.default;
 		services.openssh.enable = localNullOr options.services.openssh.enable.default;
 		system.packages = localNullOr options.system.packages.default;

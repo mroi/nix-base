@@ -36,6 +36,7 @@
 	"profile" = ./environment/profile.nix;
 	"rootpaths" = ./environment/rootpaths.nix;
 	"services" = ./environment/services.nix;
+	"shared" = ./environment/shared.nix;
 
 	# security settings
 	"password" = ./security/password.nix;
@@ -44,4 +45,5 @@
 
 	# service configurations
 	"ssh" = ./services/ssh.nix;
+	"unison" = ./services/unison.nix;
 }

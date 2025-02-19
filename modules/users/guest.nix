@@ -1,8 +1,6 @@
 { config, lib, pkgs, ... }: {
 
-	options.users.guest.enable = lib.mkEnableOption "guest account" // {
-		default = config.system.systemwideSetup;
-	};
+	options.users.guest.enable = lib.mkEnableOption "guest account" // { default = true; };
 
 	config = lib.mkIf config.users.guest.enable {
 

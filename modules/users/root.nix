@@ -3,14 +3,14 @@
 	options.users.root = {
 
 		stagingDirectory = lib.mkOption {
-			type = lib.types.str;
+			type = lib.types.nullOr lib.types.str;
 			default = "\${XDG_STATE_HOME:-$HOME/.local/state}/rebuild";
 			description = "Files for the root account are staged in this directory to check for changes that need to be copied into root’s home.";
 		};
 		syncCommand = lib.mkOption {
 			type = lib.types.str;
 			default = ''
-				rsync --verbose --recursive --links --perms --times "${config.users.root.stagingDirectory}/" ~root/
+				rsync --verbose --recursive --links --perms --times "${toString config.users.root.stagingDirectory}/" ~root/
 			'';
 			description = "Command to transfer files from the staging directory to root’s home.";
 		};
@@ -21,7 +21,7 @@
 		};
 	};
 
-	config = lib.mkIf config.system.systemwideSetup {
+	config = lib.mkIf (config.users.root.stagingDirectory != null) {
 
 		system.activationScripts.staging = ''
 			storeHeading -

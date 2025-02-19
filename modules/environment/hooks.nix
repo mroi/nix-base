@@ -61,7 +61,7 @@
 			fi
 		'';
 
-	in lib.mkIf config.system.systemwideSetup {
+	in lib.mkIf (config.environment.loginHook != {} || config.environment.logoutHook != {}) {
 
 		assertions = [
 			(unknownFragmentAssertion "loginHook" config.environment.loginHook)

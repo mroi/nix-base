@@ -2,9 +2,7 @@
 
 	options.nix = {
 
-		enable = lib.mkEnableOption "Nix systemwide" // {
-			default = config.system.systemwideSetup;
-		};
+		enable = lib.mkEnableOption "Nix systemwide" // { default = true; };
 		config = lib.mkOption {
 			type = lib.types.lines;
 			description = "The Nix configuration options for `/nix/nix.conf`.";

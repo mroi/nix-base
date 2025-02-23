@@ -14,6 +14,7 @@
 		"root"
 		"rootpaths"
 		"services"
+		"shared"
 		"shell"
 		"sip"
 		"ssh"

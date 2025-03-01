@@ -70,8 +70,13 @@
 			fi
 		'';
 
-		system.updateScripts.profile = ''
+		system.updateScripts.profile = lib.stringAfter [ "packages" ] ''
+			storeHeading -
 			trace nix profile upgrade --all
+		'';
+		system.cleanupScripts.profile = lib.stringAfter [ "packages" ] ''
+			storeHeading 'Cleaning the Nix profile'
+			trace nix profile wipe-history
 		'';
 	};
 }

@@ -12,6 +12,7 @@
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
 	"settings" = ./nix/settings.nix;
+	"store" = ./nix/store.nix;
 
 	# volumes and file systems
 	"volumes" = ./filesystems/volumes.nix;

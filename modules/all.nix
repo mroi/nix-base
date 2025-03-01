@@ -25,17 +25,17 @@
 	# network setup
 	"firewall" = ./networking/firewall.nix;
 
-	# security settings
-	"password" = ./security/password.nix;
-	"sip" = ./security/sip.nix;
-	"sudo" = ./security/sudo.nix;
-
 	# system environment setup
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
 	"rootpaths" = ./environment/rootpaths.nix;
 	"services" = ./environment/services.nix;
+
+	# security settings
+	"password" = ./security/password.nix;
+	"sip" = ./security/sip.nix;
+	"sudo" = ./security/sudo.nix;
 
 	# service configurations
 	"ssh" = ./services/ssh.nix;

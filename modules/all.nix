@@ -1,7 +1,9 @@
 {
-	# base system setup and toplevel scripts
-	"rebuild" = ./system/rebuild.nix;
-	"scripts" = ./system/scripts.nix;
+	# toplevel script build
+	"rebuild" = ./build/rebuild.nix;
+	"scripts" = ./build/scripts.nix;
+
+	# underlying system setup
 	"setup" = ./system/setup.nix;
 
 	# Nix setup

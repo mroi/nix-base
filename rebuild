@@ -8,7 +8,7 @@ self=$(
 	pwd
 )
 
-. "$self/modules/system/utils.sh"
+. "$self/modules/build/utils.sh"
 
 machine=$(
 	# shellcheck disable=SC3028
@@ -30,7 +30,7 @@ fi
 
 # make sure Nix is installed
 if ! nix --version > /dev/null 2>&1 ; then
-	. "$self/modules/system/state.sh"
+	. "$self/modules/build/state.sh"
 	. "$self/modules/nix/install.sh"
 fi
 

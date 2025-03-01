@@ -122,6 +122,21 @@ fatalError() {
 	exit 69  # EX_UNAVAILABLE
 }
 
+highlightOutput() {
+	if $_hasColorStdout ; then
+		sed "$1
+			s/^%UNDERLINE%/$(tput smul)/
+			s/%NOUNDERLINE%\$/$(tput rmul)/
+			s/^%GREEN%/$(tput setaf 2)/
+			s/^%YELLOW%/$(tput setaf 11)/
+			s/^%RED%/$(tput setaf 9)/
+			s/%NORMAL%\$/$(tput sgr0)/
+		"
+	else
+		cat
+	fi
+}
+
 # system recognition
 
 isLinux=${isLinux:-$(case "$(uname)" in (Linux) echo true ;; (*) echo false ;; esac)}

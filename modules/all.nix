@@ -1,5 +1,6 @@
 {
 	# toplevel script build
+	"portable" = ./build/portable.nix;
 	"rebuild" = ./build/rebuild.nix;
 	"scripts" = ./build/scripts.nix;
 

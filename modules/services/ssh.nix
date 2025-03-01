@@ -11,7 +11,9 @@
 
 	config = lib.mkIf (config.services.openssh.enable != null) {
 
-		system.activationScripts.ssh = ''
+		system.packages = lib.mkIf pkgs.stdenv.isLinux [ "openssh-server" ];
+
+		system.activationScripts.ssh = lib.stringAfter [ "packages" ] (''
 			storeHeading 'SSH server setup'
 
 			enable=${toString config.services.openssh.enable}
@@ -19,14 +21,8 @@
 			Linux = ''
 				running=$(if systemctl is-enabled ssh.service > /dev/null 2>&1 ; then echo 1 ; fi)
 				case "$enable,$running" in
-					1,)
-						trace sudo apt-get install --no-install-recommends openssh-server
-						trace sudo systemctl enable --now ssh.service
-						;;
-					,1)
-						trace sudo systemctl disable --now ssh.service
-						trace sudo apt-get purge openssh-server
-						;;
+					1,) trace sudo systemctl enable --now ssh.service ;;
+					,1)	trace sudo systemctl disable --now ssh.service ;;
 				esac
 			'';
 			Darwin = ''
@@ -36,7 +32,7 @@
 					,1) trace sudo systemsetup -setremotelogin off ;;
 				esac
 			'';
-		};
+		});
 
 		system.activationScripts.patches.deps = [ "ssh" ];
 

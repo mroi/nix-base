@@ -5,6 +5,7 @@
 	"scripts" = ./build/scripts.nix;
 
 	# underlying system setup
+	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 
 	# Nix setup

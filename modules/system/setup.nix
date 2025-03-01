@@ -18,6 +18,7 @@
 		# mute these settings for local-only setups
 		security.password.yescrypt.rounds = localNullOr options.security.password.yescrypt.rounds.default;
 		services.openssh.enable = localNullOr options.services.openssh.enable.default;
+		system.packages = localNullOr options.system.packages.default;
 		users.directory.authentication.searchPolicy = localNullOr options.users.directory.authentication.searchPolicy.default;
 		users.directory.information.searchPolicy = localNullOr options.users.directory.information.searchPolicy.default;
 		users.root.stagingDirectory = localNullOr options.users.root.stagingDirectory.default;

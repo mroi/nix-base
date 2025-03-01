@@ -6,6 +6,7 @@
 		"groups"
 		"hooks"
 		"nix"
+		"packages"
 		"patches"
 		"profile"
 		"root"

@@ -1,6 +1,7 @@
 { config, lib, ... }: let
 
 	fragments = [
+		"apps"
 		"directory"
 		"firewall"
 		"groups"

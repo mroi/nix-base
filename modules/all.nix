@@ -29,6 +29,7 @@
 	"firewall" = ./networking/firewall.nix;
 
 	# system environment setup
+	"apps" = ./environment/apps.nix;
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;

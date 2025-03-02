@@ -6,6 +6,19 @@
 			default = "/bin/dash";
 			description = "Shell implementation to be used for scripts using `/bin/sh` as interpreter.";
 		};
+		binDir = lib.mkOption {
+			type = lib.types.pathWith { absolute = false; };
+			default = ".local/bin";
+			description = "Relative directory within user’s home where command line executables are stored.";
+		};
+		serviceDir = lib.mkOption {
+			type = lib.types.pathWith { absolute = false; };
+			default = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = ".local/libexec";
+				Darwin = "Library/CoreServices";
+			};
+			description = "Relative directory within user’s home where service executables are stored.";
+		};
 	};
 
 	config = lib.mkIf (config.users.defaultScriptShell != null) {

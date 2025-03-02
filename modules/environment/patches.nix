@@ -87,7 +87,7 @@
 			message = "All patch files must have a unique name.";
 		}];
 
-		system.activationScripts.patches = lib.stringAfter [ "staging" ] ''
+		system.activationScripts.patches = lib.stringAfter [ "staging" "packages" ] ''
 			storeHeading 'Managing patches for system files'
 
 			patches="${lib.concatLines patchNames}"

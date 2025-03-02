@@ -1,11 +1,13 @@
 { config, lib, ... }: let
 
 	fragments = [
+		"apps"
 		"directory"
 		"firewall"
 		"groups"
 		"hooks"
 		"nix"
+		"packages"
 		"patches"
 		"profile"
 		"root"

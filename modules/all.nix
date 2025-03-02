@@ -5,6 +5,7 @@
 	"scripts" = ./build/scripts.nix;
 
 	# underlying system setup
+	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 
 	# Nix setup
@@ -12,6 +13,7 @@
 	"install" = ./nix/install.nix;
 	"nixpkgs" = ./nix/nixpkgs.nix;
 	"settings" = ./nix/settings.nix;
+	"store" = ./nix/store.nix;
 
 	# volumes and file systems
 	"volumes" = ./filesystems/volumes.nix;
@@ -27,6 +29,7 @@
 	"firewall" = ./networking/firewall.nix;
 
 	# system environment setup
+	"apps" = ./environment/apps.nix;
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;

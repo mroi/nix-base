@@ -16,10 +16,10 @@
 
 	config = let
 
-		knownFragments = [ "volumes" ];
+		fragments = [ "volumes" ];
 
 		unknownFragmentAssertion = name: set:
-			let unknownFragments = lib.subtractLists knownFragments (lib.attrNames set);
+			let unknownFragments = lib.subtractLists fragments (lib.attrNames set);
 			in {
 				assertion = unknownFragments == [];
 				message = "Unknown entry in ${name}: ${lib.concatStringsSep " " unknownFragments}";
@@ -42,7 +42,7 @@
 				"#!/bin/sh -e"
 				""
 				"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-			] + lib.pipe knownFragments [
+			] + lib.pipe fragments [
 				(map (f: config.environment."${type}Hook"."${f}" or ""))
 				(map stripTabs)
 				(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))

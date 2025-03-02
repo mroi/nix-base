@@ -5,6 +5,7 @@
 		"directory"
 		"firewall"
 		"groups"
+		"guest"
 		"hooks"
 		"nix"
 		"packages"

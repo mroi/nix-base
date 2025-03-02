@@ -4,7 +4,7 @@
 
 		stagingDirectory = lib.mkOption {
 			type = lib.types.nullOr lib.types.str;
-			default = "\${XDG_STATE_HOME:-$HOME/.local/state}/rebuild";
+			default = "\${XDG_STATE_HOME:-$HOME/${config.users.stateDir}}/rebuild";
 			description = "Files for the root account are staged in this directory to check for changes that need to be copied into root’s home.";
 		};
 		syncCommand = lib.mkOption {

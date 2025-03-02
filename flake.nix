@@ -62,8 +62,9 @@
 				(lib.mapAttrs (name: value: self.baseConfigurations.${name}.config))
 				(lib.filterAttrs (name: value: value.nixpkgs.system == system))
 				(lib.concatMapAttrs (name: value: {
-					${name + "-rebuild"} = value.system.build.rebuild;
-					${name + "-manual"} = value.system.build.manual;
+					"${name}-rebuild" = value.system.build.rebuild;
+					"${name}-portable" = value.system.build.portable;
+					"${name}-manual" = value.system.build.manual;
 				}))
 			])
 		);

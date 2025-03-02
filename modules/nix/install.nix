@@ -78,7 +78,7 @@
 
 		# setup of volume, user, group, nix.conf, systemd/launchd service duplicated in install script,
 		# because the script is run standalone by rebuild when Nix is not yet installed
-		system.activationScripts.nix-install = lib.stringAfter [ "volumes" "users" "groups" "staging" ] (''
+		system.activationScripts.nix = lib.stringAfter [ "volumes" "users" "groups" "staging" ] (''
 			rootStagingDir=${config.users.root.stagingDirectory}
 			nixConfigFile=${pkgs.writeText "nix.conf" config.nix.config}
 			sshConfigFile=${pkgs.writeText "ssh-config" config.nix.ssh.config}
@@ -90,10 +90,6 @@
 				updateFile 600:root:nix /nix/var/ssh/id_ed25519
 			fi
 		'');
-
-		# Nix setup internally consists of two activation script fragments, but other fragments
-		# should only need to depend on plain "nix", so we add a final dummy fragment
-		system.activationScripts.nix = lib.stringAfter [ "nix-install" "nix-builders" ] "";
 
 		system.activationScripts.services.deps = [ "nix" ];
 	};

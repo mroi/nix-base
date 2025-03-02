@@ -62,54 +62,50 @@
 				}
 			fi'';
 
-	in lib.mkMerge [
+	in {
 
-		{
-			assertions = [{
-				assertion = config.fileSystems == {} || pkgs.stdenv.isDarwin;
-				message = "Volume creation is currently only supported on Darwin.";
-			}];
+		assertions = [{
+			assertion = config.fileSystems == {} || pkgs.stdenv.isDarwin;
+			message = "Volume creation is currently only supported on Darwin.";
+		}];
 
-			system.activationScripts.volumes = ''
-				storeHeading 'Creating volumes and file systems'
+		system.activationScripts.volumes = lib.mkIf (config.fileSystems != {}) ''
+			storeHeading 'Creating volumes and file systems'
 
-				${lib.concatLines (map deleteVolumeScript volumesToDelete)}
-				${lib.concatLines (map createVolumeScript volumesToCreate)}
-			'';
-		}
+			${lib.concatLines (map deleteVolumeScript volumesToDelete)}
+			${lib.concatLines (map createVolumeScript volumesToCreate)}
+		'';
 
-		(lib.mkIf (config.fileSystems != {}) {
-
-			environment.loginHook.volumes = lib.optionalString pkgs.stdenv.isDarwin (
+		environment.loginHook = lib.mkIf (config.fileSystems != {}) {
+			volumes = lib.optionalString pkgs.stdenv.isDarwin (
 				lib.concatLines (map mountVolumeScript volumesToCreate)
 			);
+		};
+		system.activationScripts.hooks = lib.mkIf (config.fileSystems != {}) {
+			deps = [ "volumes" ];
+		};
 
-			system.activationScripts.hooks.deps = [ "volumes" ];
-		})
+		system.cleanupScripts.volumes = lib.optionalString pkgs.stdenv.isDarwin ''
+			storeHeading 'Checking volume and file system integrity'
 
-		{
-			system.cleanupScripts.volumes = lib.optionalString pkgs.stdenv.isDarwin ''
-				storeHeading 'Checking volume and file system integrity'
-
-				{
-					trace diskutil verifyDisk disk0
-					container=$(diskutil info -plist / | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
-					trace diskutil verifyVolume "$container"
-				} | {
-					if $_hasColorStdout ; then
-						# highlight some of the output with colors
-						sed "
-							/^Checking volume/{s/^/$(tput smul)/;s/\$/$(tput rmul)/;}
-							/^warning:/{s/^/$(tput setaf 11)/;s/\$/$(tput sgr0)/;}
-							/^Skipped .* repairs/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
-							/needs to be repaired\$/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
-							/appears to be OK\$/{s/^/$(tput setaf 2)/;s/\$/$(tput sgr0)/;}
-						"
-					else
-						cat
-					fi
-				}
-			'';
-		}
-	];
+			{
+				trace diskutil verifyDisk disk0
+				container=$(diskutil info -plist / | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
+				trace diskutil verifyVolume "$container"
+			} | {
+				if $_hasColorStdout ; then
+					# highlight some of the output with colors
+					sed "
+						/^Checking volume/{s/^/$(tput smul)/;s/\$/$(tput rmul)/;}
+						/^warning:/{s/^/$(tput setaf 11)/;s/\$/$(tput sgr0)/;}
+						/^Skipped .* repairs/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
+						/needs to be repaired\$/{s/^/$(tput setaf 9)/;s/\$/$(tput sgr0)/;}
+						/appears to be OK\$/{s/^/$(tput setaf 2)/;s/\$/$(tput sgr0)/;}
+					"
+				else
+					cat
+				fi
+			}
+		'';
+	};
 }

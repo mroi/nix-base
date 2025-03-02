@@ -82,8 +82,8 @@
 			${config.system.build.cleanup}
 		'';
 		checkPhase = ''
-			${pkgs.stdenv.shellDryRun} "$target"
-			${lib.getExe pkgs.shellcheck} "$target"
+			${pkgs.stdenv.shellDryRun} "$out"
+			${lib.getExe pkgs.shellcheck} "$out"
 		'';
 	};
 

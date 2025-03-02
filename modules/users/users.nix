@@ -27,7 +27,7 @@
 					description = "The user’s login shell.";
 				};
 				description = lib.mkOption {
-					type = lib.types.passwdEntry lib.types.str;
+					type = lib.types.str;
 					default = "";
 					description = "A description of the user account, like a user’s full name.";
 				};

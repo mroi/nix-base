@@ -16,7 +16,7 @@
 
 	config = let
 
-		fragments = [ "volumes" ];
+		fragments = [ "volumes" "guest" ];
 
 		unknownFragmentAssertion = name: set:
 			let unknownFragments = lib.subtractLists fragments (lib.attrNames set);
@@ -38,11 +38,13 @@
 
 		generateHook = type: pkgs.writeTextFile {
 			name = "${type}-hook.sh";
-			text = lib.concatLines [
+			text = lib.concatLines ([
 				"#!/bin/sh -e"
 				""
 				"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-			] + lib.pipe fragments [
+			] ++ lib.optionals pkgs.stdenv.isDarwin [
+				"USER=$1"
+			]) + lib.pipe fragments [
 				(map (f: config.environment."${type}Hook"."${f}" or ""))
 				(map stripTabs)
 				(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))

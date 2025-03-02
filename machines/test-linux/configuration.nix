@@ -5,6 +5,8 @@
 
 	users.guest.enable = false;
 
+	environment.flatpak = "none";
+
 	environment.profile = [
 		# Unison file sync
 		"nix-base#unison"

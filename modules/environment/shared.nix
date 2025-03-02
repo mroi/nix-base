@@ -9,6 +9,12 @@
 			};
 			description = "Folder with files common across users.";
 		};
+		exeDir = lib.mkOption {
+			type = lib.types.path;
+			default = if config.environment.shared.folder != null then
+				"${config.environment.shared.folder}/.local/bin" else "";
+			description = "Directory with executables common across users.";
+		};
 	};
 
 	config = lib.mkIf (config.environment.shared.folder != null) {

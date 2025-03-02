@@ -19,6 +19,7 @@
 		environment.shared.folder = localNullOr options.environment.shared.folder.default;
 		security.password.yescrypt.rounds = localNullOr options.security.password.yescrypt.rounds.default;
 		services.openssh.enable = localNullOr options.services.openssh.enable.default;
+		services.unison.userAccountProfile = localNullOr options.services.unison.userAccountProfile.default;
 		system.packages = localNullOr options.system.packages.default;
 		users.defaultScriptShell = localNullOr options.users.defaultScriptShell.default;
 		users.directory.authentication.searchPolicy = localNullOr options.users.directory.authentication.searchPolicy.default;

@@ -124,6 +124,7 @@ if ! test -f /nix/var/nix/db/db.sqlite ; then
 		# shellcheck disable=SC2211
 		tar -x --file nix.tar --to-stdout nix-\*/.reginfo | trace sudo --set-home /nix/store/*-nix-*/bin/nix-store --option build-users-group nix --load-db
 	fi
+	trace sudo chmod -R a-w /nix/store/*
 	rm nix.tar
 fi
 

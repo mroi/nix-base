@@ -243,6 +243,9 @@ createUser() {
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
+		if ! test "$gid" ; then
+			gid=$(getent group "$group" | cut -d: -f3)
+		fi
 		if ! getent passwd "$name" > /dev/null ; then
 			trace sudo adduser \
 				--uid "$uid" \
@@ -263,6 +266,9 @@ createUser() {
 		fi
 	fi
 	if $isDarwin ; then
+		if ! test "$gid" ; then
+			gid=$(dscl -plist . -read "/Groups/$group" PrimaryGroupID | xmllint --xpath '//string/text()' - 2> /dev/null)
+		fi
 		if ! dscl . -read "/Users/$name" > /dev/null 2>&1 ; then
 			trace sudo dscl . -create "/Users/$name"
 		fi
@@ -272,7 +278,7 @@ createUser() {
 		if test "$(_dsclRead AuthenticationAuthority)" ; then
 			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
 		fi
-		if test "$(_dsclRead Password)" != '*' ; then
+		if test "$isHidden" -a "$(_dsclRead Password)" != '*' ; then
 			trace sudo dscl . -create "/Users/$name" Password '*'
 		fi
 		if test "$(_dsclRead UniqueID)" != "$uid" ; then
@@ -284,8 +290,13 @@ createUser() {
 		if ! dseditgroup -o checkmember -m "$name" "$group" > /dev/null ; then
 			trace sudo dseditgroup -o edit -t user -a "$name" "$group"
 		fi
-		if test "$(_dsclRead IsHidden)" != "${isHidden:-0}" ; then
-			trace sudo dscl . -create "/Users/$name" IsHidden "${isHidden:-0}"
+		case "$isHidden" in (0) isHidden=NO ;; (1) isHidden=YES ;; esac
+		if test "$(_dsclRead IsHidden)" != "$isHidden" ; then
+			if test "$isHidden" ; then
+				trace sudo dscl . -create "/Users/$name" IsHidden "$isHidden"
+			else
+				trace sudo dscl . -delete "/Users/$name" IsHidden
+			fi
 		fi
 		if test "$(_dsclRead NFSHomeDirectory)" != "$home" ; then
 			trace sudo dscl . -create "/Users/$name" NFSHomeDirectory "$home"
@@ -536,5 +547,21 @@ restartService() {
 		if test "$_label" ; then
 			trace sudo launchctl kill TERM "system/$_label" || true
 		fi
+	fi
+}
+
+# interactive script editing
+
+interactiveDeletes() {
+	if test -t 0 -a -s "$1" ; then
+		{
+			echo "# $2"
+			echo '# Files will be deleted unless lines are commented or removed.'
+			sort "$1" | sed "s/'/\\'/;s/^/rm -rf '/;s/$/'/"
+		} > "$1.sh"
+		# shellcheck disable=SC2086
+		eval ${EDITOR:-vi} "$1.sh"
+		trace sudo sh "$1.sh"
+		rm "$1.sh"
 	fi
 }

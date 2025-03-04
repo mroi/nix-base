@@ -7,6 +7,11 @@
 			type = lib.types.attrsOf lib.types.unspecified;
 			description = "Attribute set of derivations for system setup.";
 		};
+		system.defaultCommands = lib.mkOption {
+			type = lib.types.listOf lib.types.str;
+			default = [ "activate" ];
+			description = "The default commands to run when no arguments are passed on the command line.";
+		};
 
 		assertions = lib.mkOption {
 			internal = true;

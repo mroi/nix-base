@@ -9,21 +9,23 @@ The main entry point is the `rebuild` script. It manifests the configuration of 
 host within the underlying system. To set up a brand new machine, it is sufficient to 
 download this repository, create a configuration, and run `rebuild`.
 
-The `rebuild` script supports a series of subcommands as arguments, which can be enumerated 
+The `rebuild` script supports a series of commands as arguments, which can be enumerated 
 with the command line option `-h` or `--help`:
 
 **`activate`**  
-This is the default when no subcommands are given. It manifests the configuration on the host 
+This is the default when no commands are given. It manifests the configuration on the host 
 and is intended to be idempotent, reducing to a no-op on subsequent executions.
 
 **`update`**  
-This subcommand pulls external sources for package updates.
+Updates the whole system by pulling external sources. As these external sources can change 
+it is not idempotent and should be rerun regularly.
 
 **`clean`**  
-Run regular maintenance tasks to check and clean the system.
+Run regular maintenance tasks to check and clean the system. These are long-running tasks 
+that may require considerable user interaction.
 
 **`all`**  
-Runs all the above subcommands.
+Runs all the above commands.
 
 The command line option `-i` or `--interactive` prompts for any state-changing commands.
 Confirm them by pressing `Enter`.

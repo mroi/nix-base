@@ -1,5 +1,7 @@
 { lib, pkgs, ... }: {
 
+	system.defaultCommands = [ "activate" ];
+
 	environment.profile = [
 		"nix-base#nix"
 		"nix-base#fish"

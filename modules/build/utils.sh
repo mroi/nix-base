@@ -15,9 +15,17 @@ checkArgs() {
 
 if checkArgs --help -h ; then
 	if test -z "$_helpCommandsPrinted" ; then
-		echo "Usage: ${0##*/} [ <subcommands> ]"
+		echo "Usage: ${0##*/} [ <commands> ]"
 		echo
-		echo "Available subcommands are:"
+		# shellcheck disable=SC2154
+		if test "$self" -a "$machine"; then
+			echo "Default commands for this machine:"
+			nix eval --quiet --no-warn-dirty --apply toString --raw \
+				"${self}#baseConfigurations.${machine}.config.system.defaultCommands"
+			echo
+		fi
+		echo
+		echo "Available commands are:"
 		echo
 	fi
 

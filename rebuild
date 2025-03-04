@@ -8,8 +8,7 @@ self=$(
 	pwd
 )
 
-. "$self/modules/build/utils.sh"
-
+# determine machine identifier
 machine=$(
 	# shellcheck disable=SC3028
 	if test "$HOSTNAME" ; then
@@ -21,6 +20,8 @@ machine=$(
 	fi | tr '[:upper:]' '[:lower:]'
 )
 machine=${machine%.local}
+
+. "$self/modules/build/utils.sh"
 
 # check if a configuration exists
 if ! test -d "$self/machines/$machine" ; then
@@ -34,6 +35,17 @@ if ! nix --version > /dev/null 2>&1 ; then
 	. "$self/modules/nix/install.sh"
 fi
 
+# run default commands if there are no arguments
+if test "$#" -eq 0 ; then
+	commands=$(nix eval --quiet --no-warn-dirty --apply toString --raw \
+		"${self}#baseConfigurations.${machine}.config.system.defaultCommands")
+	if test "$commands" ; then
+		set $commands
+	else
+		set activate
+	fi
+fi
+
 # self-update flake
 if checkArgs update-flake update all ; then
 	trace nix flake update --flake "$self"
@@ -44,9 +56,6 @@ script=$(
 	nix build --quiet --no-link --print-out-paths --no-warn-dirty \
 		"${self}#baseConfigurations.${machine}.config.system.build.rebuild"
 )
-
-# default subcommand is ‘activate’
-if test "$#" -eq 0 ; then set activate ; fi
 
 # run rebuild script
 export self _helpCommandsPrinted

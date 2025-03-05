@@ -2,6 +2,10 @@
 
 	system.defaultCommands = [ "activate" ];
 
+	system.packages = lib.mkIf pkgs.stdenv.isLinux [
+		"patch"
+	];
+
 	environment.profile = [
 		"nix-base#nix"
 		"nix-base#fish"

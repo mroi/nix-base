@@ -33,7 +33,11 @@
 			if ! nix registry list | grep -Fq ' flake:nix-base ' ; then
 				# use the origin of the rebuild script when nix-base is not a registered flake
 				# shellcheck disable=SC2154
-				target=$(echo "$target" | sed "s|^flake:nix-base#|path:''${self}#|")
+				if test "$self" ; then
+					target=$(echo "$target" | sed "s|^flake:nix-base#|path:''${self}#|")
+				else
+					fatalError 'self is unset and nix-base is absent from the Nix registry'
+				fi
 			fi
 
 			current="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("[^.]*\\.[^.]*\\."; ""))"')"

@@ -83,6 +83,7 @@ if ! test "$nixConfigFile" ; then
 
 			build-users-group = nix
 			keep-build-log = false
+			keep-derivations = false
 			sandbox = relaxed
 		EOF
 		nixConfigFile=nix.conf

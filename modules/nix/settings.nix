@@ -31,6 +31,7 @@
 			""
 			"build-users-group = ${config.users.users._nix.group}"
 			"keep-build-log = false"
+			"keep-derivations = false"
 			"sandbox = relaxed"
 		];
 

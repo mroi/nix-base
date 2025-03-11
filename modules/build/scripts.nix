@@ -54,7 +54,7 @@
 		(lib.mapAttrs (_: v: v // { text = lib.optionalString (lib.match "[ \t\n]*storeHeading [^\n]*[ \t\n]*" v.text == null) v.text; }))
 		# construct command line subcommand arguments
 		(lib.mapAttrs (n: v: v // { text = lib.optionalString (v.text != "") ''
-			# ${n}
+			# ${command}-${n}
 			if checkArgs ${command}-${n} ${command} all ; then
 				${v.text}
 			fi

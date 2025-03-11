@@ -86,8 +86,8 @@ makeLink() {
 		_parsePermissions ''
 	fi
 
-	_target=$1
-	shift
+	_link=$1
+	_target=$2
 
 	if $isLinux ; then
 		_ln='ln -snf'
@@ -102,11 +102,11 @@ makeLink() {
 		_ln='ln -shf'
 	fi
 
-	for _link ; do
+	if ! test -L "$_link" -a "$(readlink "$_link")" = "$_target" ; then
 		# shellcheck disable=SC2086
-		test -L "$_link" -a "$(readlink "$_link")" = "$_target" || trace $_sudo $_ln "$_target" "$_link"
-		_setPermissions "$_link"
-	done
+		trace $_sudo $_ln "$_target" "$_link"
+	fi
+	_setPermissions "$_link"
 }
 
 updateFile() {

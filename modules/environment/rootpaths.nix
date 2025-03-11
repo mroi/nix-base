@@ -26,7 +26,7 @@
 		addPathScript = path: (lib.concatLines (map (dir: ''
 			makeDir 755 "${config.users.root.stagingDirectory}/.nix/profile/${dir}"
 		'') (relativeDirectories path))) + (file: ''
-			makeLink 755 "${path}" "${config.users.root.stagingDirectory}/.nix/profile/${file}"
+			makeLink 755 "${config.users.root.stagingDirectory}/.nix/profile/${file}" "${path}"
 		'') (relativePath path);
 
 	in lib.mkIf (config.environment.rootPaths != []) {
@@ -48,7 +48,7 @@
 			done
 
 			# prevent the root profile from being garbage collected
-			makeLink 755:root:nix ~root/.nix/profile /nix/var/nix/gcroots/per-user/root/profile
+			makeLink 755:root:nix /nix/var/nix/gcroots/per-user/root/profile ~root/.nix/profile
 		'';
 
 		system.activationScripts.root.deps = [ "rootpaths" ];

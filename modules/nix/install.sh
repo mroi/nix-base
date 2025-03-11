@@ -138,7 +138,7 @@ if ! test -L /nix/var/nix/gcroots/per-user/root/profile ; then
 	fi
 fi
 # gcroot for root profile
-makeLink 755:root:nix ~root/.nix/profile /nix/var/nix/gcroots/per-user/root/profile
+makeLink 755:root:nix /nix/var/nix/gcroots/per-user/root/profile ~root/.nix/profile
 
 # run Nix daemon as a background service
 if $isLinux ; then

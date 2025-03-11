@@ -1,37 +1,60 @@
 # custom derivation to reduce trust in Nixpkgs for my standard shell by enforcing oversight
 # in addition, use ~/.fish for configuration instead of the XDG directories
-{ lib, path, stdenv, fetchurl,
-  cmake, coreutils, fetchpatch, fishPlugins, gawk, getent, gettext, gnugrep,
-  gnused, groff, libiconv, man-db, ncurses, nixosTests, nix-update-script,
-  pcre2, procps, python3, runCommand, which, writeText
+{ lib, path, stdenv, rustPlatform,
+	applyPatches, cargo, cmake, coreutils, darwin, fetchFromGitHub, fetchpatch2,
+	fishPlugins, gawk, getent, gettext, glibcLocales, gnugrep, gnused, groff, libiconv,
+	man-db, ncurses, ninja, nixosTests, nix-update-script, pcre2, pkg-config, procps,
+	python3, runCommand, rustc, sphinx, versionCheckHook, writableTmpDirAsHomeHook,
+	writeText
 }:
 
 let
-	fish = import "${path}/pkgs/shells/fish" {
+	fish = import "${path}/pkgs/by-name/fi/fish/package.nix" {
 		# will cause errors if derivation inputs change
-		inherit cmake coreutils fetchpatch fishPlugins gawk getent gettext gnugrep
-			gnused groff lib libiconv man-db ncurses nixosTests nix-update-script
-			pcre2 procps python3 runCommand which writeText;
+		inherit applyPatches cargo cmake coreutils darwin fetchFromGitHub fetchpatch2
+			fishPlugins gawk getent gettext glibcLocales gnugrep gnused groff lib libiconv
+			man-db ncurses ninja nixosTests nix-update-script pcre2 pkg-config procps
+			python3 runCommand rustc sphinx versionCheckHook writableTmpDirAsHomeHook
+			writeText;
 		# passthrough functions for argument inspection
-		stdenv = stdenv // { mkDerivation = x: x; };
-		fetchurl = x: x;
+		stdenv = stdenv // { mkDerivation = x: lib.fix x; };
+		rustPlatform = rustPlatform // { fetchCargoVendor = x: (rustPlatform.fetchCargoVendor x) // x; };
 	};
 	expect = { expected, actual, error }:
 		if actual == expected then actual else throw ("fish " + error + " " + toString actual);
+
 in stdenv.mkDerivation {
 	pname = fish.pname;
 	version = fish.version;
-	src = fetchurl {
-		url = expect {
-			expected = "https://github.com/fish-shell/fish-shell/releases/download/${fish.version}/${fish.pname}-${fish.version}.tar.xz";
-			actual = fish.src.url;
-			error = "source URL changed:";
+	# workaround as long as the applyPatch construction in fish.src is necessary
+	src = if
+		fish.src.outPath == "/nix/store/sy1mv8cs999c866w5mbxq0lbkgy4w2j2-source-patched" ||
+		fish.src.outPath == "/nix/store/abw00by8ci3g7ahrnjvw7ibryglg4hfh-source-patched"
+	then fish.src else fetchFromGitHub {
+		owner = expect {
+			expected = "fish-shell";
+			actual = fish.src.owner;
+			error = "source owner changed:";
 		};
+		repo = expect {
+			expected = "fish-shell";
+			actual = fish.src.repo;
+			error = "source repo changed:";
+		};
+		tag = fish.version;
 		hash = expect {
-			expected = "sha256-YUyfVkPNB5nfOROV+mu8NklCe7g5cizjsRTTu8GjslA=";
+			expected = "sha256-BLbL5Tj3FQQCOeX5TWXMaxCpvdzZtKe5dDQi66uU/BM=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
-				"/usr/bin/python3 -c 'import urllib.request,hashlib,base64,string;print(\"sha256-\"+base64.b64encode(hashlib.sha256(urllib.request.urlopen(\"" + fish.src.url + "\").read()).digest()).decode())' ; echo");
+				"/usr/bin/python3 -c 'import urllib.request,hashlib,base64,string;print(\"sha256-\"+base64.b64encode(hashlib.sha256(urllib.request.urlopen(\"https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz\").read()).digest()).decode())' ; echo");
+		};
+	};
+	cargoDeps = rustPlatform.fetchCargoVendor {
+		inherit (fish) src;
+		hash = expect {
+			expected = "sha256-4ol4LvabhtjiMMWwV1wrcywFePOmU0Jub1sy+Ay7mLA=";
+			actual = fish.cargoDeps.hash;
+			error = "cargo deps hash changed:";
 		};
 	};
 	outputs = expect {
@@ -41,12 +64,12 @@ in stdenv.mkDerivation {
 	};
 
 	nativeBuildInputs = expect {
-		expected = [ cmake gettext ];
+		expected = [ cargo cmake gettext ninja pkg-config rustc rustPlatform.cargoSetupHook writableTmpDirAsHomeHook ];
 		actual = fish.nativeBuildInputs;
 		error = "nativeBuildInputs changed:";
 	};
 	buildInputs = expect {
-		expected = [ ncurses libiconv pcre2 ];
+		expected = [ libiconv pcre2 ];
 		actual = fish.buildInputs;
 		error = "buildInputs changed:";
 	};
@@ -57,20 +80,30 @@ in stdenv.mkDerivation {
 	};
 
 	patches = [(writeText "fish-fix-xdg.patch" ''
-		--- fish-shell/src/path.cpp	2020-02-12 15:04:07.000000000 +0100
-		+++ fish-shell/src/path.cpp	2024-02-16 15:09:11.000000000 +0100
-		@@ -351,7 +351,7 @@
-		 }
+		--- fish-shell/src/path.rs	1970-01-01 01:00:01
+		+++ fish-shell/src/path.rs	2025-03-12 17:17:36
+		@@ -94,7 +94,7 @@
+		             L!("data"),
+		             wgettext!("can not save history"),
+		             data.used_xdg,
+		-            L!("XDG_DATA_HOME"),
+		+            L!("XDG_STATE_HOME"),
+		             &data.path,
+		             data.err,
+		             vars,
+		@@ -769,7 +769,7 @@
 		 
-		 static const base_directory_t &get_data_directory() {
-		-    static base_directory_t s_dir = make_base_directory(L"XDG_DATA_HOME", L"/.local/share/fish");
-		+    static base_directory_t s_dir = make_base_directory(L"XDG_STATE_HOME", L"/.local/state/fish");
-		     return s_dir;
+		 fn get_data_directory() -> &'static BaseDirectory {
+		     static DIR: Lazy<BaseDirectory> =
+		-        Lazy::new(|| make_base_directory(L!("XDG_DATA_HOME"), L!("/.local/share/fish")));
+		+        Lazy::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
+		     &DIR
 		 }
 		 
 	'')];
+
 	preConfigure = expect {
-		expected = "patchShebangs ./build_tools/git_version_gen.sh\n";
+		expected = "patchShebangs ./build_tools/git_version_gen.sh\npatchShebangs ./tests/test_driver.py\n";
 		actual = fish.preConfigure;
 		error = "preConfigure changed:";
 	};
@@ -80,14 +113,7 @@ in stdenv.mkDerivation {
 		actual = fish.cmakeFlags;
 		error = "cmakeFlags changed:";
 	};
-	postInstall = ''
-		sed -i "s|\.config/fish|.local/config/fish|g" \
-			"$out/share/fish/functions/__fish_config_interactive.fish" \
-			"$out/share/fish/functions/fish_update_completions.fish"
-		sed -i "s|\.local/share|.local/state|g" \
-			"$out/share/fish/tools/create_manpage_completions.py"
-	'';
+	env = { FISH_BUILD_VERSION = fish.version; };
 
 	meta = fish.meta;
-	passthru = fish.passthru;
 }

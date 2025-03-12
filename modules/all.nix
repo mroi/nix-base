@@ -23,6 +23,7 @@
 	"groups" = ./users/groups.nix;
 	"guest" = ./users/guest.nix;
 	"root" = ./users/root.nix;
+	"shared" = ./users/shared.nix;
 	"shell" = ./users/shell.nix;
 	"users" = ./users/users.nix;
 

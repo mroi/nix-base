@@ -13,6 +13,7 @@
 		"root"
 		"rootpaths"
 		"services"
+		"shell"
 		"sip"
 		"ssh"
 		"staging"

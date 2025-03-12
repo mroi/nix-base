@@ -13,6 +13,7 @@
 		security.password.yescrypt.rounds = null;
 		services.openssh.enable = null;
 		system.packages = null;
+		users.defaultScriptShell = null;
 		users.directory.authentication.searchPolicy = null;
 		users.directory.information.searchPolicy = null;
 		users.root.stagingDirectory = null;

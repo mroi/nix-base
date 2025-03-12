@@ -9,25 +9,21 @@
 
 	config = let
 
-		# list of all subpaths after the store directory
-		# for /nix/store/<hash>-<name>/a/b/c this is [ "" "a" "a/b" "a/b/c" ]
-		subpaths = path: lib.pipe path [
+		# part of the path relative to the package root in the Nix store
+		# for /nix/store/<hash>-<name>/a/b/c this is "a/b/c"
+		relativePath = path: lib.pipe path [
 			(lib.removePrefix builtins.storeDir)
 			(lib.splitString "/")
 			(lib.drop 2)
-			(lib.foldl (list: element: list ++ [ "${lib.last list}/${element}" ]) [ "" ])
-			(map (lib.removePrefix "/"))
+			(lib.concatStringsSep "/")
 		];
 
-		relativeDirectories = path: lib.dropEnd 1 (subpaths path);
-		relativePath = path: lib.last (subpaths path);
 		profilePath = path: "${config.users.root.stagingDirectory}/.nix/profile/${relativePath path}";
 
-		addPathScript = path: (lib.concatLines (map (dir: ''
-			makeDir 755 "${config.users.root.stagingDirectory}/.nix/profile/${dir}"
-		'') (relativeDirectories path))) + (file: ''
-			makeLink 755 "${config.users.root.stagingDirectory}/.nix/profile/${file}" "${path}"
-		'') (relativePath path);
+		addPathScript = path: ''
+			makeDir 755 "${builtins.dirOf (profilePath path)}"
+			makeLink 755 "${profilePath path}" "${path}"
+		'';
 
 	in lib.mkIf (config.environment.rootPaths != []) {
 

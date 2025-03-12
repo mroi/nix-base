@@ -58,12 +58,7 @@ if $isLinux ; then
 fi
 makeDir 1775:root:nix /nix/store
 makeDir 755:root:nix \
-	/nix/var \
-	/nix/var/nix \
-	/nix/var/nix/gcroots \
-	/nix/var/nix/gcroots/per-user \
 	/nix/var/nix/gcroots/per-user/root \
-	/nix/var/nix/profiles \
 	/nix/var/nix/profiles/per-user
 if $isDarwin ; then
 	makeDir 750:root:staff /nix/var/nix/daemon-socket

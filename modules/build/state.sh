@@ -71,9 +71,21 @@ makeDir() {
 	fi
 
 	for _dir ; do
-		# shellcheck disable=SC2086
-		test -d "$_dir" || trace $_sudo mkdir "$_dir"
-		_setPermissions "$_dir"
+		_sub=
+		_dir=${_dir#/}/
+		while test "$_dir" ; do
+			# iterate over all subpaths
+			_sub=$_sub/${_dir%%/*}
+			_dir=${_dir#*/}
+			if ! test -d "$_sub" ; then
+				# create and apply permissions if not existing
+				# shellcheck disable=SC2086
+				trace $_sudo mkdir "$_sub"
+				_setPermissions "$_sub"
+			fi
+		done
+		# final directory always gets permissions applied
+		_setPermissions "$_sub"
 	done
 }
 

@@ -20,6 +20,7 @@
 		"sip"
 		"ssh"
 		"staging"
+		"unison"
 		"users"
 		"volumes"
 	];

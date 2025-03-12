@@ -17,6 +17,7 @@
 		users.directory.authentication.searchPolicy = null;
 		users.directory.information.searchPolicy = null;
 		users.root.stagingDirectory = null;
+		users.shared.folder = null;
 
 		# adapt configuration for non-systemwide setups
 		environment.flatpak = if pkgs.stdenv.isLinux then "user" else "none";

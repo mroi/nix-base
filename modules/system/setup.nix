@@ -12,6 +12,7 @@
 		# disable changes with system-level effects
 		security.password.yescrypt.rounds = null;
 		services.openssh.enable = null;
+		services.unison.userAccountProfile = null;
 		system.packages = null;
 		users.defaultScriptShell = null;
 		users.directory.authentication.searchPolicy = null;

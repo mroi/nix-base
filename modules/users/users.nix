@@ -43,7 +43,7 @@
 		usersToDelete = lib.attrsToList (lib.filterAttrs (n: v: v == null) config.users.users);
 
 		createUserScript = user: ''
-			createUser <<- EOF
+			makeUser <<- EOF
 				name=${user.name}
 				gid=${toString config.users.groups.${user.value.group}.gid}
 				${lib.toShellVars user.value}

@@ -12,7 +12,7 @@ if $isDarwin ; then
 		test -d /nix || fatalError 'Creating /nix firmlink failed'
 	fi
 	# create the Nix volume
-	createVolume <<- EOF
+	makeVolume <<- EOF
 		name=Nix ; mountPoint=/nix ; container=/
 		fsType=APFSX ; encrypted=1 ; ownership=1
 		keyStorage="$rootStagingDir/login-hook.sh" ; keyVariable=NIX_VOLUME_PASSWORD
@@ -39,16 +39,16 @@ if $isDarwin ; then
 fi
 
 # create nix group and user
-createGroup << EOF
+makeGroup << EOF
 	name=nix ; gid=600 ; description='Nix Build Group'
 EOF
-createUser << EOF
+makeUser << EOF
 	name=_nix ; uid=600 ; gid=600 ; group=nix ; isHidden=1
 	home=$(if $isDarwin ; then echo /var/empty ; else echo /nonexistent ; fi)
 	shell=$(if $isDarwin ; then echo /usr/bin/false ; else echo /usr/sbin/nologin ; fi)
 	description='Nix Build User'
 EOF
-createGroup << EOF
+makeGroup << EOF
 	name=nix ; gid=600 ; members=_nix ; description='Nix Build Group'
 EOF
 
@@ -89,14 +89,14 @@ if ! test "$nixConfigFile" ; then
 		nixConfigFile=nix.conf
 	fi
 fi
-updateFile 644:root:nix /nix/nix.conf "$nixConfigFile"
-if updateDidCreate || updateDidModify ; then restartService nix-daemon ; fi
+makeFile 644:root:nix /nix/nix.conf "$nixConfigFile"
+if didCreate || didModify ; then restartService nix-daemon ; fi
 
 # Nix daemon SSH configuration
 if test "$sshConfigFile" -a "$sshKnownHostsFile" ; then
 	makeDir 755:root:nix /nix/var/ssh
-	updateFile 644:root:nix /nix/var/ssh/config "$sshConfigFile"
-	updateFile 644:root:nix /nix/var/ssh/known_hosts "$sshKnownHostsFile"
+	makeFile 644:root:nix /nix/var/ssh/config "$sshConfigFile"
+	makeFile 644:root:nix /nix/var/ssh/known_hosts "$sshKnownHostsFile"
 fi
 
 # download initial store
@@ -150,7 +150,7 @@ if $isDarwin ; then
 	objcVariable=OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 	socket=
 fi
-createService << EOF
+makeService << EOF
 	name=nix-daemon ; label=org.nixos.nix-daemon
 	description='Nix Package Manager Daemon'
 	command=~root/.nix/profile/bin/nix\ --extra-experimental-features\ nix-command\ daemon

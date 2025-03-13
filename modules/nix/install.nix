@@ -87,7 +87,7 @@
 		'' + lib.optionalString config.nix.ssh.keygen ''
 			if ! test -f /nix/var/ssh/id_ed25519 ; then
 				trace sudo ssh-keygen -q -t ed25519 -N ''' -C ''' -f /nix/var/ssh/id_ed25519
-				updateFile 600:root:nix /nix/var/ssh/id_ed25519
+				makeFile 600:root:nix /nix/var/ssh/id_ed25519
 			fi
 		'');
 

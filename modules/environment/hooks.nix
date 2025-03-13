@@ -16,7 +16,7 @@
 
 	config = let
 
-		fragments = [ "volumes" "guest" ];
+		fragments = [ "volumes" "guest" "unison" ];
 
 		unknownFragmentAssertion = name: set:
 			let unknownFragments = lib.subtractLists fragments (lib.attrNames set);

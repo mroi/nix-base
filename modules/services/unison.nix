@@ -8,6 +8,11 @@
 			default = ".unison";
 			description = "Unison configuration directory relative to the user’s home.";
 		};
+		userAccountProfile = lib.mkOption {
+			type = lib.types.nullOr lib.types.singleLineStr;
+			default = null;
+			description = "Unison profile which is used to sync user accounts at login.";
+		};
 	};
 
 	config = let
@@ -47,6 +52,11 @@
 
 	in lib.mkIf cfg.enable {
 
+		assertions = [{
+			assertion = config.users.shared.folder != null || cfg.userAccountProfile == null;
+			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder.";
+		}];
+
 		# install Unison
 		environment.profile = lib.mkIf pkgs.stdenv.isLinux [ "nix-base#unison" ];
 		environment.rootPaths = lib.mkIf pkgs.stdenv.isLinux [
@@ -72,5 +82,58 @@
 				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
 			fi
 		'';
+
+		# use Unison to prepare user accounts at login
+		environment.loginHook.unison = lib.mkIf (cfg.userAccountProfile != null) (''
+			# setup user at login
+			eval export HOME=~"$USER"
+			if test -d "$HOME" -a -d ${baseDir}/${configDir} -a -x ${baseDir}/${binDir}/unison ${lib.optionalString pkgs.stdenv.isLinux "-a ! -e \"$HOME/.ecryptfs\" "}; then
+				cd "$HOME"
+				su -m "$USER" <<- 'EOF'
+					umask 0022'' + "\n"
+		+ lib.optionalString pkgs.stdenv.isLinux (''
+					# remove the system default files
+					for file in .bash_logout .bashrc .inputrc .profile ; do
+						size=$(stat -c %s /etc/skel/$file)
+						cmp -s -n "$size" $file /etc/skel/$file && rm $file
+					done'' + "\n")
+		+ ''
+					# minimal Unison setup
+					if ! test -d ${configDir} ; then
+						mkdir -m 0700 ${configDir}
+					fi
+					symlinkRecursive() {
+						if test -f ${configDir}/"$1" ; then return ; fi
+						if test -f ${baseDir}/${configDir}/"$1" ; then
+							ln -s ${baseDir}/${configDir}/"$1" ${configDir}/
+							# symlink all includes within this file
+							sed -n '/^include /{s/^include //;p;}' ${configDir}/"$1" | while read -r include ; do
+								symlinkRecursive "$include"
+							done
+						elif test "$1" = common.root ; then
+							echo "root = $HOME/" > ${configDir}/common.root
+						else
+							touch ${configDir}/"$1"
+						fi
+					}
+					symlinkRecursive ${lib.escapeShellArg cfg.userAccountProfile}
+					# run Unison to initialize user account
+					HOME="$HOME" ${baseDir}/${binDir}/unison -ui text -silent \
+						-nodeletionpartial "BelowPath * -> $HOME/" \
+						-nodeletionpartial "BelowPath .* -> $HOME/" \
+						-noupdatepartial "BelowPath * -> $HOME/" \
+						-noupdatepartial "BelowPath .* -> $HOME/" \
+						${lib.escapeShellArg cfg.userAccountProfile} > /dev/null 2>&1'' + "\n"
+		+ lib.optionalString config.services.openssh.enable (''
+					# special case: .ssh
+					if ! test -d .ssh ; then
+						mkdir -m 0700 .ssh
+						touch .ssh/authorized_keys .ssh/known_hosts
+						chmod 600 .ssh/authorized_keys .ssh/known_hosts
+					fi'' + "\n")
+		+ ''
+				EOF
+			fi
+		'');
 	};
 }

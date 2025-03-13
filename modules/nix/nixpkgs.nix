@@ -21,5 +21,13 @@
 		};
 	};
 
-	config._module.args.pkgs = config.nixpkgs.pkgs;
+	config._module.args.pkgs = config.nixpkgs.pkgs // rec {
+		# build package at rebuild-script runtime instead of at build-time
+		# use when a package is only needed under conditions that are checked at runtime
+		lazyBuild = pkg: let
+			drv = builtins.unsafeDiscardOutputDependency pkg.drvPath;
+		in "$(nix build --quiet --no-link --print-out-paths --no-warn-dirty ${drv}^out)";
+
+		lazyCallPackage = path: args: lazyBuild (config.nixpkgs.pkgs.callPackage path args);
+	};
 }

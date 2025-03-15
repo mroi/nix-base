@@ -44,7 +44,7 @@
 		};
 
 		createVolumeScript = volume: lib.optionalString volume.value.autoVolume ''
-			createVolume <<- EOF
+			makeVolume <<- EOF
 				${lib.toShellVars (volumeProperties volume)}
 			EOF
 		'';

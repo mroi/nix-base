@@ -1,34 +1,28 @@
-{ config, lib, pkgs, options, ... }: {
+{ config, lib, pkgs, ... }: {
 
 	options.system = {
 
-		systemwideSetup = lib.mkEnableOption "option defaults performing systemwide setup";
+		systemwideSetup = lib.mkEnableOption "option defaults performing systemwide setup" // {
+			default = true;
+		};
 	};
 
-	config = let
+	config = lib.mkIf (!config.system.systemwideSetup) (lib.mkDefault {
 
-		isSystemwide = config.system.systemwideSetup;
-		isLocal = ! config.system.systemwideSetup;
-		localNullOr = default: if isLocal then null else default;
+		# disable changes with system-level effects
+		security.password.yescrypt.rounds = null;
+		services.openssh.enable = null;
+		system.packages = null;
+		users.directory.authentication.searchPolicy = null;
+		users.directory.information.searchPolicy = null;
+		users.root.stagingDirectory = null;
 
-	in lib.mkDefault {
-
-		system.systemwideSetup = true;
-
-		# mute these settings for local-only setups
-		security.password.yescrypt.rounds = localNullOr options.security.password.yescrypt.rounds.default;
-		services.openssh.enable = localNullOr options.services.openssh.enable.default;
-		system.packages = localNullOr options.system.packages.default;
-		users.directory.authentication.searchPolicy = localNullOr options.users.directory.authentication.searchPolicy.default;
-		users.directory.information.searchPolicy = localNullOr options.users.directory.information.searchPolicy.default;
-		users.root.stagingDirectory = localNullOr options.users.root.stagingDirectory.default;
-
-		# reconfigure depending on systemwide option
-		environment.flatpak = if isLocal && pkgs.stdenv.isLinux then "user" else options.environment.flatpak.default;
-		networking.firewall.enable = isSystemwide && pkgs.stdenv.isDarwin;
-		nix.enable = isSystemwide;
-		security.sudo.touchId = isSystemwide && pkgs.stdenv.isDarwin;
-		security.sudo.adminFlagFile = !(isSystemwide && pkgs.stdenv.isLinux);
-		users.guest.enable = isSystemwide;
-	};
+		# adapt configuration for non-systemwide setups
+		environment.flatpak = if pkgs.stdenv.isLinux then "user" else "none";
+		networking.firewall.enable = false;
+		nix.enable = false;
+		security.sudo.touchId = false;
+		security.sudo.adminFlagFile = pkgs.stdenv.isLinux;
+		users.guest.enable = false;
+	});
 }

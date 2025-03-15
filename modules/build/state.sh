@@ -86,8 +86,8 @@ makeLink() {
 		_parsePermissions ''
 	fi
 
-	_target=$1
-	shift
+	_link=$1
+	_target=$2
 
 	if $isLinux ; then
 		_ln='ln -snf'
@@ -102,14 +102,14 @@ makeLink() {
 		_ln='ln -shf'
 	fi
 
-	for _link ; do
+	if ! test -L "$_link" -a "$(readlink "$_link")" = "$_target" ; then
 		# shellcheck disable=SC2086
-		test -L "$_link" -a "$(readlink "$_link")" = "$_target" || trace $_sudo $_ln "$_target" "$_link"
-		_setPermissions "$_link"
-	done
+		trace $_sudo $_ln "$_target" "$_link"
+	fi
+	_setPermissions "$_link"
 }
 
-updateFile() {
+makeFile() {
 	# first argument: optional permission descriptor
 	if test "$1" != "${1#[0-9]}" ; then
 		_parsePermissions "$1"
@@ -147,11 +147,11 @@ updateFile() {
 	_setPermissions "$_target"
 }
 
-updateDidCreate() {
+didCreate() {
 	if test "$_update" = created ; then return 0 ; else return 1 ; fi
 }
 
-updateDidModify() {
+didModify() {
 	if test "$_update" = modified ; then return 0 ; else return 1 ; fi
 }
 
@@ -177,7 +177,7 @@ deleteDidRemove() {
 
 # volume management
 
-createVolume() {
+makeVolume() {
 	name= ; container= ; encrypted= ; keyStorage= ; keyVariable= ; fsType= ; mountPoint= ; ownership=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
@@ -238,7 +238,7 @@ deleteVolume() {
 
 # user and group management
 
-createUser() {
+makeUser() {
 	name= ; uid= ; gid= ; group= ; isHidden= ; home= ; shell= ; description=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
@@ -257,7 +257,7 @@ createUser() {
 		fi
 		if ! getent passwd "$name" | grep -q "^$name:x:$uid:$gid:$description,,,:$home:$shell$" ; then
 			deleteUser "$name"
-			createUser <<- EOF
+			makeUser <<- EOF
 				name="$name" ; uid="$uid" ; gid="$gid" ; group="$group" ; isHidden="$isHidden" ; home="$home" ; shell="$shell" ; description="$description"
 			EOF
 		fi
@@ -313,7 +313,7 @@ deleteUser() {
 	fi
 }
 
-createGroup() {
+makeGroup() {
 	name= ; gid= ; members= ; description=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
@@ -323,7 +323,7 @@ createGroup() {
 		fi
 		if ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
 			deleteGroup "$name"
-			createGroup <<- EOF
+			makeGroup <<- EOF
 				name="$name" ; gid="$gid" ; members="$members" ; description="$description"
 			EOF
 		fi
@@ -370,7 +370,7 @@ deleteGroup() {
 
 # service management
 
-createService() {
+makeService() {
 	name= ; label= ; description= ; dependencies= ; oneshot= ; command= ; environment= ; group= ; socket= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
@@ -423,7 +423,7 @@ createService() {
 				[Install]
 				WantedBy=sockets.target
 			EOF
-			updateFile 644:root:root "/etc/systemd/system/$name.socket" "$name.socket"
+			makeFile 644:root:root "/etc/systemd/system/$name.socket" "$name.socket"
 			rm "$name.socket"
 		fi
 		cat > "$name.service" <<- EOF
@@ -438,16 +438,16 @@ createService() {
 			[Install]
 			WantedBy=multi-user.target
 		EOF
-		updateFile 644:root:root "/etc/systemd/system/$name.service" "$name.service"
+		makeFile 644:root:root "/etc/systemd/system/$name.service" "$name.service"
 		rm "$name.service"
-		if updateDidCreate ; then
+		if didCreate ; then
 			trace sudo systemctl daemon-reload
 			if test "$socket" ; then
 				trace sudo systemctl enable --now "$name.socket"
 			else
 				trace sudo systemctl enable --now "$name.service"
 			fi
-		elif updateDidModify ; then
+		elif didModify ; then
 			trace sudo systemctl daemon-reload
 			restartService "$name"
 		fi
@@ -490,11 +490,11 @@ createService() {
 				"StandardOutPath": "/dev/null"
 			}
 		EOF
-		updateFile 644:root:wheel "/Library/LaunchDaemons/$label.plist" "$label.plist"
+		makeFile 644:root:wheel "/Library/LaunchDaemons/$label.plist" "$label.plist"
 		rm "$label.plist"
-		if updateDidCreate ; then
+		if didCreate ; then
 			trace sudo launchctl bootstrap system "/Library/LaunchDaemons/$label.plist"
-		elif updateDidModify ; then
+		elif didModify ; then
 			restartService "$name"
 		fi
 	fi

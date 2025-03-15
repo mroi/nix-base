@@ -53,7 +53,7 @@
 		servicesToDelete = lib.attrsToList (lib.filterAttrs (n: v: v == null) config.environment.services);
 
 		createServiceScript = service: ''
-			createService <<- EOF
+			makeService <<- EOF
 				name=${service.name}
 				${lib.toShellVars (service.value // {
 					dependencies = lib.concatStringsSep " " service.value.dependencies;

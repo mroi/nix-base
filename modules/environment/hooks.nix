@@ -79,8 +79,8 @@
 			${preservePasswords loginHook "login-hook.sh"}
 			${preservePasswords logoutHook "logout-hook.sh"}
 
-			updateFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
-			updateFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
+			makeFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
+			makeFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
 		'';
 
 		system.activationScripts.root.deps = [ "hooks" ];

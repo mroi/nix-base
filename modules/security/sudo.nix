@@ -16,7 +16,7 @@
 			assertion = ! config.security.sudo.touchId || pkgs.stdenv.isDarwin;
 			message = "security.sudo.touchId is only available on Darwin";
 		} {
-			assertion = config.security.sudo.adminFlagFile || pkgs.stdenv.isLinux;
+			assertion = ! config.security.sudo.adminFlagFile || pkgs.stdenv.isLinux;
 			message = "security.sudo.adminFlagFile is only available on Linux";
 		}];
 

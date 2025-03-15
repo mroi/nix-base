@@ -32,7 +32,7 @@
 		groupsToDelete = lib.attrsToList (lib.filterAttrs (n: v: v == null) config.users.groups);
 
 		createGroupScript = group: ''
-			createGroup <<- EOF
+			makeGroup <<- EOF
 				name=${group.name}
 				${lib.toShellVars (group.value // {
 					members = lib.concatStringsSep " " group.value.members;

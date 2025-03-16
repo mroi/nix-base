@@ -75,7 +75,7 @@
 			(unknownFragmentAssertion "logoutHook" config.environment.logoutHook)
 		];
 
-		system.activationScripts.hooks = lib.stringAfter [ "staging" ] ''
+		system.activationScripts.hooks = lib.stringAfter [ "staging" ] (''
 			storeHeading 'Updating login and logout hook scripts'
 
 			${preservePasswords loginHook "login-hook.sh"}
@@ -83,8 +83,17 @@
 
 			makeFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
 			makeFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
-		'';
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+
+			makeDir 700 "${config.users.root.stagingDirectory}/Library/Preferences"
+			makeFile 644 "${config.users.root.stagingDirectory}/Library/Preferences/com.apple.loginwindow.plist" ${./hooks-loginwindow.plist}
+		'');
 
 		system.activationScripts.root.deps = [ "hooks" ];
+
+		environment.patches = lib.mkIf pkgs.stdenv.isLinux [
+			./hooks-lightdm.patch
+		];
 	};
 }

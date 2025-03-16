@@ -41,7 +41,7 @@ jobs:
         test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
 
     - name: Check for empty state directory
-      if: ${{ runner.name == 'test-nosys' }}
+      if: ${{ matrix.machine == 'test-nosys' }}
       run: test ! -d ~/.local/state/rebuild
 
     - name: Run cleanup

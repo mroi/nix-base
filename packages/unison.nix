@@ -132,6 +132,7 @@ let
 			cp ${unisonPackage}/bin/unison $out/bin/
 			cp libintercept.so $out/lib/
 		'';
+		passthru.updateScript = "nixUpdate --version branch";
 	};
 
 in if intercept then unisonIntercept else unisonPackage

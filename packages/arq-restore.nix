@@ -9,14 +9,13 @@ let
 
 in stdenv.mkDerivation {
 	pname = "arq-restore";
-	version = "5.7";
+	version = "5.7-unstable-2020-12-14";
 
 	src = fetchFromGitHub {
 		owner = "arqbackup";
 		repo = "arq_restore";
-		# curl https://api.github.com/repos/arqbackup/arq_restore/git/refs/heads/master
 		rev = "d4a3d0e14c51695fb0e38c78804859a856eca3bc";
-		sha256 = "0np42gri9rjaa5xf2vh5ppg53dw616i8qls83c8588pb5x0nlg12";
+		hash = "sha256-IjxqQS/rIlQQG0hTjKIJhrdR3r0FbuF6UUrmFPMT5Fo=";
 	};
 
 	nativeBuildInputs = [ xcbuildHook ];
@@ -30,14 +29,5 @@ in stdenv.mkDerivation {
 		cp Products/Release/arq_restore $out/bin
 	'';
 
-	meta = {
-		description = "command-line utility for restoring from Arq backups";
-		homepage    = "https://www.arqbackup.com";
-		platforms   = lib.platforms.darwin;
-		maintainers = [{
-			email = "reactorcontrol@icloud.com";
-			github = "mroi";
-			name = "Michael Roitzsch";
-		}];
-	};
+	passthru.updateScript = "nixUpdate --version branch";
 }

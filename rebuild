@@ -40,6 +40,7 @@ if test "$#" -eq 0 ; then
 	commands=$(nix eval --quiet --no-warn-dirty --apply toString --raw \
 		"${self}#baseConfigurations.${machine}.config.system.defaultCommands")
 	if test "$commands" ; then
+		# shellcheck disable=SC2086
 		set $commands
 	else
 		set activate
@@ -49,6 +50,12 @@ fi
 # self-update flake
 if checkArgs update-flake update all ; then
 	trace nix flake update --flake "$self"
+fi
+
+# update package versions
+if checkArgs update-versions update all ; then
+	. "$self/modules/build/versions.sh"
+	runAllUpdates
 fi
 
 # generate rebuild script for this machine

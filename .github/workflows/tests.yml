@@ -44,6 +44,11 @@ jobs:
       if: ${{ matrix.machine == 'test-nosys' }}
       run: test ! -d ~/.local/state/rebuild -a ! -d ~/.unison/root-*
 
+    - name: Run version update
+      run: |
+        ./rebuild update-versions
+        git restore .
+
     - name: Run cleanup
       run: ./rebuild clean
 

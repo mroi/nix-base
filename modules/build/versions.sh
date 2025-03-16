@@ -36,6 +36,26 @@ runAllUpdates() {
 	storeHeading 'Updating package versions'
 	(
 		cd "${self}" || exit
+		# add relevant tools to the path
+		PATH=$PATH$(nix eval --quiet --no-warn-dirty --raw \
+			--apply 'pkgs: builtins.foldl'\'' (
+				acc: elem: "${acc}:${pkgs."${elem}"}/bin"
+			) "" (builtins.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = [ "nix-update" ];
+				Darwin = [ "nix-update" ];
+			})' \
+			"${self}#baseConfigurations.${machine}.config.nixpkgs.pkgs"
+		)
 		eval "$_updatesExternal" "$_updatesInternal"
 	)
+}
+
+# helper functions for per-package update scripts
+
+nixUpdate() {
+	NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
+		/^fetch /Ip
+		/^update /Ip
+		/^no changes /Ip
+	'
 }

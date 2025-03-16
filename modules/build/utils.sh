@@ -161,9 +161,10 @@ fi
 
 # ensure the Nix command is runnable
 
+if $isLinux ; then _sslCertFile=/etc/ssl/certs/ca-certificates.crt ; fi
+if $isDarwin ; then _sslCertFile=/etc/ssl/cert.pem ; fi
+
 if ! command -v nix > /dev/null ; then
-	if $isLinux ; then _sslCertFile=/etc/ssl/certs/ca-certificates.crt ; fi
-	if $isDarwin ; then _sslCertFile=/etc/ssl/cert.pem ; fi
 	nix() {
 		if test -x "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" ; then
 			NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$_sslCertFile "${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/nix" "$@"

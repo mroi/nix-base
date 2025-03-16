@@ -199,7 +199,15 @@
 					ignore    = Path ${configDir}/ar*
 					ignore    = Path ${configDir}/fp*
 					ignore    = Path ${configDir}/lk*
-					ignorenot = Path ${lib.head (lib.splitString "/" binDir)}
+					ignorenot = Path ${lib.head (lib.splitString "/" binDir)}'' + "\n"
+		+ lib.optionalString pkgs.stdenv.isDarwin ''
+					ignore    = Path Library/*
+					ignore    = Path Library/.*
+					ignorenot = Path Library/Preferences
+					ignore    = Path Library/Preferences/*
+					ignore    = Path Library/Preferences/.*
+					ignorenot = Path Library/Preferences/com.apple.loginwindow.plist
+		'' + ''
 				EOF
 			fi
 

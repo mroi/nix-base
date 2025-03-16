@@ -13,6 +13,7 @@
 			default = null;
 			description = "Unison profile which is used to sync user accounts at login.";
 		};
+		syncRoot = lib.mkEnableOption "root user sync with Unison" // { default = true; };
 	};
 
 	config = let
@@ -23,6 +24,7 @@
 		serviceDir = lib.escapeShellArg config.users.serviceDir;
 		configDir = lib.escapeShellArg cfg.configDir;
 		baseDir = if config.users.sharedFolder != null then shared else	"\"$HOME\"";
+		stagingDir = "\"${config.users.root.stagingDirectory}\"";
 
 		userScript = pkgs.writeScript "unison" (lib.concatLines ([
 			"#!/bin/sh"
@@ -35,6 +37,17 @@
 			))
 		] ++ lib.optionals pkgs.stdenv.isDarwin [
 			"cd ${baseDir}/${serviceDir}/Unison.app/ || exit"
+			"exec Contents/MacOS/Unison -ui text \"$@\""
+		]));
+
+		rootScript = pkgs.writeScript "unison" (lib.concatLines ([
+			"#!/bin/sh"
+		] ++ lib.optionals pkgs.stdenv.isLinux [
+			(lib.optionalString cfg.intercept "LD_PRELOAD=~/${configDir}/libintercept.so " +
+				"exec ~/.nix/profile/bin/unison \"$@\"")
+		] ++ lib.optionals pkgs.stdenv.isDarwin [
+			"export HOME=/private/var/root"
+			"cd $HOME/${binDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
 		]));
 
@@ -79,7 +92,7 @@
 			'';
 		};
 		# FIXME: environment.bundles on macOS
-		system.activationScripts.unison = lib.stringAfter [ "profile" "shared" ] ''
+		system.activationScripts.unison = lib.stringAfter [ "profile" "shared" ] (''
 			storeHeading 'Installing Unison'
 			${makeSubpaths baseDir binDir}
 			makeFile 755 ${baseDir}/${binDir}/unison ${userScript}
@@ -88,7 +101,20 @@
 				${makeSubpaths baseDir configDir}
 				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
 			fi
-		'';
+		'' + lib.optionalString cfg.syncRoot (''
+			${makeSubpaths stagingDir binDir}
+			makeFile 755 ${stagingDir}/${binDir}/unison ${rootScript}
+		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+			Linux = lib.optionalString cfg.intercept ''
+				${makeSubpaths stagingDir configDir}
+				makeLink ${stagingDir}/${configDir}/libintercept.so ${baseDir}/${configDir}/libintercept.so
+			'';
+			Darwin = ''
+				makeLink ${stagingDir}/${binDir}/Unison.app ${baseDir}/${serviceDir}/Unison.app
+			'';
+		}));
+
+		system.activationScripts.root.deps = lib.mkIf cfg.syncRoot [ "unison" ];
 
 		# use Unison to prepare user accounts at login
 		environment.loginHook.unison = lib.mkIf (cfg.userAccountProfile != null) (''
@@ -142,5 +168,51 @@
 				EOF
 			fi
 		'');
+
+		# sync the root account using Unison
+		users.root.syncCommand = lib.mkIf cfg.syncRoot (toString (pkgs.writeScript "unison-root" (''#!/bin/sh -e
+			if ! test -x ~root/${binDir}/unison ; then
+				echo 'Installing Unison executable for the root user' >&2
+				mkdir -p ~root/${binDir}
+				cp ${rootScript} ~root/${binDir}/unison
+		'' + lib.optionalString pkgs.stdenv.isLinux ''
+				mkdir -p ~root/.nix/profile/bin
+				ln -s ${lib.getExe (pkgs.callPackage ../../packages/unison.nix {})} ~root/.nix/profile/bin/
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+				cp ${baseDir}/${serviceDir}/Unison.app ~root/${binDir}/
+		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''
+				mkdir -p ~root/${configDir}
+				cp ${baseDir}/${configDir}/libintercept.so ~root/${configDir}/
+		'' + ''
+			fi
+			if ! test -r ~root/${configDir}/default.prf ; then
+				echo 'Installing default Unison profile for the root user' >&2
+				mkdir -p ~root/${configDir}
+				cat > ~root/${configDir}/default.prf <<- EOF
+					root = $(eval echo ~root/)
+					root = $(eval HOME=~"$SUDO_USER" ; eval echo ${stagingDir})
+					force = $(eval HOME=~"$SUDO_USER" ; eval echo ${stagingDir})
+					times = true
+					log = false
+					${
+						lib.optionalString pkgs.stdenv.isDarwin "\nfollow    = Name Unison.app" +
+						lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) "\nfollow    = Name libintercept.so"
+					}
+					ignore    = Path .*
+					ignorenot = Path .nix
+					ignorenot = Path ${lib.head (lib.splitString "/" configDir)}
+					ignore    = Path ${configDir}/ar*
+					ignore    = Path ${configDir}/fp*
+					ignore    = Path ${configDir}/lk*
+					ignorenot = Path ${lib.head (lib.splitString "/" binDir)}
+				EOF
+			fi
+
+			if test -t 0 ; then
+				exec ~root/${binDir}/unison "$@" || true
+			else
+				exec ~root/${binDir}/unison "$@" -batch -terse
+			fi
+		'')));
 	};
 }

@@ -27,7 +27,7 @@
 					description = "The user’s login shell.";
 				};
 				description = lib.mkOption {
-					type = lib.types.passwdEntry lib.types.str;
+					type = lib.types.str;
 					default = "";
 					description = "A description of the user account, like a user’s full name.";
 				};
@@ -45,7 +45,7 @@
 		createUserScript = user: ''
 			makeUser <<- EOF
 				name=${user.name}
-				gid=${toString config.users.groups.${user.value.group}.gid}
+				gid=${toString config.users.groups.${user.value.group}.gid or ""}
 				${lib.toShellVars user.value}
 			EOF
 		'';

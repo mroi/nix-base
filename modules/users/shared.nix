@@ -27,6 +27,11 @@
 					'${config.users.sharedFolder}/.local/state/nix'
 				makeLink "''${XDG_STATE_HOME:-$HOME/.local/state}/nix" '${config.users.sharedFolder}/.local/state/nix'
 			fi
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			# prompt the user to delete relocated items
+			find "${config.users.sharedFolder}/"*Relocated\ Items* > relocated 2> /dev/null || true
+			interactiveDeletes relocated 'These files got moved to ${config.users.sharedFolder} by a macOS update.'
+			rm relocated
 		'';
 
 		system.activationScripts.profile.deps = [ "shared" ];

@@ -51,5 +51,9 @@ jobs:
       if: ${{ runner.os == 'macOS' }}
       run: ~/.local/state/nix/profile/bin/nix build --no-link nixpkgs/$(jq --raw-output .nodes.nixpkgs.locked.rev flake.lock)#darwin.linux-builder
 
+    - name: Restart patched Nix
+      if: ${{ runner.os == 'macOS' }}
+      run: sudo pkill nix ; sleep 5
+
     - name: Check flake
       run: ~/.local/state/nix/profile/bin/nix flake check

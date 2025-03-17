@@ -17,12 +17,6 @@ with extend (final: prev: {
 			))
 		else prev.stdenv.mkDerivation arg;
 	};
-	# sandboxing fails on Darwin due to overly large sandbox pattern
-	runCommand = name: env:
-		if final.stdenv.buildPlatform.isDarwin && (final.lib.hasPrefix "texlive-combined" name || final.lib.hasPrefix "fonts.conf" name) then
-			prev.runCommand name (env // { __noChroot = true; })
-		else
-			prev.runCommand name env;
 });
 
 let tex = texlive.combine (

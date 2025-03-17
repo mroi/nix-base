@@ -583,3 +583,19 @@ restartService() {
 		fi
 	fi
 }
+
+# interactive script editing
+
+interactiveDeletes() {
+	if test -t 0 -a -s "$1" ; then
+		{
+			echo "# $2"
+			echo '# Files will be deleted unless lines are commented or removed.'
+			sort "$1" | sed "s/'/\\'/;s/^/rm -rf '/;s/$/'/"
+		} > "$1.sh"
+		# shellcheck disable=SC2086
+		eval ${EDITOR:-vi} "$1.sh"
+		trace sudo sh "$1.sh"
+		rm "$1.sh"
+	fi
+}

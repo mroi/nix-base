@@ -1,23 +1,22 @@
 # custom derivation to reduce trust in Nixpkgs for my standard shell by enforcing oversight
 # in addition, use ~/.fish for configuration instead of the XDG directories
 { lib, path, stdenv, rustPlatform,
-	applyPatches, cargo, cmake, coreutils, darwin, fetchFromGitHub, fetchpatch2,
-	fishPlugins, gawk, getent, gettext, glibcLocales, gnugrep, gnused, groff, libiconv,
-	man-db, ncurses, ninja, nixosTests, nix-update-script, pcre2, pkg-config, procps,
-	python3, runCommand, rustc, sphinx, versionCheckHook, writableTmpDirAsHomeHook,
-	writeText
+	cargo, cmake, coreutils, darwin, fetchFromGitHub, fishPlugins, gawk, getent, gettext,
+	glibcLocales, gnugrep, gnused, groff, libiconv, man-db, ncurses, ninja, nixosTests,
+	nix-update-script, pcre2, pkg-config, procps, python3, runCommand, rustc, sphinx,
+	versionCheckHook, writableTmpDirAsHomeHook, writeText
 }:
 
 let
 	fish = import "${path}/pkgs/by-name/fi/fish/package.nix" {
 		# will cause errors if derivation inputs change
-		inherit applyPatches cargo cmake coreutils darwin fetchFromGitHub fetchpatch2
-			fishPlugins gawk getent gettext glibcLocales gnugrep gnused groff lib libiconv
-			man-db ncurses ninja nixosTests nix-update-script pcre2 pkg-config procps
-			python3 runCommand rustc sphinx versionCheckHook writableTmpDirAsHomeHook
-			writeText;
+		inherit cargo cmake coreutils darwin fishPlugins gawk getent gettext
+			glibcLocales gnugrep gnused groff lib libiconv man-db ncurses ninja nixosTests
+			nix-update-script pcre2 pkg-config procps python3 runCommand rustc sphinx
+			versionCheckHook writableTmpDirAsHomeHook writeText;
 		# passthrough functions for argument inspection
 		stdenv = stdenv // { mkDerivation = x: lib.fix x; };
+		fetchFromGitHub = x: (fetchFromGitHub x) // x;
 		rustPlatform = rustPlatform // { fetchCargoVendor = x: (rustPlatform.fetchCargoVendor x) // x; };
 	};
 	expect = { expected, actual, error }:
@@ -26,11 +25,7 @@ let
 in stdenv.mkDerivation {
 	pname = fish.pname;
 	version = fish.version;
-	# workaround as long as the applyPatch construction in fish.src is necessary
-	src = if
-		fish.src.outPath == "/nix/store/sy1mv8cs999c866w5mbxq0lbkgy4w2j2-source-patched" ||
-		fish.src.outPath == "/nix/store/abw00by8ci3g7ahrnjvw7ibryglg4hfh-source-patched"
-	then fish.src else fetchFromGitHub {
+	src = fetchFromGitHub {
 		owner = expect {
 			expected = "fish-shell";
 			actual = fish.src.owner;
@@ -43,16 +38,16 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-BLbL5Tj3FQQCOeX5TWXMaxCpvdzZtKe5dDQi66uU/BM=";
+			expected = "sha256-Mj4v2ubYr4ufs7aU/1AdY239byiCJHKXam64af/VO3U=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
-				"/usr/bin/python3 -c 'import urllib.request,hashlib,base64,string;print(\"sha256-\"+base64.b64encode(hashlib.sha256(urllib.request.urlopen(\"https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz\").read()).digest()).decode())' ; echo");
+				"curl -L https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x ; nix hash path ${fish.src.repo}-${fish.src.tag} ; rm -rf ${fish.src.repo}-${fish.src.tag} ; echo");
 		};
 	};
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-4ol4LvabhtjiMMWwV1wrcywFePOmU0Jub1sy+Ay7mLA=";
+			expected = "sha256-4kqBrpeneCpF0WohP1ZArKrV3duHAE01XA5+GT9f56w=";
 			actual = fish.cargoDeps.hash;
 			error = "cargo deps hash changed:";
 		};
@@ -108,8 +103,10 @@ in stdenv.mkDerivation {
 		error = "preConfigure changed:";
 	};
 	cmakeFlags = expect {
-		expected = [ "-DCMAKE_INSTALL_DOCDIR=${placeholder "doc"}/share/doc/fish" ]
-			++ lib.optionals stdenv.isDarwin [ "-DMAC_CODESIGN_ID=OFF" ];
+		expected = [
+			"-DCMAKE_INSTALL_DOCDIR:STRING=${placeholder "doc"}/share/doc/fish"
+			"-DRust_CARGO_TARGET:STRING=${stdenv.hostPlatform.rust.rustcTarget}"
+		] ++ lib.optionals stdenv.isDarwin [ "-DMAC_CODESIGN_ID:BOOL=FALSE" ];
 		actual = fish.cmakeFlags;
 		error = "cmakeFlags changed:";
 	};

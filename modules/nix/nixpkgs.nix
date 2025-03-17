@@ -5,9 +5,14 @@
 		pkgs = lib.mkOption {
 			type = lib.types.pkgs;
 			example = lib.literalExpression "import <nixpkgs> {}";
-			default = config.nixpkgs.input.legacyPackages.${config.nixpkgs.system};
-			defaultText = lib.literalMD "The `legacyPackages` set of `config.nixpkgs.input`.";
+			defaultText = lib.literalMD "The `legacyPackages` set of `config.nixpkgs.input`, with `config.nixpkgs.overlays` applied.";
 			description = "If set, the pkgs argument to all modules is the value of this option.";
+		};
+		overlays = lib.mkOption {
+			type = lib.types.listOf lib.types.anything;
+			example = lib.literalExpression "[(final: prev: { texlive = final.texliveSmall; })]";
+			default = [];
+			description = "List of overlays to apply to Nixpkgs.";
 		};
 		system = lib.mkOption {
 			type = lib.types.str;
@@ -21,5 +26,15 @@
 		};
 	};
 
-	config._module.args.pkgs = config.nixpkgs.pkgs;
+	config = {
+
+		# construct the final nixpkgs by extending the input with configured overlays
+		# to avoid infinite recursion, so we must disallow usage of the `final` package set
+		nixpkgs.pkgs = lib.mkOptionDefault (let
+			pkgs = config.nixpkgs.input.legacyPackages.${config.nixpkgs.system};
+			overlay = _: _: (lib.composeManyExtensions config.nixpkgs.overlays) null pkgs;
+		in pkgs.extend overlay);
+
+		_module.args.pkgs = config.nixpkgs.pkgs;
+	};
 }

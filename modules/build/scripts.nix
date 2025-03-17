@@ -2,6 +2,7 @@
 
 	fragments = [
 		"apps"
+		"bundles"
 		"directory"
 		"firewall"
 		"groups"

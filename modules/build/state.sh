@@ -187,6 +187,28 @@ deleteDidRemove() {
 	if "$_deleted" ; then return 0 ; else return 1 ; fi
 }
 
+makeTree() {
+	# first argument: optional permission descriptor
+	if test "$1" != "${1#[0-9]}" ; then
+		makeDir "$1" "$2"
+		shift
+	else
+		makeDir "$1"
+	fi
+
+	_target=$1
+	_source=$2
+
+	# shellcheck disable=SC2086
+	trace $_sudo rsync --recursive --delete --links --executability --chmod=ugo=rwX \
+		"$_source/" "$_target"
+
+	# shellcheck disable=SC2086
+	test -z "$_owner" || trace $_sudo chown -Rh "$_owner" "$1"
+	# shellcheck disable=SC2086
+	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
+}
+
 # volume management
 
 makeVolume() {

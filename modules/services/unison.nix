@@ -2,6 +2,7 @@
 
 	options.services.unison = {
 		enable = lib.mkEnableOption "Unison file synchronization" // { default = true; };
+		intercept = lib.mkEnableOption "Unison intercept library" // { default = true; };
 		configDir = lib.mkOption {
 			type = lib.types.pathWith { absolute = false; };
 			default = ".unison";
@@ -15,15 +16,18 @@
 		shared = lib.escapeShellArg config.users.sharedFolder;
 		binDir = lib.escapeShellArg config.users.binDir;
 		serviceDir = lib.escapeShellArg config.users.serviceDir;
+		configDir = lib.escapeShellArg cfg.configDir;
 		baseDir = if config.users.sharedFolder != null then shared else	"\"$HOME\"";
 
 		userScript = pkgs.writeScript "unison" (lib.concatLines ([
 			"#!/bin/sh"
 		] ++ lib.optionals pkgs.stdenv.isLinux [
-			if baseDir == shared then
-				"exec ${shared}/.local/state/nix/profile/bin/unison \"$@\""
-			else
-				"exec \"\${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/unison\" \"$@\""
+			(lib.optionalString cfg.intercept "LD_PRELOAD=${baseDir}/${configDir}/libintercept.so " + (
+				if baseDir == shared then
+					"exec ${shared}/.local/state/nix/profile/bin/unison \"$@\""
+				else
+					"exec \"\${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/unison\" \"$@\""
+			))
 		] ++ lib.optionals pkgs.stdenv.isDarwin [
 			"cd ${baseDir}/${serviceDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
@@ -57,7 +61,7 @@
 			(lib.getExe (pkgs.callPackage ../../packages/unison.nix {}))
 		];
 		environment.bundles."${baseDir}/${serviceDir}/Unison.app" = lib.mkIf pkgs.stdenv.isDarwin {
-			pkg = pkgs.callPackage ../../packages/unison.nix {};
+			pkg = pkgs.callPackage ../../packages/unison.nix { inherit (cfg) intercept; };
 			install = ''
 				${makeSubpaths baseDir serviceDir}
 				makeTree 755${lib.optionalString (baseDir == shared) "::admin"} "$out" "$pkg/Library/CoreServices/Unison.app"
@@ -69,6 +73,11 @@
 			storeHeading 'Installing Unison'
 			${makeSubpaths baseDir binDir}
 			makeFile 755 ${baseDir}/${binDir}/unison ${userScript}
+		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''
+			if ! test -x ${baseDir}/${configDir}/libintercept.so ; then
+				${makeSubpaths baseDir configDir}
+				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
+			fi
 		'';
 	};
 }

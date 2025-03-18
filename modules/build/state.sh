@@ -71,9 +71,21 @@ makeDir() {
 	fi
 
 	for _dir ; do
-		# shellcheck disable=SC2086
-		test -d "$_dir" || trace $_sudo mkdir "$_dir"
-		_setPermissions "$_dir"
+		_sub=
+		_dir=${_dir#/}/
+		while test "$_dir" ; do
+			# iterate over all subpaths
+			_sub=$_sub/${_dir%%/*}
+			_dir=${_dir#*/}
+			if ! test -d "$_sub" ; then
+				# create and apply permissions if not existing
+				# shellcheck disable=SC2086
+				trace $_sudo mkdir "$_sub"
+				_setPermissions "$_sub"
+			fi
+		done
+		# final directory always gets permissions applied
+		_setPermissions "$_sub"
 	done
 }
 
@@ -243,6 +255,9 @@ makeUser() {
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
+		if ! test "$gid" ; then
+			gid=$(getent group "$group" | cut -d: -f3)
+		fi
 		if ! getent passwd "$name" > /dev/null ; then
 			trace sudo adduser \
 				--uid "$uid" \
@@ -263,6 +278,9 @@ makeUser() {
 		fi
 	fi
 	if $isDarwin ; then
+		if ! test "$gid" ; then
+			gid=$(dscl -plist . -read "/Groups/$group" PrimaryGroupID | xmllint --xpath '//string/text()' - 2> /dev/null)
+		fi
 		if ! dscl . -read "/Users/$name" > /dev/null 2>&1 ; then
 			trace sudo dscl . -create "/Users/$name"
 		fi
@@ -272,7 +290,7 @@ makeUser() {
 		if test "$(_dsclRead AuthenticationAuthority)" ; then
 			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
 		fi
-		if test "$(_dsclRead Password)" != '*' ; then
+		if test "$isHidden" -a "$(_dsclRead Password)" != '*' ; then
 			trace sudo dscl . -create "/Users/$name" Password '*'
 		fi
 		if test "$(_dsclRead UniqueID)" != "$uid" ; then
@@ -284,8 +302,13 @@ makeUser() {
 		if ! dseditgroup -o checkmember -m "$name" "$group" > /dev/null ; then
 			trace sudo dseditgroup -o edit -t user -a "$name" "$group"
 		fi
-		if test "$(_dsclRead IsHidden)" != "${isHidden:-0}" ; then
-			trace sudo dscl . -create "/Users/$name" IsHidden "${isHidden:-0}"
+		case "$isHidden" in (0) isHidden=NO ;; (1) isHidden=YES ;; esac
+		if test "$(_dsclRead IsHidden)" != "$isHidden" ; then
+			if test "$isHidden" ; then
+				trace sudo dscl . -create "/Users/$name" IsHidden "$isHidden"
+			else
+				trace sudo dscl . -delete "/Users/$name" IsHidden
+			fi
 		fi
 		if test "$(_dsclRead NFSHomeDirectory)" != "$home" ; then
 			trace sudo dscl . -create "/Users/$name" NFSHomeDirectory "$home"

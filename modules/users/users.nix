@@ -45,7 +45,7 @@
 		createUserScript = user: ''
 			makeUser <<- EOF
 				name=${user.name}
-				gid=${toString config.users.groups.${user.value.group}.gid}
+				gid=${toString config.users.groups.${user.value.group}.gid or ""}
 				${lib.toShellVars user.value}
 			EOF
 		'';

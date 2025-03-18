@@ -35,6 +35,16 @@
 			overlay = _: _: (lib.composeManyExtensions config.nixpkgs.overlays) null pkgs;
 		in pkgs.extend overlay);
 
+		# build package at rebuild-script runtime instead of at build-time
+		# use when a package is only needed under conditions that are checked at runtime
+		nixpkgs.overlays = [ (final: prev: rec {
+			lazyBuild = pkg: let
+				drv = builtins.unsafeDiscardOutputDependency pkg.drvPath;
+			in "$(nix build --quiet --no-link --print-out-paths --no-warn-dirty ${drv}^out)";
+
+			lazyCallPackage = path: args: lazyBuild (prev.callPackage path args);
+		})];
+
 		_module.args.pkgs = config.nixpkgs.pkgs;
 	};
 }

@@ -26,10 +26,6 @@
 		system.activationScripts.staging = ''
 			storeHeading -
 
-			# set up staging directory
-			if ! test -d "${config.users.root.stagingDirectory}" ; then
-				trace mkdir -p "${config.users.root.stagingDirectory}"
-			fi
 			# set permissions
 			if $isLinux ; then makeDir 700 "${config.users.root.stagingDirectory}" ; fi
 			if $isDarwin ; then makeDir 750 "${config.users.root.stagingDirectory}" ; fi

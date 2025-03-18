@@ -8,8 +8,5 @@
 		"nix-base#arq-restore"
 		"nixpkgs#shellcheck"
 		"nixpkgs#smartmontools"
-
-		# tools for research work
-		"nix-base#texlive"
 	];
 }

@@ -57,7 +57,7 @@
 			)
 
 			if test "$rootStagingChecksumBefore" != "$rootStagingChecksumAfter" ; then
-				trace sudo ${config.users.root.syncCommand}
+				trace sudo --login ${config.users.root.syncCommand}
 			fi
 
 			for file in ${lib.escapeShellArgs config.users.root.deletions} ; do

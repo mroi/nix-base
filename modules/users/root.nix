@@ -27,14 +27,18 @@
 			storeHeading -
 
 			# set permissions
-			if $isLinux ; then makeDir 700 "${config.users.root.stagingDirectory}" ; fi
-			if $isDarwin ; then makeDir 750 "${config.users.root.stagingDirectory}" ; fi
+			if $isLinux ; then rootPerm=700 ; fi
+			if $isDarwin ; then rootPerm=750 ; fi
+			makeDir "$rootPerm" "${config.users.root.stagingDirectory}"
 
 			# migrate from default directory, if current setting is different
 			if test "${config.users.root.stagingDirectory}" != "${options.users.root.stagingDirectory.default}" ; then
 				if test -d "${options.users.root.stagingDirectory.default}" ; then
 					printWarning "Default staging directory ${options.users.root.stagingDirectory.default} exists while a different one has been configured: ${config.users.root.stagingDirectory}"
-					trace rsync --verbose --archive --update "${options.users.root.stagingDirectory.default}" "${config.users.root.stagingDirectory}"
+					trace rsync --verbose --archive --update "${options.users.root.stagingDirectory.default}/" "${config.users.root.stagingDirectory}"
+					trace rm -rf "${options.users.root.stagingDirectory.default}"
+					# re-apply permissions after rsync
+					makeDir "$rootPerm" "${config.users.root.stagingDirectory}"
 				fi
 			fi
 

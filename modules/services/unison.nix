@@ -163,6 +163,8 @@
 		'');
 
 		# sync the root account using Unison
+		users.root.stagingDirectory = lib.mkIf cfg.syncRoot
+			"$HOME/${cfg.configDir}/root-${lib.toLower pkgs.stdenv.hostPlatform.uname.system}";
 		users.root.syncCommand = lib.mkIf cfg.syncRoot (toString (pkgs.writeScript "unison-root" (''#!/bin/sh -e
 			if ! test -x ~root/${binDir}/unison ; then
 				echo 'Installing Unison executable for the root user' >&2

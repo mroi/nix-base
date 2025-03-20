@@ -59,3 +59,58 @@ nixUpdate() {
 		/^no changes /Ip
 	'
 }
+
+_updateEntry() {
+	_type=$1
+	_trigger=$2
+	_match=$3
+	_value=$4
+	_update=false
+
+	if test "$_value" ; then
+		# get file information
+		_file=$(nix eval --quiet --no-warn-dirty --raw \
+			--apply 'x: with builtins;
+				substring (stringLength storeDir) (-1) (unsafeGetAttrPos "updateScript" x.passthru).file' \
+			"${self}#$UPDATE_NIX_ATTR_PATH")
+		_file=${self}/${_file#/*/}
+		# extract current value: first _match after the first line mentioning _trigger
+		_current=$(sed -n -E "/$_trigger/,\${
+			s|.*\"($_match)\".*|\1|
+			t print
+			b
+			:print
+			p;q
+		}" "$_file")
+		if test "$_current" != "$_value" ; then
+			printInfo "${UPDATE_NIX_ATTR_PATH##*.} $_type $_current -> $_value"
+			# replace first _match after the first line mentioning _trigger
+			sed -E -i_ "/$_trigger/,\${
+				s|\"$_match\"|\"$_value\"|
+				t loop
+				b
+				:loop
+				n
+				b loop
+			}" "$_file"
+			rm "${_file}_"
+			_update=true
+		else
+			printInfo "${UPDATE_NIX_ATTR_PATH##*.} $_type unchanged"
+		fi
+	fi
+}
+
+didUpdate() {
+	if test "$_update" = true ; then return 0 ; else return 1 ; fi
+}
+
+updateVersion() {
+	_updateEntry version "$1" '[0-9][[:alnum:].-+]*' "$2"
+}
+updateHash() {
+	_updateEntry hash "$1" '(md5|sha1|sha256|sha512)-[[:alnum:]/+=]+' "$2"
+}
+updateRev() {
+	_updateEntry revision "$1" '[0-9a-f]{40}' "$2"
+}

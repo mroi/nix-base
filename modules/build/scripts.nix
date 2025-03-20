@@ -8,6 +8,7 @@
 		"groups"
 		"guest"
 		"hooks"
+		"name"
 		"nix"
 		"packages"
 		"patches"

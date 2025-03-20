@@ -30,6 +30,7 @@
 
 	# network setup
 	"firewall" = ./networking/firewall.nix;
+	"hostname" = ./networking/hostname.nix;
 
 	# system environment setup
 	"apps" = ./environment/apps.nix;

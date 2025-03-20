@@ -10,6 +10,7 @@
 	config = lib.mkIf (!config.system.systemwideSetup) (lib.mkDefault {
 
 		# disable changes with system-level effects
+		networking.hostName = null;
 		security.password.yescrypt.rounds = null;
 		services.openssh.enable = null;
 		services.unison.userAccountProfile = null;

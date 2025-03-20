@@ -2,6 +2,7 @@
 	imports = [ ../common.nix ];
 
 	nixpkgs.system = "x86_64-linux";
+	networking.hostName = "test-linux";
 
 	users.guest.enable = false;
 

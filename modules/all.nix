@@ -5,6 +5,7 @@
 	"scripts" = ./build/scripts.nix;
 
 	# underlying system setup
+	"drift" = ./system/drift.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 

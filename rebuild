@@ -11,7 +11,7 @@ self=$(
 # determine machine identifier
 machine=$(
 	# shellcheck disable=SC3028
-	if test "$HOSTNAME" ; then
+	if test "$HOSTNAME" && env | grep -Fq HOSTNAME ; then
 		echo "$HOSTNAME"
 	elif command -v scutil > /dev/null ; then
 		scutil --get LocalHostName

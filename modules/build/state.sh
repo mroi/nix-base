@@ -45,7 +45,7 @@ _setPermissions() {
 	# shellcheck disable=SC2086
 	if $isLinux ; then
 		if test "$_statFormatLinux" && test "$(stat -c "$_statFormatLinux" "$1")" != "$_statExpected" ; then
-			test -z "$_perms" || test "$(stat -c %a "$1")" = "$_perms" || trace $_sudo chmod "$_perms" "$1"
+			test -z "$_perms" || test "$(stat -c %a "$1")" = "$_perms" || trace $_sudo chmod "$(test -d "$1" -a \( -g "$1" -o -u "$1" \) && echo '=')$_perms" "$1"
 			test -z "$_owner" || test "$(stat -c %U "$1")" = "$_owner" || trace $_sudo chown -h "$_owner" "$1"
 			test -z "$_group" || test "$(stat -c %G "$1")" = "$_group" || trace $_sudo chgrp -h "$_group" "$1"
 		fi

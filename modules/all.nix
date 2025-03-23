@@ -51,6 +51,7 @@
 	"sudo" = ./security/sudo.nix;
 
 	# service configurations
+	"arq" = ./services/arq.nix;
 	"ssh" = ./services/ssh.nix;
 	"sshproxy" = ./services/sshproxy.nix;
 	"unison" = ./services/unison.nix;

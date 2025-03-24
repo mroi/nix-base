@@ -5,6 +5,7 @@
 	"scripts" = ./build/scripts.nix;
 
 	# underlying system setup
+	"drift" = ./system/drift.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 
@@ -23,6 +24,8 @@
 	"groups" = ./users/groups.nix;
 	"guest" = ./users/guest.nix;
 	"root" = ./users/root.nix;
+	"shared" = ./users/shared.nix;
+	"shell" = ./users/shell.nix;
 	"users" = ./users/users.nix;
 
 	# network setup
@@ -30,6 +33,7 @@
 
 	# system environment setup
 	"apps" = ./environment/apps.nix;
+	"bundles" = ./environment/bundles.nix;
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
@@ -43,4 +47,5 @@
 
 	# service configurations
 	"ssh" = ./services/ssh.nix;
+	"unison" = ./services/unison.nix;
 }

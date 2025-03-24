@@ -2,9 +2,11 @@
 
 	fragments = [
 		"apps"
+		"bundles"
 		"directory"
 		"firewall"
 		"groups"
+		"guest"
 		"hooks"
 		"nix"
 		"packages"
@@ -13,9 +15,12 @@
 		"root"
 		"rootpaths"
 		"services"
+		"shared"
+		"shell"
 		"sip"
 		"ssh"
 		"staging"
+		"unison"
 		"users"
 		"volumes"
 	];

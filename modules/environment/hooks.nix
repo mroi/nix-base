@@ -16,7 +16,7 @@
 
 	config = let
 
-		fragments = [ "volumes" ];
+		fragments = [ "volumes" "guest" "unison" "drift" ];
 
 		unknownFragmentAssertion = name: set:
 			let unknownFragments = lib.subtractLists fragments (lib.attrNames set);
@@ -38,11 +38,13 @@
 
 		generateHook = type: pkgs.writeTextFile {
 			name = "${type}-hook.sh";
-			text = lib.concatLines [
+			text = lib.concatLines ([
 				"#!/bin/sh -e"
 				""
 				"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-			] + lib.pipe fragments [
+			] ++ lib.optionals pkgs.stdenv.isDarwin [
+				"USER=$1"
+			]) + lib.pipe fragments [
 				(map (f: config.environment."${type}Hook"."${f}" or ""))
 				(map stripTabs)
 				(lib.concatMapStrings (s: if s == "" then "" else "\n" + s))
@@ -73,7 +75,7 @@
 			(unknownFragmentAssertion "logoutHook" config.environment.logoutHook)
 		];
 
-		system.activationScripts.hooks = lib.stringAfter [ "staging" ] ''
+		system.activationScripts.hooks = lib.stringAfter [ "staging" ] (''
 			storeHeading 'Updating login and logout hook scripts'
 
 			${preservePasswords loginHook "login-hook.sh"}
@@ -81,8 +83,17 @@
 
 			makeFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
 			makeFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
-		'';
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+
+			makeDir 700 "${config.users.root.stagingDirectory}/Library/Preferences"
+			makeFile 644 "${config.users.root.stagingDirectory}/Library/Preferences/com.apple.loginwindow.plist" ${./hooks-loginwindow.plist}
+		'');
 
 		system.activationScripts.root.deps = [ "hooks" ];
+
+		environment.patches = lib.mkIf pkgs.stdenv.isLinux [
+			./hooks-lightdm.patch
+		];
 	};
 }

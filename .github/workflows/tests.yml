@@ -42,7 +42,7 @@ jobs:
 
     - name: Check for empty state directory
       if: ${{ matrix.machine == 'test-nosys' }}
-      run: test ! -d ~/.local/state/rebuild
+      run: test ! -d ~/.local/state/rebuild -a ! -d ~/.unison/root-*
 
     - name: Run cleanup
       run: ./rebuild clean

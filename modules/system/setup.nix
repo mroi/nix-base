@@ -12,10 +12,13 @@
 		# disable changes with system-level effects
 		security.password.yescrypt.rounds = null;
 		services.openssh.enable = null;
+		services.unison.userAccountProfile = null;
 		system.packages = null;
+		users.defaultScriptShell = null;
 		users.directory.authentication.searchPolicy = null;
 		users.directory.information.searchPolicy = null;
 		users.root.stagingDirectory = null;
+		users.shared.folder = null;
 
 		# adapt configuration for non-systemwide setups
 		environment.flatpak = if pkgs.stdenv.isLinux then "user" else "none";
@@ -23,6 +26,7 @@
 		nix.enable = false;
 		security.sudo.touchId = false;
 		security.sudo.adminFlagFile = pkgs.stdenv.isLinux;
+		services.unison.enable = false;
 		users.guest.enable = false;
 	});
 }

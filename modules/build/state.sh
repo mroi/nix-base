@@ -187,6 +187,28 @@ deleteDidRemove() {
 	if "$_deleted" ; then return 0 ; else return 1 ; fi
 }
 
+makeTree() {
+	# first argument: optional permission descriptor
+	if test "$1" != "${1#[0-9]}" ; then
+		makeDir "$1" "$2"
+		shift
+	else
+		makeDir "$1"
+	fi
+
+	_target=$1
+	_source=$2
+
+	# shellcheck disable=SC2086
+	trace $_sudo rsync --recursive --delete --links --executability --chmod=ugo=rwX \
+		"$_source/" "$_target"
+
+	# shellcheck disable=SC2086
+	test -z "$_owner" || trace $_sudo chown -Rh "$_owner" "$1"
+	# shellcheck disable=SC2086
+	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
+}
+
 # volume management
 
 makeVolume() {
@@ -559,5 +581,21 @@ restartService() {
 		if test "$_label" ; then
 			trace sudo launchctl kill TERM "system/$_label" || true
 		fi
+	fi
+}
+
+# interactive script editing
+
+interactiveDeletes() {
+	if test -t 0 -a -s "$1" ; then
+		{
+			echo "# $2"
+			echo '# Files will be deleted unless lines are commented or removed.'
+			sort "$1" | sed "s/'/\\'/;s/^/rm -rf '/;s/$/'/"
+		} > "$1.sh"
+		# shellcheck disable=SC2086
+		eval ${EDITOR:-vi} "$1.sh"
+		trace sudo sh "$1.sh"
+		rm "$1.sh"
 	fi
 }

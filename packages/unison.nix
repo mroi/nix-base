@@ -1,26 +1,32 @@
 # my custom build of the unison sync tool
-{ lib, stdenv, stdenvNoCC, ocaml, xcodeenv, writeText, glibc, patchelf, unison, backDeploy ? false, static ? false }:
+{ lib, stdenv, stdenvNoCC, ocaml, xcodeenv, fetchFromGitHub, writeText, glibc, patchelf, unison,
+	intercept ? false, backDeploy ? false, static ? false }:
 
-if stdenv.isDarwin then (
+assert !intercept || !backDeploy;
+assert !intercept || !static;
+assert !backDeploy || stdenv.isDarwin;
+assert !static || stdenv.isLinux;
 
-	# build Unison.app from sources
-	let
-		xcode = (xcodeenv.composeXcodeWrapper {}).overrideAttrs (attrs: {
-			buildCommand = attrs.buildCommand + ''
-				ln -s /usr/bin/ar $out/bin/
-				ln -s /usr/bin/cc $out/bin/
-				ln -s /usr/bin/ld $out/bin/
-			'';
-		});
-		# for building a back-deployable version for macOS
-		ocaml' = ocaml.overrideAttrs (attrs:
-			if backDeploy then {
-				preConfigure = "MACOSX_DEPLOYMENT_TARGET=10.7";
-			} else {}
-		);
+let
 
-	in stdenvNoCC.mkDerivation rec {
-		pname = "unison";
+	xcode = (xcodeenv.composeXcodeWrapper {}).overrideAttrs (attrs: {
+		buildCommand = attrs.buildCommand + ''
+			ln -s /usr/bin/ar $out/bin/
+			ln -s /usr/bin/cc $out/bin/
+			ln -s /usr/bin/ld $out/bin/
+		'';
+	});
+
+	# for building a back-deployable version for macOS
+	ocaml' = ocaml.overrideAttrs (attrs:
+		if backDeploy then {
+			preConfigure = "MACOSX_DEPLOYMENT_TARGET=10.7";
+		} else {}
+	);
+
+	# build Unison.app for Darwin
+	unisonDarwin = stdenvNoCC.mkDerivation {
+		name = unison.name;
 		version = unison.version;
 		src = unison.src;
 		__noChroot = true;
@@ -44,7 +50,13 @@ if stdenv.isDarwin then (
 		preBuild = ''
 			unset LD
 			unset DEVELOPER_DIR SDKROOT
-			export XCODEFLAGS='-arch ${stdenv.hostPlatform.darwinArch} -scheme uimac -configuration Default -derivedDataPath $$NIX_BUILD_TOP/DerivedData MACOSX_DEPLOYMENT_TARGET=$$MACOSX_DEPLOYMENT_TARGET'
+			export XCODEFLAGS='${lib.concatStringsSep " " [
+				"-arch ${stdenv.hostPlatform.darwinArch}"
+				"-scheme uimac"
+				"-configuration Default"
+				"-derivedDataPath $$NIX_BUILD_TOP/DerivedData"
+				"MACOSX_DEPLOYMENT_TARGET=$$MACOSX_DEPLOYMENT_TARGET"
+			]}'
 		'' + lib.optionalString (!backDeploy) ''
 			export MACOSX_DEPLOYMENT_TARGET=14.0
 		'' + lib.optionalString backDeploy ''
@@ -57,25 +69,69 @@ if stdenv.isDarwin then (
 		];
 		installPhase = ''
 			mkdir -p $out/Library/CoreServices
-			cp -r src/uimac/build/Default/Unison.app $out/Library/CoreServices/
+			cp -R src/uimac/build/Default/Unison.app $out/Library/CoreServices/
 		'';
 		meta = unison.meta;
-	}
+	};
 
-) else (
-
-	# Linux build
-	(unison.override {
+	# command-line-only Linux build
+	unisonLinux = (unison.override {
 		enableX11 = false;
 		wrapGAppsHook3 = null;
 	}).overrideAttrs (attrs:
 		if static then {
-			# optionally build a static binary that can be copied to other systems
+			# build a static binary that can be copied to other systems
 			buildInputs = attrs.buildInputs ++ [ glibc.static ];
 			makeFlags = attrs.makeFlags ++ [ "LDFLAGS=-static" ];
 		} else {
 			# otherwise link against system C library for better system consistency
 			postFixup = "${patchelf}/bin/patchelf --remove-rpath $out/bin/*";
 		}
-	)
-)
+	);
+
+	unisonPackage = lib.getAttr stdenv.hostPlatform.uname.system {
+		Darwin = unisonDarwin;
+		Linux = unisonLinux;
+	};
+
+	# Unison with intercept library for additional Unison functionality
+	unisonIntercept = stdenvNoCC.mkDerivation {
+		name = unison.name;
+		version = unison.version;
+		src = fetchFromGitHub {
+			owner = "mroi";
+			repo = "unison-intercept";
+			rev = "0bad2ed69c59b68313791be69d890db3c0eea4cf";
+			fetchSubmodules = true;
+			hash = "sha256-fTRVmZfJgMitq3n2txF3VaZc/3de18nRsOR3M9g1i/U=";
+		};
+		__noChroot = stdenv.isDarwin;
+		nativeBuildInputs = lib.getAttr stdenv.hostPlatform.uname.system {
+			Darwin = [ xcode ];
+			Linux = [ stdenv.cc ];
+		};
+		preBuild = ''
+			touch encrypt/.git  # prevent submodule init by Makefile
+		'' + lib.optionalString stdenv.isDarwin ''
+			mkdir -p $out/Library/CoreServices
+			cp -R ${unisonPackage}/Library/CoreServices/Unison.app $out/Library/CoreServices/
+			chmod -R u+w $out/Library/CoreServices/Unison.app
+			unset DEVELOPER_DIR SDKROOT
+			export XCODEFLAGS='${lib.concatStringsSep " " [
+				"-arch ${stdenv.hostPlatform.darwinArch}"
+				"-scheme Unison"
+				"-derivedDataPath $$NIX_BUILD_TOP/DerivedData"
+				"UNISON_PATH=$$out/Library/CoreServices/Unison.app"
+				"CODE_SIGN_IDENTITY=-"
+				"INSTALL_GROUP="
+			]}'
+		'';
+		dontInstall = stdenv.isDarwin;
+		installPhase = lib.optionalString stdenv.isLinux ''
+			mkdir -p $out/bin $out/lib
+			cp ${unisonPackage}/bin/unison $out/bin/
+			cp libintercept.so $out/lib/
+		'';
+	};
+
+in if intercept then unisonIntercept else unisonPackage

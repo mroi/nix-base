@@ -183,7 +183,7 @@ deleteFile() {
 	done
 }
 
-deleteDidRemove() {
+didRemove() {
 	if "$_deleted" ; then return 0 ; else return 1 ; fi
 }
 
@@ -555,7 +555,7 @@ deleteService() {
 			trace sudo systemctl disable --now "$1.service"
 		fi
 		deleteFile "/etc/systemd/system/$1.socket" "/etc/systemd/system/$1.service"
-		if deleteDidRemove ; then
+		if didRemove ; then
 			trace sudo systemctl daemon-reload
 		fi
 	fi

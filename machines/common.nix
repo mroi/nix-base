@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }: {
 
 	system.defaultCommands = [ "activate" ];
 
@@ -32,5 +32,9 @@
 			"/usr/libexec/rapportd"
 			"/usr/libexec/sharingd"
 		];
+	};
+
+	time = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) {
+		timeZone = "Europe/Berlin";
 	};
 }

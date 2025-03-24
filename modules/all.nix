@@ -32,6 +32,9 @@
 	"firewall" = ./networking/firewall.nix;
 	"hostname" = ./networking/hostname.nix;
 
+	# timekeeping setup
+	"timezone" = ./time/timezone.nix;
+
 	# system environment setup
 	"apps" = ./environment/apps.nix;
 	"bundles" = ./environment/bundles.nix;

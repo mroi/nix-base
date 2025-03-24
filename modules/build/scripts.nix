@@ -21,6 +21,7 @@
 		"sip"
 		"ssh"
 		"staging"
+		"timezone"
 		"unison"
 		"users"
 		"volumes"

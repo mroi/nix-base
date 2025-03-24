@@ -22,7 +22,7 @@
 		});
 	})];
 
-	networking.firewall = lib.mkIf pkgs.stdenv.isDarwin {
+	networking.firewall = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {
 		allow = [
 			"/System/Library/CoreServices/UniversalControl.app/Contents/MacOS/UniversalControl"
 			"/System/Library/PrivateFrameworks/ChronoCore.framework/Support/chronod"

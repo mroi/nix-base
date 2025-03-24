@@ -32,6 +32,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Xcode 16
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        sudo xcode-select --switch /Applications/Xcode_16.2.app/Contents/Developer
+        sudo ln -shf /Applications/Xcode_16.2.app /Applications/Xcode.app
+
     - name: Run rebuild
       run: ./rebuild
 

@@ -42,8 +42,8 @@ runAllUpdates() {
 				nix build --quiet --no-link ${pkgs."${elem}".drvPath}^out
 				PATH=$PATH:${pkgs."${elem}"}/bin
 			'\'\'') "" (builtins.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = [ "nix-update" ];
-				Darwin = [ "nix-update" ];
+				Linux = [ "nix-update" "curl" "jq" ];
+				Darwin = [ "nix-update" "jq" ];  # TODO: remove jq when we drop support for macOS <15
 			})' \
 			"${self}#baseConfigurations.${machine}.config.nixpkgs.pkgs"
 		)"

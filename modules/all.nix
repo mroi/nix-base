@@ -52,5 +52,6 @@
 
 	# service configurations
 	"ssh" = ./services/ssh.nix;
+	"sshproxy" = ./services/sshproxy.nix;
 	"unison" = ./services/unison.nix;
 }

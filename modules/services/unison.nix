@@ -18,6 +18,9 @@
 
 	config = let
 
+		unison = pkgs.callPackage ../../packages/unison.nix {};
+		unison-intercept = pkgs.callPackage ../../packages/unison.nix { intercept = true; };
+
 		cfg = config.services.unison;
 		shared = lib.escapeShellArg config.users.shared.folder;
 		binDir = lib.escapeShellArg config.users.binDir;
@@ -70,14 +73,14 @@
 			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder.";
 		}];
 
+		system.build.packages = { inherit unison-intercept; };
+
 		# install Unison
 		environment.profile = lib.mkIf pkgs.stdenv.isLinux [ "nix-base#unison" ];
-		environment.rootPaths = lib.mkIf pkgs.stdenv.isLinux [
-			(lib.getExe (pkgs.callPackage ../../packages/unison.nix {}))
-		];
+		environment.rootPaths = lib.mkIf pkgs.stdenv.isLinux [ (lib.getExe unison) ];
 		environment.bundles = lib.mkIf (pkgs.stdenv.isDarwin && baseDir == shared) {
 			"${shared}/${serviceDir}/Unison.app" = {
-				pkg = pkgs.callPackage ../../packages/unison.nix { inherit (cfg) intercept; };
+				pkg = if cfg.intercept then unison-intercept else unison;
 				install = ''
 					makeDir 755::admin "$(dirname "$out")"
 					makeTree 755::admin "$out" "$pkg/Library/CoreServices/Unison.app"
@@ -172,7 +175,7 @@
 				cp ${rootScript} ~root/${binDir}/unison
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
 				mkdir -p ~root/.nix/profile/bin
-				ln -s ${lib.getExe (pkgs.callPackage ../../packages/unison.nix {})} ~root/.nix/profile/bin/
+				ln -s ${lib.getExe unison} ~root/.nix/profile/bin/
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 				cp -R ${baseDir}/${serviceDir}/Unison.app ~root/${binDir}/
 		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''

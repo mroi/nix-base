@@ -5,12 +5,12 @@ let
 	python = python3.withPackages (pkgs: [ pkgs.pycryptodome ]);
 
 in stdenvNoCC.mkDerivation {
-	name = "vmware-vmx";
+	pname = "vmware-vmx";
+	version = "1.0.7-unstable-2024-02-10";
 
 	src = fetchFromGitHub {
 		owner = "RF3";
 		repo = "VMwareVMX";
-		# curl https://api.github.com/repos/RF3/VMwareVMX/git/refs/heads/master
 		rev = "0cdfe49c486fd41de73dd8decb2b4a83791ec28f";
 		hash = "sha256-cIA0qLwxuBtEyRnWug/pLtm2PaCLWruuvp9HQSwBy0M=";
 	};
@@ -24,4 +24,6 @@ in stdenvNoCC.mkDerivation {
 		EOF
 		chmod a+x $out/bin/vmware-vmx
 	'';
+
+	passthru.updateScript = "nixUpdate --version branch";
 }

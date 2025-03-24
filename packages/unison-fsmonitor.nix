@@ -2,7 +2,9 @@
 { lib, stdenv, rustPlatform, darwin, fetchFromGitHub }:
 
 rustPlatform.buildRustPackage {
-	name = "unison-fsmonitor";
+	pname = "unison-fsmonitor";
+	version = "0.3.8";
+
 	src = fetchFromGitHub {
 		owner = "autozimu";
 		repo = "unison-fsmonitor";
@@ -20,4 +22,6 @@ rustPlatform.buildRustPackage {
 		# test uses a symlink escaping the nix sandbox
 		"--skip=test::test_follow_link"
 	];
+
+	passthru.updateScript = "nixUpdate";
 }

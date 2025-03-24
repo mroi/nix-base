@@ -23,6 +23,7 @@
 		"staging"
 		"timezone"
 		"unison"
+		"updates"
 		"users"
 		"volumes"
 	];

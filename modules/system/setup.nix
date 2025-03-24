@@ -15,6 +15,9 @@
 		services.openssh.enable = null;
 		services.unison.userAccountProfile = null;
 		system.packages = null;
+		system.updates.autoDownload = null;
+		system.updates.autoInstall = null;
+		system.updates.autoAppUpdate = null;
 		time.timeZone = null;
 		users.defaultScriptShell = null;
 		users.directory.authentication.searchPolicy = null;

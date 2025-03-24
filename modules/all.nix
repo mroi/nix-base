@@ -8,6 +8,7 @@
 	"drift" = ./system/drift.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
+	"updates" = ./system/updates.nix;
 
 	# Nix setup
 	"builders" = ./nix/builders.nix;

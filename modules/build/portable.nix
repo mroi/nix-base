@@ -22,11 +22,21 @@
 				gzip -c rebuild-closure.tar | base64 > $out
 			'';
 
-		in ''#!/bin/sh -e
+			stripTabs = text: let
+				hasTabs = lib.any (lib.hasPrefix "\t");
+				stripOneTab = map (lib.removePrefix "\t");
+				stripAllTabs = lines: if (hasTabs lines) then (stripAllTabs (stripOneTab lines)) else lines;
+			in lib.pipe text [
+				(lib.splitString "\n")
+				stripAllTabs
+				(lib.concatStringsSep "\n")
+			];
+
+		in stripTabs ''#!/bin/sh -e
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 			rm -rf ${tmpDir} ; mkdir ${tmpDir}
 			trap 'rm -rf ${tmpDir}' EXIT HUP INT TERM QUIT
-			base64 --decode <<- %EOF% | tar --extract --gunzip --directory=${tmpDir}
+			base64 --decode << %EOF% | tar --extract --gunzip --directory=${tmpDir}
 				${lib.fileContents rebuildClosure}
 			%EOF%
 			${tmpDir}/rebuild "$@"

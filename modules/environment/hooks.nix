@@ -27,13 +27,12 @@
 
 		stripTabs = text: let
 			hasTabs = lines: lib.all (lib.hasPrefix "\t") (lib.take 1 lines);
-			stripOneTab = lines: map (lib.removePrefix "\t") lines;
+			stripOneTab = map (lib.removePrefix "\t");
 			stripMaxTabs = lines: if (hasTabs lines) then (stripMaxTabs (stripOneTab lines)) else lines;
 		in lib.pipe text [
 			(lib.splitString "\n")
 			stripMaxTabs
-			lib.concatLines
-			(lib.removeSuffix "\n")
+			(lib.concatStringsSep "\n")
 		];
 
 		generateHook = type: pkgs.writeTextFile {

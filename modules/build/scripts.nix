@@ -21,6 +21,7 @@
 		"sip"
 		"ssh"
 		"staging"
+		"system"
 		"timezone"
 		"unison"
 		"updates"

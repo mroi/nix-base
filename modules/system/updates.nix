@@ -64,5 +64,10 @@
 		'' + lib.optionalString (cfg.autoAppUpdate != null) ''
 			${settingScript "/Library/Preferences/com.apple.commerce" "AutoUpdate" cfg.autoAppUpdate}
 		'';
+
+		system.updateScripts.system = lib.mkIf pkgs.stdenv.isDarwin ''
+			storeHeading -
+			trace softwareupdate --install --all
+		'';
 	};
 }

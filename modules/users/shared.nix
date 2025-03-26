@@ -25,7 +25,7 @@
 			storeHeading -
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
 			makeDir 3777:root:${config.users.shared.group} '${config.users.shared.folder}'
-		'' + ''
+		'' + lib.optionalString (config.environment.profile != null) ''
 			storeHeading 'Redirecting Nix profile to shared folder'
 			stateDir=''${XDG_STATE_HOME:-$HOME/.local/state}
 			if ! test -e "$stateDir/nix" ; then

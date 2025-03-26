@@ -577,7 +577,7 @@ restartService() {
 	fi
 	if $isDarwin ; then
 		# translate the service name to a launchd reverse DNS service label
-		_label=$(launchctl print system | grep -Fw "$1" | cut -f4)
+		_label=$(launchctl print system | grep -w "$1\$" | cut -f4)
 		if test "$_label" ; then
 			trace sudo launchctl kill TERM "system/$_label" || true
 		fi

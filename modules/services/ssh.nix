@@ -22,7 +22,7 @@
 				running=$(if systemctl is-enabled ssh.service > /dev/null 2>&1 ; then echo 1 ; fi)
 				case "$enable,$running" in
 					1,) trace sudo systemctl enable --now ssh.service ;;
-					,1)	trace sudo systemctl disable --now ssh.service ;;
+					,1) trace sudo systemctl disable --now ssh.service ;;
 				esac
 			'';
 			Darwin = ''

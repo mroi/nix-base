@@ -1,36 +1,9 @@
 { config, lib, ... }: let
 
-	fragments = [
-		"apps"
-		"bundles"
-		"directory"
-		"firewall"
-		"groups"
-		"guest"
-		"hooks"
-		"name"
-		"nix"
-		"packages"
-		"patches"
-		"profile"
-		"root"
-		"rootpaths"
-		"services"
-		"shared"
-		"shell"
-		"sip"
-		"ssh"
-		"staging"
-		"system"
-		"timezone"
-		"unison"
-		"updates"
-		"users"
-		"volumes"
-	];
+	fragments = lib.attrNames (import ../all.nix) ++ [ "nix" "staging" "system" ];
 
 	unknownFragmentAssertion = name: list:
-		let unknownFragments = lib.subtractLists fragments list;
+		let unknownFragments = lib.unique (lib.subtractLists fragments list);
 		in {
 			assertion = unknownFragments == [];
 			message = "Unknown entry in ${name}: ${lib.concatStringsSep " " unknownFragments}";

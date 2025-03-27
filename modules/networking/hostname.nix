@@ -5,7 +5,7 @@
 		description = "The name of the machine.";
 	};
 
-	config.system.activationScripts.name = let
+	config.system.activationScripts.hostname = let
 
 		cmd = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 			Linux = {

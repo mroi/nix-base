@@ -309,7 +309,7 @@ makeUser() {
 		_dsclRead() {
 			dscl -plist . -read "/Users/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
 		}
-		if test "$(_dsclRead AuthenticationAuthority)" ; then
+		if test "$isHidden" -a "$(_dsclRead AuthenticationAuthority)" ; then
 			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
 		fi
 		if test "$isHidden" -a "$(_dsclRead Password)" != '*' ; then

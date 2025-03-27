@@ -27,6 +27,7 @@ jobs:
     env:
       HOSTNAME: ${{ matrix.machine }}
       NIX_CONFIG: access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Checkout repository

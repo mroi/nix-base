@@ -115,3 +115,13 @@ updateHash() {
 updateRev() {
 	_updateEntry revision "$1" '[0-9a-f]{40}' "$2"
 }
+
+if test "$GITHUB_TOKEN" ; then
+curl() {
+	if test "${*#*github.com}" != "$*" ; then
+		command curl --header "Authorization: Bearer $GITHUB_TOKEN" "$@"
+	else
+		command curl "$@"
+	fi
+}
+fi

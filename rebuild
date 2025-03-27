@@ -36,14 +36,14 @@ if ! nix --version > /dev/null 2>&1 ; then
 fi
 
 # run default commands if there are no arguments
-if test "$#" -eq 0 ; then
+if test "$*" = '' -o "$*" = -i ; then
 	commands=$(nix eval --quiet --no-warn-dirty --apply toString --raw \
 		"${self}#baseConfigurations.${machine}.config.system.defaultCommands")
 	if test "$commands" ; then
 		# shellcheck disable=SC2086
-		set $commands
+		set -- "$@" $commands
 	else
-		set activate
+		set -- "$@" activate
 	fi
 fi
 

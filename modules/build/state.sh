@@ -584,6 +584,40 @@ restartService() {
 	fi
 }
 
+# settings in preference files
+
+makePref() {
+	if $isDarwin ; then
+		_file=$1
+		_key=$2
+		_type=$3
+		_value=$4
+
+		if test "$(stat -f %u "$_file")" = "$(id -u)" ; then
+			_sudo
+		else
+			_sudo=sudo
+		fi
+
+		_getPref() { defaults read "${_file%.plist}" "$_key" 2> /dev/null ; }
+		# shellcheck disable=SC2086
+		_setPref() { trace $_sudo defaults write "${_file%.plist}" "$_key" "-$_type" "$_value" ; }
+
+		case "$_type" in
+			string|int|float)
+				if test "$(_getPref)" != "$_value" ; then _setPref ; fi ;;
+			bool)
+				if test "$(_getPref)" != "$(case "$_value" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref	; fi ;;
+			array-add)
+				if ! _getPref | grep -Fq "\"$_value\"" ; then _setPref ; fi ;;
+			*)
+				fatalError "Unsupported preference type $_type"
+		esac
+	else
+		fatalError 'No preference file support on Linux'
+	fi
+}
+
 # interactive script editing
 
 interactiveDeletes() {

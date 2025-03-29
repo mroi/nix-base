@@ -32,12 +32,6 @@
 		cfg = config.system.updates;
 		isEnabled = (cfg.autoDownload != null) || (cfg.autoInstall != null) || (cfg.autoAppUpdate != null);
 
-		settingScript = plist: key: value: ''
-			if test "$(defaults read ${plist} ${key})" != ${if value then "1" else "0"} ; then
-				trace sudo defaults write ${plist} ${key} -bool ${lib.boolToString value}
-			fi
-		'';
-
 	in lib.mkIf isEnabled {
 
 		assertions = [{
@@ -48,21 +42,21 @@
 		system.activationScripts.updates = ''
 			storeHeading 'Automatic update settings'
 		'' + lib.optionalString (cfg.autoDownload != null) ''
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "AutomaticDownload" cfg.autoDownload}
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload bool ${lib.boolToString cfg.autoDownload}
 		'' + lib.optionalString (cfg.autoInstall == "none") ''
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "AutomaticallyInstallMacOSUpdates" false}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "ConfigDataInstall" false}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "CriticalUpdateInstall" false}
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool false
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool false
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool false
 		'' + lib.optionalString (cfg.autoInstall == "critical") ''
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "AutomaticallyInstallMacOSUpdates" false}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "ConfigDataInstall" true}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "CriticalUpdateInstall" true}
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool false
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool true
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool true
 		'' + lib.optionalString (cfg.autoInstall == "all") ''
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "AutomaticallyInstallMacOSUpdates" true}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "ConfigDataInstall" true}
-			${settingScript "/Library/Preferences/com.apple.SoftwareUpdate" "CriticalUpdateInstall" true}
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool true
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool true
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool true
 		'' + lib.optionalString (cfg.autoAppUpdate != null) ''
-			${settingScript "/Library/Preferences/com.apple.commerce" "AutoUpdate" cfg.autoAppUpdate}
+			makePref /Library/Preferences/com.apple.commerce.plist AutoUpdate bool ${lib.boolToString cfg.autoAppUpdate}
 		'';
 
 		system.updateScripts.system = lib.mkIf pkgs.stdenv.isDarwin ''

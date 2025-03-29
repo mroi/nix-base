@@ -66,7 +66,7 @@
 
 		assertions = [{
 			assertion = config.fileSystems == {} || pkgs.stdenv.isDarwin;
-			message = "Volume creation is currently only supported on Darwin.";
+			message = "Volume creation is currently only supported on Darwin";
 		}];
 
 		system.activationScripts.volumes = lib.mkIf (config.fileSystems != {}) ''

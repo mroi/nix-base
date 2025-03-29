@@ -57,7 +57,7 @@
 
 		assertions = [{
 			assertion = lib.allUnique (map (user: user.value.uid) usersToCreate);
-			message = "UIDs of the configured users are not unique.";
+			message = "UIDs of the configured users are not unique";
 		}];
 
 		system.activationScripts.users = lib.stringAfter [ "groups" ] ''

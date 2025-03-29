@@ -69,7 +69,7 @@
 
 		assertions = (map (service: {
 			assertion = lib.hasSuffix service.name service.value.label;
-			message = "The last component of label ${service.value.label} must match the service name ${service.name}.";
+			message = "The last component of label ${service.value.label} must match the service name ${service.name}";
 		}) servicesToCreate)
 		++ lib.optionals pkgs.stdenv.isDarwin (map (service: {
 			assertion = service.value.socket == null;
@@ -82,7 +82,7 @@
 			(lib.filter (group: group != null))
 			(lib.subtractLists (lib.attrNames config.users.groups))
 			(lib.subtractLists [ "" ])
-			(map (group: "Group ${group} referenced by a service is not known to exist."))
+			(map (group: "Group ${group} referenced by a service is not known to exist"))
 		];
 
 		system.activationScripts.services = lib.stringAfter [ "users" "groups" ] ''

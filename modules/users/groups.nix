@@ -47,7 +47,7 @@
 
 		assertions = [{
 			assertion = lib.allUnique (map (group: group.value.gid) groupsToCreate);
-			message = "GIDs of the configured groups are not unique.";
+			message = "GIDs of the configured groups are not unique";
 		}];
 
 		warnings = lib.pipe config.users.groups [
@@ -55,7 +55,7 @@
 			(lib.catAttrs "members")
 			lib.flatten
 			(lib.subtractLists (lib.attrNames config.users.users))
-			(map (member: "User ${member} referenced as group member, but not known to exist."))
+			(map (member: "User ${member} referenced as group member, but not known to exist"))
 		];
 
 		system.activationScripts.groups = ''

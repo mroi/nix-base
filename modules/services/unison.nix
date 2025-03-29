@@ -70,7 +70,7 @@
 
 		assertions = [{
 			assertion = config.users.shared.folder != null || cfg.userAccountProfile == null;
-			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder.";
+			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder";
 		}];
 
 		system.build.packages = { inherit unison-intercept; };

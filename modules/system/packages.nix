@@ -10,7 +10,7 @@
 
 		assertions = [{
 			assertion = config.system.packages == null || config.system.packages == [] || pkgs.stdenv.isLinux;
-			message = "System-level package installation is currently only supported on Linux.";
+			message = "System-level package installation is currently only supported on Linux";
 		}];
 
 		system.activationScripts.packages = let

@@ -67,7 +67,7 @@
 					# run post command
 					${patch.post}
 				else
-					printWarning "Patch ${patch.name} cannot be checked as some files are not readable."
+					printWarning "Patch ${patch.name} cannot be checked as some files are not readable"
 				fi
 			fi
 		'';
@@ -84,7 +84,7 @@
 
 		assertions = [{
 			assertion = lib.allUnique patchNames;
-			message = "All patch files must have a unique name.";
+			message = "All patch files must have a unique name";
 		}];
 
 		system.activationScripts.patches = lib.stringAfter [ "staging" "packages" ] ''

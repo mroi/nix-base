@@ -4,10 +4,11 @@
 		type = lib.types.attrsOf (lib.types.nullOr
 			(lib.types.submodule { options = {
 				gid = lib.mkOption {
-					type = lib.mkOptionType {
+					type = lib.types.nullOr (lib.mkOptionType {
 						name = "gid";
 						check = gid: lib.isInt gid && gid >= 600;
-					};
+					});
+					default = null;
 					description = "The group’s GID.";
 				};
 				members = lib.mkOption {
@@ -46,7 +47,11 @@
 	in {
 
 		assertions = [{
-			assertion = lib.allUnique (map (group: group.value.gid) groupsToCreate);
+			assertion = lib.pipe groupsToCreate [
+				(map (group: group.value.gid))
+				(lib.filter (gid: gid != null))
+				lib.allUnique
+			];
 			message = "GIDs of the configured groups are not unique";
 		}];
 

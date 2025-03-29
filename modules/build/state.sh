@@ -309,7 +309,7 @@ makeUser() {
 		_dsclRead() {
 			dscl -plist . -read "/Users/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
 		}
-		if test "$(_dsclRead AuthenticationAuthority)" ; then
+		if test "$isHidden" -a "$(_dsclRead AuthenticationAuthority)" ; then
 			trace sudo dscl . -delete "/Users/$name" AuthenticationAuthority
 		fi
 		if test "$isHidden" -a "$(_dsclRead Password)" != '*' ; then
@@ -364,9 +364,13 @@ makeGroup() {
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
 		if ! getent group "$name" > /dev/null ; then
-			trace sudo addgroup --gid "$gid" "$name"
+			if test "$gid" ; then
+				trace sudo addgroup --gid "$gid" "$name"
+			else
+				fatalError "Cannot create group $name without a GID"
+			fi
 		fi
-		if ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
+		if test "$gid" && ! getent group "$name" | grep -q "^$name:x:$gid:" ; then
 			deleteGroup "$name"
 			makeGroup <<- EOF
 				name="$name" ; gid="$gid" ; members="$members" ; description="$description"
@@ -380,12 +384,16 @@ makeGroup() {
 	fi
 	if $isDarwin ; then
 		if ! dscl . -read "/Groups/$name" > /dev/null 2>&1 ; then
-			trace sudo dseditgroup -o create -r "$description" -i "$gid" "$name"
+			if test "$gid" ; then
+				trace sudo dseditgroup -o create -r "$description" -i "$gid" "$name"
+			else
+				fatalError "Cannot create group $name without a GID"
+			fi
 		fi
 		_dsclRead() {
 			dscl -plist . -read "/Groups/$name" "$1" | xmllint --xpath '//string/text()' - 2> /dev/null
 		}
-		if test "$(_dsclRead PrimaryGroupID)" != "$gid" ; then
+		if test "$gid" -a "$(_dsclRead PrimaryGroupID)" != "$gid" ; then
 			trace sudo dseditgroup -o edit -i "$gid" "$name"
 		fi
 		echo "$members" | tr ' ' '\n' | while read -r _member && test "$_member" ; do
@@ -393,7 +401,7 @@ makeGroup() {
 				trace sudo dseditgroup -o edit -t user -a "$_member" "$name"
 			fi
 		done
-		if test "$(_dsclRead RealName)" != "$description" ; then
+		if test "$gid" -a "$(_dsclRead RealName)" != "$description" ; then
 			trace sudo dseditgroup -o edit -r "$description" "$name"
 		fi
 	fi

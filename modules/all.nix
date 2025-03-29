@@ -21,6 +21,7 @@
 	"volumes" = ./filesystems/volumes.nix;
 
 	# root account, groups, and users
+	"accounts" = ./users/accounts.nix;
 	"directory" = ./users/directory.nix;
 	"groups" = ./users/groups.nix;
 	"guest" = ./users/guest.nix;

@@ -56,4 +56,8 @@
 	"ssh" = ./services/ssh.nix;
 	"sshproxy" = ./services/sshproxy.nix;
 	"unison" = ./services/unison.nix;
+
+	# application programs
+	"develop" = ./programs/develop.nix;
+	"gitup" = ./programs/gitup.nix;
 }

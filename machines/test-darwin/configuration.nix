@@ -13,4 +13,6 @@
 
 	services.sshProxy.enableClient = true;
 	services.sshProxy.enableServer = true;
+
+	programs.develop.enable = true;
 }

@@ -6,7 +6,7 @@
 			os_version=$(sw_vers -productVersion)
 			if test "$os_version" != "''${os_version#15.}" ; then'' + "\n"
 		+ lib.optionalString config.nix.enable (''
-				if ! dscl . -read /Users/_nix PrimaryGroupID > /dev/null 2>&1 ; then
+				if test "$(dscl . -read /Users/_nix PrimaryGroupID 2> /dev/null)" != 600 ; then
 					dscl . -create /Users/_nix PrimaryGroupID ${toString config.users.groups.nix.gid}
 				fi'' + "\n")
 		+ lib.optionalString config.users.guest.enable (''

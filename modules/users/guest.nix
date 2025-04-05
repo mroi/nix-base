@@ -46,7 +46,7 @@
 					dscl . -create /users/Guest _guest true
 				else
 					# unmark the guest account, otherwise it does not show up in fast user switching
-					dscl . -delete /users/Guest _guest
+					dscl . -delete /users/Guest _guest || true
 					defaults delete /Library/Preferences/com.apple.loginwindow.plist GuestEnabled || true
 				fi
 			'';

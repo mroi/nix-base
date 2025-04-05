@@ -36,6 +36,7 @@
 				makeLink "$stateDir/nix" '${config.users.shared.folder}/${config.users.stateDir}/nix'
 			fi
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			storeHeading -
 			# prompt the user to delete relocated items
 			find "${config.users.shared.folder}/"*Relocated\ Items* > relocated 2> /dev/null || true
 			interactiveDeletes relocated 'These files got moved to ${config.users.shared.folder} by a macOS update.'

@@ -48,6 +48,7 @@
 
 	# security settings
 	"password" = ./security/password.nix;
+	"prefs" = ./security/prefs.nix;
 	"sip" = ./security/sip.nix;
 	"sudo" = ./security/sudo.nix;
 

@@ -10,5 +10,8 @@
 	<string>/var/root/logout-hook.sh</string>
 	<key>MCXScriptTrust</key>
 	<string>Anonymous</string>
+	<!-- not needed for hook scripts, but added by loginwindow when not present -->
+	<key>oneTimeSSMigrationComplete</key>
+	<true/>
 </dict>
 </plist>

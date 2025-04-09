@@ -200,8 +200,8 @@ makeTree() {
 	_source=$2
 
 	# shellcheck disable=SC2086
-	trace $_sudo rsync --recursive --delete --links --executability --chmod=ugo=rwX \
-		"$_source/" "$_target"
+	trace $_sudo rsync --recursive --delete --links --executability "$_source/" "$_target"
+	trace $_sudo chmod -R"$(if $isDarwin ; then echo H ; fi)" "$(umask -S | tr x X)" "$_target"
 
 	# shellcheck disable=SC2086
 	test -z "$_owner" || trace $_sudo chown -Rh "$_owner" "$1"

@@ -19,12 +19,12 @@
 			message = "Disabling password protection is currently not supported";
 		}];
 
-		system.activationScripts.prefs = let
+		system.activationScripts.prefsec = let
 			expectedResult = lib.boolToString (! config.security.preferences.passwordProtect);
 		in ''
 			storeHeading 'Systemwide security preferences'
 
-			shared=$(osascript -l JavaScript ${./prefs-auth-shared.js})
+			shared=$(osascript -l JavaScript ${./prefsec-auth-shared.js})
 
 			if test "$shared" != ${expectedResult} ; then
 		'' + lib.getAttr expectedResult {

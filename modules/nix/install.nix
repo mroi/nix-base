@@ -57,11 +57,6 @@
 					Linux = "/etc/ssl/certs/ca-certificates.crt";
 					Darwin = "/etc/ssl/cert.pem";
 				}}"
-			] ++ lib.optionals pkgs.stdenv.isDarwin [
-				# Starting with Nix 2.25, OBJC_DISABLE_INITIALIZE_FORK_SAFETY will be unnecessary
-				(assert lib.strings.compareVersions pkgs.nix.version "2.25" < 0;
-				"OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES")
-			] ++ [
 				"TMPDIR=/nix/var/tmp"
 				"XDG_CACHE_HOME=/nix/var"
 			];

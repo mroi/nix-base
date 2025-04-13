@@ -142,7 +142,6 @@ if $isLinux ; then
 fi
 if $isDarwin ; then
 	sslCertFile=/etc/ssl/cert.pem
-	objcVariable=OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 	socket=
 fi
 makeService << EOF
@@ -153,7 +152,6 @@ makeService << EOF
 		NIX_CONF_DIR=/nix
 		NIX_SSHOPTS=-F /nix/var/ssh/config
 		NIX_SSL_CERT_FILE=$sslCertFile
-		$objcVariable
 		TMPDIR=/nix/var/tmp
 		XDG_CACHE_HOME=/nix/var
 	"

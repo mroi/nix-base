@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: {
 
 	config.environment.loginHook.drift = lib.mkIf config.system.systemwideSetup (
-		lib.optionalString (pkgs.stdenv.isDarwin && (config.nix.enable || config.users.guest.enable)) (''
+		lib.optionalString (pkgs.stdenv.isDarwin && (config.nix.enable || config.users.guest.enable || config.users.defaultScriptShell != null)) (''
 			# repair configuration drift after macOS updates
 			os_version=$(sw_vers -productVersion)
 			if test "$os_version" != "''${os_version#15.}" ; then'' + "\n"
@@ -23,6 +23,8 @@
 					pwpolicy -setaccountpolicies /var/root/globalpwpolicy.plist
 					rm /var/root/globalpwpolicy.plist
 				fi'' + "\n")
+		+ lib.optionalString (config.users.defaultScriptShell != null) (''
+				makeLink 755:root:wheel /var/select/sh ${lib.escapeShellArg config.users.defaultScriptShell}'' + "\n")
 		+ ''
 			fi
 		'')

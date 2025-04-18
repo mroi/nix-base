@@ -62,6 +62,12 @@
 						printWarning 'Execution on NixOS installations is not recommended'
 					fi
 				fi
+			'' + lib.optionalString pkgs.stdenv.isDarwin ''
+				# error when running without full disk access
+				if test -d ~/Library/Application\ Support/com.apple.TCC -a ! -r ~/Library/Application\ Support/com.apple.TCC ; then
+					fatalError 'Rebuild requires full disk access'
+				fi
+			'' + ''
 				# transition to a temporary directory
 				tmpdir=$(mktemp -d -t "rebuild$($isDarwin || echo .XXXXXXXX)")
 				# shellcheck disable=SC2064

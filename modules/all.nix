@@ -62,4 +62,7 @@
 	"sshproxy" = ./services/sshproxy.nix;
 	"timemachine" = ./services/timemachine.nix;
 	"unison" = ./services/unison.nix;
+
+	# application programs
+	"develop" = ./programs/develop.nix;
 }

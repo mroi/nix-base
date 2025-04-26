@@ -12,6 +12,7 @@
 		})
 
 		(lib.mkIf pkgs.stdenv.isDarwin {
+			programs.xcode.enable = true;
 		})
 	]);
 }

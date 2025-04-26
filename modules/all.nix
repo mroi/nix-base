@@ -65,4 +65,5 @@
 
 	# application programs
 	"develop" = ./programs/develop.nix;
+	"xcode" = ./programs/xcode.nix;
 }

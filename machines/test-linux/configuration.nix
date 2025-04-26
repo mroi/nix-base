@@ -8,9 +8,6 @@
 
 	environment.flatpak = "none";
 
-	environment.profile = [
-		# Unison file sync
-		"nix-base#unison"
-		"github:mroi/aws-ssh-proxy/unison-sync#unison-sync"
-	];
+	# cloud sync
+	services.unison.awsSync = true;
 }

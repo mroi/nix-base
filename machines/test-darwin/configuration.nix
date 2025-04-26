@@ -13,4 +13,5 @@
 
 	services.sshProxy.enableClient = true;
 	services.sshProxy.enableServer = true;
+	services.unison.awsSync = true;
 }

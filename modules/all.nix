@@ -54,6 +54,7 @@
 
 	# service configurations
 	"arq" = ./services/arq.nix;
+	"awssync" = ./services/awssync.nix;
 	"ssh" = ./services/ssh.nix;
 	"sshproxy" = ./services/sshproxy.nix;
 	"unison" = ./services/unison.nix;

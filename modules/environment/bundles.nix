@@ -54,7 +54,7 @@
 			message = "Packages to install as bundles must have a version attribute";
 		}];
 
-		system.activationScripts.bundles = ''
+		system.activationScripts.bundles = lib.stringAfter [ "nix" ] ''
 			storeHeading 'Installing side-loaded software'
 			${allBundlesScript "install"}
 		'';

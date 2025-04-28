@@ -21,6 +21,7 @@
 					description = "The file system type.";
 				};
 				ownership = lib.mkEnableOption "file ownership information";
+				hidden = lib.mkEnableOption "volume hidden state";
 			};})
 		);
 		default = {};

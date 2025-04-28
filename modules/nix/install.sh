@@ -14,7 +14,7 @@ if $isDarwin ; then
 	# create the Nix volume
 	makeVolume <<- EOF
 		name=Nix ; mountPoint=/nix ; container=/
-		fsType=APFSX ; encrypted=1 ; ownership=1
+		fsType=APFSX ; encrypted=1 ; ownership=1 ; hidden=1
 		keyStorage="$rootStagingDir/login-hook.sh" ; keyVariable=NIX_VOLUME_PASSWORD
 	EOF
 	# setup /nix directory

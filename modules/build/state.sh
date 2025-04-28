@@ -212,7 +212,7 @@ makeTree() {
 # volume management
 
 makeVolume() {
-	name= ; container= ; encrypted= ; keyStorage= ; keyVariable= ; fsType= ; mountPoint= ; ownership=
+	name= ; container= ; encrypted= ; keyStorage= ; keyVariable= ; fsType= ; mountPoint= ; ownership= ; hidden=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isDarwin ; then
@@ -267,8 +267,13 @@ makeVolume() {
 			'<false/>,1') trace sudo diskutil enableOwnership "$mountPoint" ;;
 			*) fatalError "Inconsistent ownership status on the volume $name" ;;
 		esac
+		# hidden flag
+		hidden=$(if test "$hidden" ; then echo hidden ; else echo - ; fi)
+		if test "$(stat -f %Sf "$mountPoint")" != "$hidden" ; then
+			trace sudo chflags "$hidden" "$mountPoint"
+		fi
 	fi
-	unset name container encrypted keyStorage keyVariable fsType mountPoint ownership
+	unset name container encrypted keyStorage keyVariable fsType mountPoint ownership hidden
 }
 
 deleteVolume() {

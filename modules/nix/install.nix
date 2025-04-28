@@ -27,6 +27,7 @@
 			fsType = "APFSX";
 			encrypted = true;
 			ownership = true;
+			hidden = true;
 		};
 
 		users = {

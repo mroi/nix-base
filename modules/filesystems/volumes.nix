@@ -51,14 +51,22 @@
 		deleteVolumeScript = volume: with volumeProperties volume; ''
 			deleteVolume '${name}'
 		'';
-		mountVolumeScript = volume: with volumeProperties volume; ''
+		mountVolumeScript = volume: with volumeProperties volume; let
+			script = if lib.hasPrefix "/Volumes" mountPoint then {
+				mountTest = "! test -d ${lib.escapeShellArg mountPoint}";
+				mountPoint = "";
+			} else {
+				mountTest = "test \"$(stat -f %d /)\" = \"$(stat -f %d ${lib.escapeShellArg mountPoint})\"";
+				mountPoint = " -mountpoint ${lib.escapeShellArg mountPoint}";
+			};
+		in ''
 			# mount ${name} volume
-			if test "$(stat -f %d /)" = "$(stat -f %d ${lib.escapeShellArg mountPoint})" ; then
+			if ${script.mountTest} ; then
 				${if encrypted then (
 					"${keyVariable}= # placeholder, will be filled at runtime\n\t\t\t\t" +
-					"echo \"\$${keyVariable}\" | diskutil quiet apfs unlock ${lib.escapeShellArg name} -stdinpassphrase -mountpoint ${lib.escapeShellArg mountPoint}"
+					"echo \"\$${keyVariable}\" | diskutil quiet apfs unlock ${lib.escapeShellArg name} -stdinpassphrase${script.mountPoint}"
 				) else
-					"diskutil quiet apfs unlock ${lib.escapeShellArg name} -mountpoint ${lib.escapeShellArg mountPoint}"
+					"diskutil quiet apfs unlock ${lib.escapeShellArg name}${script.mountPoint}"
 				}
 			fi'';
 

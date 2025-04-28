@@ -240,9 +240,17 @@ makeVolume() {
 			container=$(diskutil info -plist "$container" | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
 			test "$container" != "${container#disk}" || fatalError "Could not find APFS container for volume $name"
 			if test "$encrypted" ; then
-				echo "$_password" | trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -stdinpassphrase -mountpoint "$mountPoint"
+				if test "$mountPoint" = "/Volumes/$name" ; then
+					echo "$_password" | trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -stdinpassphrase
+				else
+					echo "$_password" | trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -stdinpassphrase -mountpoint "$mountPoint"
+				fi
 			else
-				trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -mountpoint "$mountPoint"
+				if test "$mountPoint" = "/Volumes/$name" ; then
+					trace sudo diskutil apfs addVolume "$container" "$fsType" "$name"
+				else
+					trace sudo diskutil apfs addVolume "$container" "$fsType" "$name" -mountpoint "$mountPoint"
+				fi
 			fi
 			diskutil list "$name" > /dev/null 2>&1 || fatalError "Could not create the volume $name"
 		fi

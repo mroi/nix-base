@@ -36,7 +36,7 @@ if ! nix --version > /dev/null 2>&1 ; then
 fi
 
 # run default commands if there are no arguments
-if test "$*" = '' -o "$*" = -i ; then
+if test "$*" = '' -o "$*" = -i -o "$*" = --interactive ; then
 	commands=$(nix eval --quiet --no-warn-dirty --apply toString --raw \
 		"${self}#baseConfigurations.${machine}.config.system.defaultCommands")
 	if test "$commands" ; then

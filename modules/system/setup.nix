@@ -15,6 +15,7 @@
 		security.preferences.passwordProtect = null;
 		services.openssh.enable = null;
 		services.unison.userAccountProfile = null;
+		system.boot.chime = null;
 		system.packages = null;
 		system.updates.autoDownload = null;
 		system.updates.autoInstall = null;

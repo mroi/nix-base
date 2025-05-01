@@ -5,7 +5,9 @@
 	"scripts" = ./build/scripts.nix;
 
 	# underlying system setup
+	"boot" = ./system/boot.nix;
 	"drift" = ./system/drift.nix;
+	"nvram" = ./system/nvram.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 	"updates" = ./system/updates.nix;

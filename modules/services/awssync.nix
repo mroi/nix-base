@@ -5,7 +5,7 @@
 	config = let
 
 		flakeRepo = "mroi/aws-ssh-proxy";
-		flakeRev = "5eab5030cf51c71acc873d8508667326cbae78e6";
+		flakeRev = "ef7921d3882cb4c7bd88b6fabdab42d7304e17bf";
 		flakeUrl = "github:${flakeRepo}/${flakeRev}";
 		flake = builtins.getFlake flakeUrl;
 		flakeAttr = "unison-sync";
@@ -24,7 +24,9 @@
 		system.build.packages = { inherit unison-sync; };
 
 		environment.profile = lib.mkIf (config.services.unison.awsSync && pkgs.stdenv.isLinux) [
-			"github:${flakeRepo}/${flakeBranch}#${flakeAttr}"
+			# "github:${flakeRepo}/${flakeBranch}#${flakeAttr}"
+			# FIXME: Linux needs an older version until Swift 6 is in Nixpkgs
+			"github:${flakeRepo}/${flakeBranch}-linux#${flakeAttr}"
 		];
 		environment.bundles = lib.mkIf (config.services.unison.awsSync && pkgs.stdenv.isDarwin) {
 			"${config.users.shared.folder}/${config.users.serviceDir}/UnisonSync.bundle" = {

@@ -59,5 +59,6 @@
 	"awssync" = ./services/awssync.nix;
 	"ssh" = ./services/ssh.nix;
 	"sshproxy" = ./services/sshproxy.nix;
+	"timemachine" = ./services/timemachine.nix;
 	"unison" = ./services/unison.nix;
 }

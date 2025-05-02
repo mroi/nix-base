@@ -612,7 +612,7 @@ makePref() {
 		_file=$1
 		_key=$2
 		_type=$3
-		_value=$4
+		shift ; shift ; shift
 
 		if test "$(stat -f %u "$_file")" = "$(id -u)" ; then
 			_sudo
@@ -622,15 +622,18 @@ makePref() {
 
 		_getPref() { defaults read "${_file%.plist}" "$_key" 2> /dev/null ; }
 		# shellcheck disable=SC2086
-		_setPref() { trace $_sudo defaults write "${_file%.plist}" "$_key" "-$_type" "$_value" ; }
+		_setPref() { trace $_sudo defaults write "${_file%.plist}" "$_key" "-$_type" "$@" ; }
 
 		case "$_type" in
 			string|int|float)
-				if test "$(_getPref)" != "$_value" ; then _setPref ; fi ;;
+				if test "$(_getPref)" != "$1" ; then _setPref "$1" ; fi ;;
 			bool)
-				if test "$(_getPref)" != "$(case "$_value" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref	; fi ;;
+				if test "$(_getPref)" != "$(case "$1" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref "$1" ; fi ;;
+			array)
+				_expected=$(printf '(' ; for _value ; do test "$_value" = "$1" || printf , ; printf '\n    "%s"' "$_value" ; done ; printf '\n)\n')
+				if test "$(_getPref)" != "$_expected" ; then _setPref "$@" ; fi ;;
 			array-add)
-				if ! _getPref | grep -Fq "\"$_value\"" ; then _setPref ; fi ;;
+				if ! _getPref | grep -Fq "\"$1\"" ; then _setPref "$1" ; fi ;;
 			*)
 				fatalError "Unsupported preference type $_type"
 		esac

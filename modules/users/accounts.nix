@@ -75,5 +75,9 @@
 				admin.members = map mkAccountName adminAccounts;
 			};
 		};
+
+		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.isDarwin (map
+			(account: "/Users/${mkAccountName account}/Downloads")
+		accounts);
 	};
 }

@@ -6,6 +6,16 @@
 			default = [];
 			description = "Backup destinations for Time Machine.";
 		};
+		includeVolumes = lib.mkOption {
+			type = lib.types.listOf lib.types.path;
+			default = [];
+			description = "Additional volumes to be included in Time Machine backups.";
+		};
+		excludePaths = lib.mkOption {
+			type = lib.types.listOf lib.types.path;
+			default = [];
+			description = "Paths to be excluded from Time Machine backups.";
+		};
 	};
 
 	config = lib.mkIf (config.services.timeMachine.destinations != null) {
@@ -21,7 +31,7 @@
 		warnings = lib.optional (config.services.timeMachine.destinations == [] && pkgs.stdenv.isDarwin)
 			"No Time Machine backups configured for this machine";
 
-		system.activationScripts.timemachine = lib.mkIf pkgs.stdenv.isDarwin ''
+		system.activationScripts.timemachine = lib.mkIf pkgs.stdenv.isDarwin (''
 			storeHeading 'Configuring Time Machine backup'
 
 			target='${lib.concatLines config.services.timeMachine.destinations}'
@@ -58,8 +68,35 @@
 			}
 			forLines "$target" forTarget
 
+			# volume inclusions
+		'' + (if (config.services.timeMachine.includeVolumes == []) then ''
+			makePref /Library/Preferences/com.apple.TimeMachine.plist IncludedVolumeUUIDs delete
+		'' else ''
+			volumes='${lib.concatLines (lib.naturalSort config.services.timeMachine.includeVolumes)}'
+			uuids=
+			forVolume() {
+				uuid=$(diskutil info -plist "$1" | xmllint --xpath '/plist/dict/key[text()="VolumeUUID"]/following-sibling::string/text()' - 2> /dev/null || true)
+				if test "$uuid" ; then
+					uuids="$uuids$uuid "
+				else
+					fatalError "Cannot determine volume UUID: $1 is not mounted"
+				fi
+			}
+			forLines "$volumes" forVolume
+			# shellcheck disable=SC2086
+			makePref /Library/Preferences/com.apple.TimeMachine.plist IncludedVolumeUUIDs array $uuids
+		'') + ''
+
+			# path exclusions
+		'' + (if (config.services.timeMachine.excludePaths == []) then ''
+			makePref /Library/Preferences/com.apple.TimeMachine.plist SkipPaths delete
+		'' else ''
+			makePref /Library/Preferences/com.apple.TimeMachine.plist SkipPaths array \
+				${lib.escapeShellArgs (lib.naturalSort config.services.timeMachine.excludePaths)}
+		'') + ''
+
 			${config.system.cleanupScripts.timemachine}
-		'';
+		'');
 
 		system.cleanupScripts.timemachine = ''
 			storeHeading 'Checking Time Machine backup'

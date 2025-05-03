@@ -626,14 +626,17 @@ makePref() {
 
 		case "$_type" in
 			string|int|float)
-				if test "$(_getPref)" != "$1" ; then _setPref "$1" ; fi ;;
+				if test "$(_getPref || true)" != "$1" ; then _setPref "$1" ; fi ;;
 			bool)
-				if test "$(_getPref)" != "$(case "$1" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref "$1" ; fi ;;
+				if test "$(_getPref || true)" != "$(case "$1" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref "$1" ; fi ;;
 			array)
 				_expected=$(printf '(' ; for _value ; do test "$_value" = "$1" || printf , ; printf '\n    "%s"' "$_value" ; done ; printf '\n)\n')
-				if test "$(_getPref)" != "$_expected" ; then _setPref "$@" ; fi ;;
+				if test "$(_getPref || true)" != "$_expected" ; then _setPref "$@" ; fi ;;
 			array-add)
 				if ! _getPref | grep -Fq "\"$1\"" ; then _setPref "$1" ; fi ;;
+			delete)
+				# shellcheck disable=SC2086
+				if _getPref > /dev/null ; then trace $_sudo defaults delete "${_file%.plist}" "$_key" ; fi ;;
 			*)
 				fatalError "Unsupported preference type $_type"
 		esac

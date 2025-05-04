@@ -64,6 +64,7 @@
 	"unison" = ./services/unison.nix;
 
 	# application programs
+	"affinity" = ./programs/affinity.nix;
 	"develop" = ./programs/develop.nix;
 	"xcode" = ./programs/xcode.nix;
 }

@@ -211,6 +211,26 @@ makeTree() {
 	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
 }
 
+# custom icons
+
+makeIcon() {
+	_target=$1
+	_source=$2
+
+	if test -w "$_target" ; then
+		_sudo=
+	else
+		_sudo=sudo
+	fi
+
+	if ! test -f "$_target"/Icon? ; then
+		# shellcheck disable=SC2086
+		trace $_sudo ditto -xz "$_source" "$_target"/
+		# shellcheck disable=SC2086
+		trace $_sudo SetFile -a C "$_target"
+	fi
+}
+
 # volume management
 
 makeVolume() {

@@ -159,6 +159,15 @@ if ! test "${isx86_64#false}${isAarch64#false}" = true ; then
 	fatalError 'Exactly one of isx86_64, isAarch64 must be true'
 fi
 
+# transition to temporary directory
+
+cdTemporaryDirectory() {
+	_tmpdir=$(mktemp -d -t "rebuild$($isDarwin || echo .XXXXXXXX)")
+	# shellcheck disable=SC2064
+	trap "rm -rf \"$_tmpdir\"" EXIT HUP INT TERM QUIT
+	cd "$_tmpdir"
+}
+
 # ensure the Nix command is runnable
 
 if $isLinux ; then _sslCertFile=/etc/ssl/certs/ca-certificates.crt ; fi

@@ -35,7 +35,7 @@ runAllUpdates() {
 
 	storeHeading 'Updating package versions'
 	(
-		cd "${self}" || exit
+		cdTemporaryDirectory
 		# add relevant tools to the path
 		eval "$(nix eval --quiet --no-warn-dirty --raw \
 			--apply 'pkgs: builtins.foldl'\'' (acc: elem: '\'\''${acc}
@@ -54,11 +54,14 @@ runAllUpdates() {
 # helper functions for per-package update scripts
 
 nixUpdate() {
+	_pwd=$PWD
+	cd "$self" || exit
 	NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
 		/^fetch /Ip
 		/^update /Ip
 		/^no changes /Ip
 	'
+	cd "$_pwd" || exit
 }
 
 _updateEntry() {

@@ -12,6 +12,5 @@
 		# command line support tools
 		"nix-base#arq-restore"
 		"nixpkgs#shellcheck"
-		"nixpkgs#smartmontools"
 	];
 }

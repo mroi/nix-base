@@ -168,6 +168,38 @@ cdTemporaryDirectory() {
 	cd "$_tmpdir"
 }
 
+# code signature check
+
+checkSig() {
+	if $isLinux ; then fatalError 'code signatures not supported on Linux' ; fi
+
+	_path=$1
+	_team=$2
+
+	case "$_path" in
+	*.app)
+		if ! codesign --verify "$_path" ; then
+			printWarning "Code signature invalid for $_path"
+			return 1
+		fi
+		if test "$_team" && ! codesign --display --verbose "$_path" 2>&1 | grep -Fqx "TeamIdentifier=$_team" ; then
+			printWarning "Unexpected team identifier in signature at $_path"
+			printInfo "expected: $_team"
+			return 1
+		fi ;;
+	*.pkg)
+		if ! pkgutil --check-signature "$_path" > /dev/null ; then
+			printWarning "Package signature invalid for $_path"
+			return 1
+		fi
+		if test "$_team" && ! pkgutil --check-signature "$_path" | grep -Fq "($_team)" ; then
+			printWarning "Unexpected team identifier in signature at $_path"
+			printInfo "expected: $_team"
+			return 1
+		fi ;;
+	esac
+}
+
 # ensure the Nix command is runnable
 
 if $isLinux ; then _sslCertFile=/etc/ssl/certs/ca-certificates.crt ; fi

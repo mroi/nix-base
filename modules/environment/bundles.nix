@@ -8,6 +8,10 @@
 			};
 			install = lib.mkOption {
 				type = lib.types.lines;
+				example = lib.literalExpression ''
+					makeTree 755::admin "$out" "$pkg$out"
+					checkSig "$out" 8J894P55M8
+				'';
 				description = "Script commands to install the bundle from the package.";
 			};
 		};});

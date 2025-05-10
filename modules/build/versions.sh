@@ -117,6 +117,9 @@ didUpdate() {
 updateVersion() {
 	_updateEntry version "$1" '[0-9][[:alnum:].+-]*' "$2"
 }
+updateUrl() {
+	_updateEntry url "$1" '(http|https)://[^"]*' "$2"
+}
 updateHash() {
 	_updateEntry hash "$1" '(md5|sha1|sha256|sha512)-[[:alnum:]/+=]+' "$2"
 }

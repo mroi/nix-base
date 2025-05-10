@@ -16,6 +16,13 @@
 					makeTree 755::admin "$out" "$pkg/Applications/LyX.app"
 				'';
 			};
+			environment.bundles."/Applications/Research.localized/Inkscape.app" = {
+				pkg = pkgs.callPackage ../../packages/inkscape.nix {};
+				install = ''
+					makeTree 755::admin "$out" "$pkg/Applications/Inkscape.app"
+					checkSig "$out" SW3D6BB6A6
+				'';
+			};
 
 			environment.extensions."com.apple.quicklook.preview" = {
 				"com.quoteunquoteapps.highland.pro.qlplugin" = true;

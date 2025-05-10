@@ -8,7 +8,7 @@
 			];
 			x86_64-darwin = [
 				"arq-restore" "builder-linux" "dash" "fish" "gitup" "hires" "lyx" "nix"
-				"run-linux" "texlive" "unison" "unison-fsmonitor" "vmware-vmx"
+				"run-linux" "texlive" "unison" "unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
 				"fish" "nix" "texlive" "unison"

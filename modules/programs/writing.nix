@@ -23,6 +23,13 @@
 					checkSig "$out" SW3D6BB6A6
 				'';
 			};
+			environment.bundles."/Applications/Research.localized/Veusz.app" = {
+				pkg = pkgs.callPackage ../../packages/veusz.nix {};
+				install = ''
+					makeTree 755::admin "$out" "$pkg/Applications/Veusz.app"
+					checkSig "$out"
+				'';
+			};
 
 			environment.extensions."com.apple.quicklook.preview" = {
 				"com.quoteunquoteapps.highland.pro.qlplugin" = true;

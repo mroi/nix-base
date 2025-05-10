@@ -59,7 +59,7 @@
 			message = "An application cannot be simultaneously allowed and blocked by the application firewall";
 		}];
 
-		system.activationScripts.firewall = lib.mkIf cfg.enable ''
+		system.activationScripts.firewall = lib.mkIf cfg.enable (lib.stringAfter [ "apps"] ''
 			storeHeading Configuring the application firewall
 
 			${settingScript cfg.enable "globalstate"}
@@ -125,6 +125,6 @@
 				fi
 			}
 			forLines "$block" forBlock
-		'';
+		'');
 	};
 }

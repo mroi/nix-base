@@ -78,12 +78,12 @@
 			message = "Volume creation is currently only supported on Darwin";
 		}];
 
-		system.activationScripts.volumes = lib.mkIf (config.fileSystems != {}) ''
+		system.activationScripts.volumes = lib.mkIf (config.fileSystems != {}) (lib.stringAfter [ "staging" ]''
 			storeHeading 'Creating volumes and file systems'
 
 			${lib.concatLines (map deleteVolumeScript volumesToDelete)}
 			${lib.concatLines (map createVolumeScript volumesToCreate)}
-		'';
+		'');
 
 		environment.loginHook = lib.mkIf (config.fileSystems != {}) {
 			volumes = lib.optionalString pkgs.stdenv.isDarwin (

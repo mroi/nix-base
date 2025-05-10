@@ -54,6 +54,8 @@
 			];
 
 			setup = ''
+				cdTemporaryDirectory
+
 				# warn when running on NixOS
 				if test -r /etc/os-release ; then
 					# shellcheck disable=SC1091
@@ -67,13 +69,6 @@
 				if test -d ~/Library/Application\ Support/com.apple.TCC -a ! -r ~/Library/Application\ Support/com.apple.TCC ; then
 					fatalError 'Rebuild requires full disk access'
 				fi
-			'' + ''
-				# transition to a temporary directory
-				tmpdir=$(mktemp -d -t "rebuild$($isDarwin || echo .XXXXXXXX)")
-				# shellcheck disable=SC2064
-				trap "rm -rf \"$tmpdir\"" EXIT HUP INT TERM QUIT
-				cd "$tmpdir"
-				unset tmpdir
 			'';
 
 		in ''#!/bin/sh -e

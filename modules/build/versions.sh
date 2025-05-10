@@ -36,17 +36,22 @@ runAllUpdates() {
 	storeHeading 'Updating package versions'
 	(
 		cdTemporaryDirectory
+		export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+		PATH=$PATH:${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin
+
 		# add relevant tools to the path
 		eval "$(nix eval --quiet --no-warn-dirty --raw \
 			--apply 'pkgs: builtins.foldl'\'' (acc: elem: '\'\''${acc}
 				nix build --quiet --no-link ${pkgs."${elem}".drvPath}^out
-				PATH=$PATH:${pkgs."${elem}"}/bin
+				PATH=${pkgs."${elem}"}/bin:$PATH
 			'\'\'') "" (builtins.getAttr pkgs.stdenv.hostPlatform.uname.system {
 				Linux = [ "nix-update" "curl" "jq" ];
 				Darwin = [ "nix-update" "jq" ];  # TODO: remove jq when we drop support for macOS <15
 			})' \
 			"${self}#baseConfigurations.${machine}.config.nixpkgs.pkgs"
 		)"
+
+		# execute all passthru.updateScript entries
 		eval "$_updatesExternal" "$_updatesInternal"
 	)
 }

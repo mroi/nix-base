@@ -3,11 +3,11 @@
 	outputs = { self, nixpkgs }: let
 		systemPackages = {
 			aarch64-darwin = [
-				"arq-restore" "builder-linux" "fish" "gitup" "hires" "nix" "run-linux"
+				"arq-restore" "builder-linux" "dash" "fish" "gitup" "hires" "nix" "run-linux"
 				"texlive" "unison" "unison-fsmonitor" "vmware-vmx"
 			];
 			x86_64-darwin = [
-				"arq-restore" "builder-linux" "fish" "gitup" "hires" "nix" "run-linux"
+				"arq-restore" "builder-linux" "dash" "fish" "gitup" "hires" "nix" "run-linux"
 				"texlive" "unison" "unison-fsmonitor" "vmware-vmx"
 			];
 			aarch64-linux = [

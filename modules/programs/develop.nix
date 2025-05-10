@@ -22,6 +22,13 @@
 					checkSig "$out" FP44AY6HHW
 				'';
 			};
+			environment.bundles."/Applications/Dash.app" = {
+				pkg = pkgs.callPackage ../../packages/dash.nix {};
+				install = ''
+					makeTree 755::admin "$out" "$pkg$out"
+					checkSig "$out" JP58VMK957
+				'';
+			};
 		})
 	]);
 }

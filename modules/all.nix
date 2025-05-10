@@ -42,6 +42,7 @@
 	# system environment setup
 	"apps" = ./environment/apps.nix;
 	"bundles" = ./environment/bundles.nix;
+	"extensions" = ./environment/extensions.nix;
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;
 	"profile" = ./environment/profile.nix;
@@ -61,4 +62,11 @@
 	"sshproxy" = ./services/sshproxy.nix;
 	"timemachine" = ./services/timemachine.nix;
 	"unison" = ./services/unison.nix;
+
+	# application programs
+	"affinity" = ./programs/affinity.nix;
+	"develop" = ./programs/develop.nix;
+	"utilities" = ./programs/utilities.nix;
+	"writing" = ./programs/writing.nix;
+	"xcode" = ./programs/xcode.nix;
 }

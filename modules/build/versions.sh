@@ -35,18 +35,25 @@ runAllUpdates() {
 
 	storeHeading 'Updating package versions'
 	(
-		cd "${self}" || exit
+		cdTemporaryDirectory
+		export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+		PATH=$PATH:${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin
+
 		# add relevant tools to the path
 		eval "$(nix eval --quiet --no-warn-dirty --raw \
-			--apply 'pkgs: builtins.foldl'\'' (acc: elem: '\'\''${acc}
-				nix build --quiet --no-link ${pkgs."${elem}".drvPath}^out
-				PATH=$PATH:${pkgs."${elem}"}/bin
+			--apply 'pkgs: builtins.foldl'\'' (acc: elem: let
+				output = if pkgs."${elem}" ? bin then "bin" else "out";
+			in '\'\''${acc}
+				nix build --quiet --no-link ${pkgs."${elem}".drvPath}^${output}
+				PATH=${pkgs."${elem}"."${output}"}/bin:$PATH
 			'\'\'') "" (builtins.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = [ "nix-update" "curl" "jq" ];
+				Linux = [ "nix-update" "curl" "jq" "libxml2" ];
 				Darwin = [ "nix-update" "jq" ];  # TODO: remove jq when we drop support for macOS <15
 			})' \
 			"${self}#baseConfigurations.${machine}.config.nixpkgs.pkgs"
 		)"
+
+		# execute all passthru.updateScript entries
 		eval "$_updatesExternal" "$_updatesInternal"
 	)
 }
@@ -54,11 +61,14 @@ runAllUpdates() {
 # helper functions for per-package update scripts
 
 nixUpdate() {
+	_pwd=$PWD
+	cd "$self" || exit
 	NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
 		/^fetch /Ip
 		/^update /Ip
 		/^no changes /Ip
 	'
+	cd "$_pwd" || exit
 }
 
 _updateEntry() {
@@ -108,6 +118,9 @@ didUpdate() {
 
 updateVersion() {
 	_updateEntry version "$1" '[0-9][[:alnum:].+-]*' "$2"
+}
+updateUrl() {
+	_updateEntry url "$1" '(http|https)://[^"]*' "$2"
 }
 updateHash() {
 	_updateEntry hash "$1" '(md5|sha1|sha256|sha512)-[[:alnum:]/+=]+' "$2"

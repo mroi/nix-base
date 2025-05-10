@@ -26,12 +26,14 @@
 						sed 's/^.*= *//')
 					curl --silent --output Arq.pkg ${url}
 					shaObtained=$(sha256sum Arq.pkg | sed 's/ .*//')
-					if test "$shaExpected" = "$shaObtained" ; then
-						hash=$(nix hash file Arq.pkg)
-					else
+					hash=$(nix hash file Arq.pkg)
+					if test "$shaExpected" != "$shaObtained" ; then
 						printWarning 'Hash mismatch for downloaded Arq.pkg'
 						printInfo "expected: $shaExpected"
 						printInfo "obtained: $shaObtained"
+						hash=${lib.fakeHash}
+					fi
+					if ! checkSig Arq.pkg 48ZCSDVL96 ; then
 						hash=${lib.fakeHash}
 					fi
 					updateHash hash "$hash"
@@ -56,6 +58,7 @@
 					ln -s "$pkg" Arq.pkg
 					trace sudo installer -pkg Arq.pkg -target LocalSystem
 					rm Arq.pkg
+					checkSig "$out" 48ZCSDVL96
 				'';
 			};
 		};

@@ -200,7 +200,8 @@ makeTree() {
 	_source=$2
 
 	# shellcheck disable=SC2086
-	trace $_sudo rsync --recursive --delete --links --executability "$_source/" "$_target"
+	trace $_sudo rsync --recursive --delete --links --executability \
+		"$(if $isDarwin ; then echo --extended-attributes ; fi)" "$_source/" "$_target"
 	# shellcheck disable=SC2086
 	trace $_sudo chmod -R"$(if $isDarwin ; then echo H ; fi)" "$(umask -S | tr x X)" "$_target"
 
@@ -208,6 +209,26 @@ makeTree() {
 	test -z "$_owner" || trace $_sudo chown -Rh "$_owner" "$1"
 	# shellcheck disable=SC2086
 	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
+}
+
+# custom icons
+
+makeIcon() {
+	_target=$1
+	_source=$2
+
+	if test -w "$_target" ; then
+		_sudo=
+	else
+		_sudo=sudo
+	fi
+
+	if ! test -f "$_target"/Icon? ; then
+		# shellcheck disable=SC2086
+		trace $_sudo ditto -xz "$_source" "$_target"/
+		# shellcheck disable=SC2086
+		trace $_sudo SetFile -a C "$_target"
+	fi
 }
 
 # volume management

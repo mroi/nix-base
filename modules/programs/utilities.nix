@@ -18,6 +18,17 @@
 				406825478   # Telefon
 			];
 
+			environment.bundles."/Applications/ImageOptim.app" = {
+				pkg = pkgs.callPackage ../../packages/imageoptim.nix {};
+				install = ''
+					makeTree 755::admin "$out" "$pkg$out"
+					checkSig "$out" 59KZTZA4XR
+				'';
+			};
+			environment.extensions."com.apple.ui-services" = {
+				"net.pornel.ImageOptimizeExtension" = true;
+			};
+
 			system.activationScripts.apps.text = lib.mkAfter ''
 				makeIcon /Applications/Discovery.app ${./discovery-icon.cpgz}
 			'';

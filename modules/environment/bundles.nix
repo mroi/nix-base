@@ -35,7 +35,13 @@
 		'' + ''
 				pkg=${pkgs.lazyBuild attrs.pkg}
 				out=${path}
+
 				${attrs.install}
+
+				case "$out" in
+				*.app)
+					trace /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$out" ;;
+				esac
 			fi
 		'';
 

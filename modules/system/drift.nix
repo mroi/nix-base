@@ -24,7 +24,9 @@
 					rm /var/root/globalpwpolicy.plist
 				fi'' + "\n")
 		+ lib.optionalString (config.users.defaultScriptShell != null) (''
-				makeLink 755:root:wheel /var/select/sh ${lib.escapeShellArg config.users.defaultScriptShell}'' + "\n")
+				if ! test -L /var/select/sh -a "$(readlink /var/select/sh)" = ${lib.escapeShellArg config.users.defaultScriptShell} ; then
+					ln -shf ${lib.escapeShellArg config.users.defaultScriptShell} /var/select/sh
+				fi'' + "\n")
 		+ ''
 			fi
 		'')

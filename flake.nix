@@ -3,20 +3,20 @@
 	outputs = { self, nixpkgs }: let
 		systemPackages = {
 			aarch64-darwin = [
-				"arq-restore" "blender" "builder-linux" "dash" "fish" "gitup" "hires"
-				"imageoptim" "inkscape" "lyx" "nix" "run-linux" "texlive" "unison"
-				"unison-fsmonitor" "vmware-vmx"
+				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
+				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "run-linux" "texlive"
+				"unison" "unison-fsmonitor" "vmware-vmx"
 			];
 			x86_64-darwin = [
-				"arq-restore" "builder-linux" "dash" "fish" "gitup" "hires" "imageoptim"
-				"lyx" "nix" "run-linux" "texlive" "unison" "unison-fsmonitor" "veusz"
-				"vmware-vmx"
+				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "fish" "gitup"
+				"hires" "imageoptim" "lyx" "nix" "run-linux" "texlive" "unison"
+				"unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
-				"fish" "nix" "texlive" "unison"
+				"bitwarden-decrypt" "fish" "nix" "texlive" "unison" "vmware-vmx"
 			];
 			x86_64-linux = [
-				"fish" "nix" "texlive" "unison"
+				"bitwarden-decrypt" "fish" "nix" "texlive" "unison" "vmware-vmx"
 			];
 		};
 

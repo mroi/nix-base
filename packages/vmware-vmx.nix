@@ -1,5 +1,5 @@
 # tool to decrypt and encrypt VMware vmx files
-{ stdenvNoCC, python3, fetchFromGitHub, fetchpatch }:
+{ stdenvNoCC, python3, fetchFromGitHub }:
 
 let
 	python = python3.withPackages (pkgs: [ pkgs.pycryptodome ]);

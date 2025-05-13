@@ -74,7 +74,7 @@ in stdenv.mkDerivation {
 		error = "propagatedBuildInputs changed:";
 	};
 
-	patches = [(writeText "fish-fix-xdg.patch" ''
+	patches = writeText "fish-fix-xdg.patch" ''
 		--- fish-shell/src/path.rs	2025-03-18 21:23:26
 		+++ fish-shell/src/path.rs	2025-03-18 21:24:22
 		@@ -94,7 +94,7 @@
@@ -119,7 +119,7 @@ in stdenv.mkDerivation {
 		         )
 		         try:
 		             os.makedirs(args.directory)
-	'')];
+	'';
 
 	preConfigure = expect {
 		expected = "patchShebangs ./build_tools/git_version_gen.sh\npatchShebangs ./tests/test_driver.py\n";

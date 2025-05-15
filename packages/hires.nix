@@ -29,11 +29,11 @@ stdenv.mkDerivation {
 			{
 				uint32_t width, height;
 				if (argc == 2 && argv[1][0] == 'o' && argv[1][1] == 'f' && argv[1][2] == 'f' && argv[1][3] == '\0') {
-					width = 1440;
-					height = 900;
+					width = 1512;
+					height = 982;
 				} else {
-					width = 2560;
-					height = 1440;
+					width = 2294;
+					height = 1432;
 				}
 
 				CFIndex index, count = 0;

@@ -34,6 +34,13 @@
 			environment.extensions."com.apple.quicklook.preview" = {
 				"com.quoteunquoteapps.highland.pro.qlplugin" = true;
 			};
+
+			system.activationScripts.bundles.text = lib.mkAfter ''
+				if ! test -d /Applications/Research.localized/.localized ; then
+					trace sudo tar -x --file=${./research-localized.tar.gz} --directory=/Applications/Research.localized
+				fi
+				makeIcon /Applications/Research.localized ${./research-icon.cpgz}
+			'';
 		})
 	]);
 }

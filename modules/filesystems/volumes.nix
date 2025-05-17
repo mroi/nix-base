@@ -99,7 +99,7 @@
 
 			{
 				trace diskutil verifyDisk disk0
-				container=$(diskutil info -plist / | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
+				container=$(diskutil info -plist / | plutil -extract ParentWholeDisk raw -)
 				trace diskutil verifyVolume "$container"
 			} | highlightOutput '
 				/^Checking volume/{s/^/%UNDERLINE%/;s/$/%NOUNDERLINE%/;}

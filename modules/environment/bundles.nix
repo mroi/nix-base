@@ -23,8 +23,8 @@
 
 		bundleScript = mode: path: attrs: lib.optionalString (mode == "update") ''
 			# extract version string
-			if test -r '${path}/Contents/Info.plist' ; then
-				version=$(xmllint --xpath '/plist/dict/key[text()="CFBundleShortVersionString"]/following-sibling::string[1]/text()' '${path}/Contents/Info.plist' 2> /dev/null || true)
+			if test -r '${path}/Contents/Info.plist' && plutil -extract CFBundleShortVersionString raw '${path}/Contents/Info.plist' > /dev/null ; then
+				version=$(plutil -extract CFBundleShortVersionString raw '${path}/Contents/Info.plist')
 			else
 				version=
 			fi

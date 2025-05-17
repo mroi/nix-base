@@ -259,7 +259,7 @@ makeVolume() {
 		fi
 		# create the volume
 		if ! diskutil list "$name" > /dev/null 2>&1 ; then
-			container=$(diskutil info -plist "$container" | xmllint --xpath '/plist/dict/key[text()="ParentWholeDisk"]/following-sibling::string[1]/text()' -)
+			container=$(diskutil info -plist "$container" | plutil -extract ParentWholeDisk raw -)
 			test "$container" != "${container#disk}" || fatalError "Could not find APFS container for volume $name"
 			if test "$encrypted" ; then
 				if test "$mountPoint" = "/Volumes/$name" ; then
@@ -281,12 +281,12 @@ makeVolume() {
 			fatalError "The volume $name is not mounted"
 		fi
 		# enable file ownership on the volume
-		_ownershipStatus=$(diskutil info -plist "$name" | xmllint --xpath '/plist/dict/key[text()="GlobalPermissionsEnabled"]/following-sibling::*[1]' -)
+		_ownershipStatus=$(diskutil info -plist "$name" | plutil -extract GlobalPermissionsEnabled raw -)
 		case "$_ownershipStatus,$ownership" in
-			'<true/>,') trace sudo diskutil disableOwnership "$mountPoint" ;;
-			'<true/>,1') ;;
-			'<false/>,') ;;
-			'<false/>,1') trace sudo diskutil enableOwnership "$mountPoint" ;;
+			'true,') trace sudo diskutil disableOwnership "$mountPoint" ;;
+			'true,1') ;;
+			'false,') ;;
+			'false,1') trace sudo diskutil enableOwnership "$mountPoint" ;;
 			*) fatalError "Inconsistent ownership status on the volume $name" ;;
 		esac
 		# hidden flag

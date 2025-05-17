@@ -66,6 +66,7 @@
 	# application programs
 	"affinity" = ./programs/affinity.nix;
 	"develop" = ./programs/develop.nix;
+	"sfsymbols" = ./programs/sfsymbols.nix;
 	"utilities" = ./programs/utilities.nix;
 	"writing" = ./programs/writing.nix;
 	"xcode" = ./programs/xcode.nix;

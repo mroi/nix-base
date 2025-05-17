@@ -13,7 +13,8 @@
 
 		(lib.mkIf pkgs.stdenv.isDarwin {
 
-			programs.xcode.enable = true;
+			programs.xcode.enable = lib.mkDefault true;
+			programs.sfSymbols.enable = lib.mkDefault true;
 
 			environment.bundles."/Applications/GitUp.app" = {
 				pkg = pkgs.callPackage ../../packages/gitup.nix {};

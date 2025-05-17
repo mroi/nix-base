@@ -75,7 +75,7 @@
 			volumes='${lib.concatLines (lib.naturalSort config.services.timeMachine.includeVolumes)}'
 			uuids=
 			forVolume() {
-				uuid=$(diskutil info -plist "$1" | xmllint --xpath '/plist/dict/key[text()="VolumeUUID"]/following-sibling::string/text()' - 2> /dev/null || true)
+				uuid=$(diskutil info -plist "$1" | xmllint --xpath '/plist/dict/key[text()="VolumeUUID"]/following-sibling::string[1]/text()' - 2> /dev/null || true)
 				if test "$uuid" ; then
 					uuids="$uuids$uuid "
 				else

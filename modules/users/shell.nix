@@ -31,7 +31,7 @@
 		system.activationScripts.shell = ''
 			storeHeading 'Select default script shell'
 
-			shell=${config.users.defaultScriptShell}
+			shell=${lib.escapeShellArg config.users.defaultScriptShell}
 			if test -x "$shell" ; then
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
 				if ! test -L /bin/sh -a "$(readlink /bin/sh)" = "''${shell#/bin/}" ; then

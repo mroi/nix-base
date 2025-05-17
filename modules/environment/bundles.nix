@@ -34,7 +34,7 @@
 			if ! test -d '${path}' ; then
 		'' + ''
 				pkg=${pkgs.lazyBuild attrs.pkg}
-				out=${path}
+				out=${lib.escapeShellArg path}
 
 				${attrs.install}
 

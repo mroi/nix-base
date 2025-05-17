@@ -6,7 +6,7 @@ let
 
 in stdenvNoCC.mkDerivation {
 	pname = "bitwarden-decrypt";
-	version = "1.6";
+	version = "1.6-unstable-2024-08-31";
 
 	src = fetchFromGitHub {
 		owner = "GurpreetKang";

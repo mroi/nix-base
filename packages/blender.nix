@@ -1,7 +1,7 @@
 # Blender 3D creation suite
-{ lib, stdenv, fetchurl, undmg }:
+{ lib, stdenvNoCC, fetchurl, undmg }:
 
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation rec {
 	pname = "blender";
 	version = "4.4.3";
 

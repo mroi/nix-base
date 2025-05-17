@@ -1,7 +1,7 @@
 # LyX document editor for LaTeX
-{ stdenv, fetchurl }:
+{ stdenvNoCC, fetchurl }:
 
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation rec {
 	pname = "lyx";
 	version = "2.4.3";
 

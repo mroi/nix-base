@@ -1,7 +1,7 @@
 # Inkscape vector image editor
-{ stdenv, fetchurl, undmg }:
+{ stdenvNoCC, fetchurl, undmg }:
 
-stdenv.mkDerivation {
+stdenvNoCC.mkDerivation {
 	pname = "inkscape";
 	version = "1.4.0";
 

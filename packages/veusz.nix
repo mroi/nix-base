@@ -1,7 +1,7 @@
 # Veusz scientific plotting application
-{ stdenv, fetchurl, _7zz }:
+{ stdenvNoCC, fetchurl, _7zz }:
 
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation rec {
 	pname = "veusz";
 	version = "3.6.2";
 

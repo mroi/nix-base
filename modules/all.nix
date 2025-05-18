@@ -59,6 +59,7 @@
 	"arq" = ./services/arq.nix;
 	"awssync" = ./services/awssync.nix;
 	"ssh" = ./services/ssh.nix;
+	"sshkeys" = ./services/sshkeys.nix;
 	"sshproxy" = ./services/sshproxy.nix;
 	"timemachine" = ./services/timemachine.nix;
 	"unison" = ./services/unison.nix;

@@ -69,7 +69,7 @@
 			${allBundlesScript "install"}
 		'';
 
-		system.updateScripts.bundles = ''
+		system.updateScripts.bundles = lib.stringAfter [ "apps" ] ''
 			storeHeading 'Updating side-loaded software'
 			${allBundlesScript "update"}
 		'';

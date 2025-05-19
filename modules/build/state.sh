@@ -667,6 +667,27 @@ makePref() {
 	fi
 }
 
+# package installation
+
+installPackage() {
+	_pkg=$1
+	_choice=$2
+
+	# assumes that the package file lives in the Nix store
+	_name=${_pkg##*/}
+	_name=${_name#*-}
+	_name=${_name%%-*}.pkg
+
+	ln -s "$_pkg" "$_name"
+	checkSig "$_name"
+	if test "$_choice" ; then
+		trace sudo installer -pkg "$_name" -target LocalSystem -applyChoiceChangesXML "$_choice"
+	else
+		trace sudo installer -pkg "$_name" -target LocalSystem
+	fi
+	rm "$_name"
+}
+
 # interactive script editing
 
 interactiveDeletes() {

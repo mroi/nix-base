@@ -55,9 +55,7 @@
 			"/Applications/Arq.app" = {
 				pkg = arq-installer;
 				install = ''
-					ln -s "$pkg" Arq.pkg
-					trace sudo installer -pkg Arq.pkg -target LocalSystem
-					rm Arq.pkg
+					installPackage "$pkg"
 					checkSig "$out" 48ZCSDVL96
 				'';
 			};

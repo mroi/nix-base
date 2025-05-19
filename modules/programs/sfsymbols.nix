@@ -52,10 +52,7 @@
 			"/Applications/SF Symbols.app" = {
 				pkg = sf-symbols-installer;
 				install = ''
-					ln -s "$pkg" SFSymbols.pkg
-					checkSig SFSymbols.pkg
-					trace sudo installer -pkg SFSymbols.pkg -target LocalSystem
-					rm SFSymbols.pkg
+					installPackage "$pkg"
 					checkSig "$out"
 				'';
 			};

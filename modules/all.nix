@@ -42,6 +42,7 @@
 	# system environment setup
 	"apps" = ./environment/apps.nix;
 	"bundles" = ./environment/bundles.nix;
+	"config" = ./environment/config.nix;
 	"extensions" = ./environment/extensions.nix;
 	"hooks" = ./environment/hooks.nix;
 	"patches" = ./environment/patches.nix;

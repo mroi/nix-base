@@ -79,6 +79,7 @@ else
 fi
 
 _headingColor=$(if $_hasColorStdout ; then tput bold ; fi)
+_underline=$(if $_hasColorStdout ; then tput smul ; fi)
 _errorColor=$(if $_hasColorStderr ; then tput setaf 9 ; tput bold ; fi)
 _warningColor=$(if $_hasColorStderr ; then tput setaf 11 ; tput bold ; fi)
 _traceColor=$(if $_hasColorStdout ; then tput dim || printf "\033[2m" ; fi)
@@ -99,6 +100,10 @@ flushHeading() {
 		fi
 		unset _heading
 	fi
+}
+printSubheading() {
+	flushHeading
+	echo "$_underline$*$_resetStdout"
 }
 printError() {
 	flushHeading

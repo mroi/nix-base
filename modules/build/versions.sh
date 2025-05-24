@@ -13,11 +13,7 @@ runAllUpdates() {
 			builtins.attrValues (
 				builtins.mapAttrs (n: v:
 					if builtins.isString v.passthru.updateScript or null then ''
-						if \$_hasColorStdout ; then
-							printInfo \"\$(tput smul)Processing \${n}\$(tput rmul)\"
-						else
-							printInfo 'Processing \${n}'
-						fi
+						printSubheading \"Processing \${n}\"
 						export UPDATE_NIX_ATTR_PATH=\"$1.\${n}\"
 						\${v.passthru.updateScript}
 					'' else \"\"

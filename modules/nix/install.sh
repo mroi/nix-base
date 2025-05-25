@@ -72,8 +72,6 @@ if ! test "$nixConfigFile" ; then
 	if test -f /nix/nix.conf ; then
 		nixConfigFile=/nix/nix.conf
 	else
-		# FIXME: re-enable the sandbox here once we can bootstrap with a Nix version
-		# that has the patch applied for the 'sandbox exceeded' problem on Darwin
 		cat > nix.conf <<- EOF
 			experimental-features = nix-command flakes
 			use-xdg-base-directories = true
@@ -81,7 +79,7 @@ if ! test "$nixConfigFile" ; then
 			build-users-group = nix
 			keep-build-log = false
 			keep-derivations = false
-			sandbox = false
+			sandbox = relaxed
 		EOF
 		nixConfigFile=nix.conf
 	fi

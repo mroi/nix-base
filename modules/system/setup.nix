@@ -12,6 +12,7 @@
 		# disable changes with system-level effects
 		networking.hostName = null;
 		security.password.yescrypt.rounds = null;
+		security.pki.certificateTrust.system = null;
 		security.preferences.passwordProtect = null;
 		services.openssh.enable = null;
 		services.timeMachine.destinations = null;

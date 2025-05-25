@@ -52,6 +52,7 @@
 
 	# security settings
 	"password" = ./security/password.nix;
+	"pki" = ./security/pki.nix;
 	"prefsec" = ./security/prefsec.nix;
 	"sip" = ./security/sip.nix;
 	"sudo" = ./security/sudo.nix;

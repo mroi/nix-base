@@ -42,7 +42,12 @@
 				# print the patch if it is small (50 lines)
 				if test "$(wc -l < "${patch.file}")" -lt 51 ; then
 					flushHeading
-					cat "${patch.file}"
+					highlightOutput '
+						/^---/n
+						/^+++/n
+						/^-/{s/^/%RED%/;s/$/%RED%/;}
+						/^+/{s/^/%GREEN%/;s/$/%NORMAL%/;}
+					' < "${patch.file}"
 				fi
 				# apply patch
 				trace sudo patch --strip 0 --directory / --input "${patch.file}"

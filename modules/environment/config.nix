@@ -64,16 +64,6 @@
 				fi
 			}
 
-			profileDiff() {
-				# print a diff if it is small (50 lines)
-				if test -r "$1" -a -r "$2" ; then
-					length=$(diff -u "$1" "$2" 2> /dev/null | sed 51q | wc -l)
-					if test "$length" -lt 51 ; then
-						diff -u --color=auto "$1" "$2" || true
-					fi
-				fi
-			}
-
 			profileHints() {
 				if grep -Eqw '(com.apple.mail.managed|com.apple.ews.account)' "$1" ; then
 					printInfo
@@ -91,7 +81,7 @@
 		'';
 		profileInstallScript = profile: ''
 			if ! profileCheck "${profileStaging}/${profile.name}" '${profile.file}' ; then
-				profileDiff "${profileStaging}/${profile.name}" '${profile.file}'
+				printDiff "${profileStaging}/${profile.name}" '${profile.file}'
 				printWarning 'Manual profile installation required'
 				printInfo '${profile.file}'
 				profileHints '${profile.file}'

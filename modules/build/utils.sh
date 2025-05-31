@@ -117,6 +117,16 @@ printInfo() {
 	flushHeading
 	echo "$*" >&2
 }
+printDiff() {
+	# print a diff if it is small (50 lines)
+	if test -r "$1" -a -r "$2" ; then
+		_length=$(diff -u "$1" "$2" 2> /dev/null | sed 51q | wc -l)
+		if test "$_length" -gt 3 -a "$_length" -lt 51 ; then
+			flushHeading
+			diff -u --color=auto "$1" "$2" || true
+		fi
+	fi
+}
 trace() {
 	flushHeading
 	if test "$1" = sudo ; then

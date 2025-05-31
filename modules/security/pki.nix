@@ -229,6 +229,8 @@
 
 		'' + lib.optionalString (mode == "system") ''
 			# sync the system trust settings with available system root certs
+			security find-certificate -aZ /System/Library/Keychains/SystemRootCertificates.keychain
+			cat trust-${mode}-current.plist
 			systemRoots=$(security find-certificate -aZ /System/Library/Keychains/SystemRootCertificates.keychain | \
 				sed -n '/^SHA-1 hash: /{s/^SHA-1 hash: //;p;}' | sort)
 			config='${lib.concatLines (lib.attrNames config.security.pki.certificateTrust."${mode}")}'

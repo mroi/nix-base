@@ -135,14 +135,7 @@ makeFile() {
 	_update=none
 
 	if ! test -f "$_target" || ! cmp --quiet "$_source" "$_target" && test "$_source" ; then
-		# print a diff if it is small (50 lines)
-		if test -r "$_target" -a -r "$_source" ; then
-			_length=$(diff -u "$_target" "$_source" 2> /dev/null | sed 51q | wc -l)
-			if test "$_length" -gt 3 -a "$_length" -lt 51 ; then
-				flushHeading
-				diff -u --color=auto "$_target" "$_source" || true
-			fi
-		fi
+		printDiff "$_target" "$_source"
 		if ! test -f "$_target" ; then
 			_update=created
 		else

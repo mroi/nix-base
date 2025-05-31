@@ -636,8 +636,8 @@ makePref() {
 		_type=$3
 		shift ; shift ; shift
 
-		if test "$(stat -f %u "$_file")" = "$(id -u)" ; then
-			_sudo
+		if test -w "${_file%/*}" -a -w "$_file" ; then
+			_sudo=
 		else
 			_sudo=sudo
 		fi

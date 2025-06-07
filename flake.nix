@@ -45,8 +45,16 @@
 			cross = import ./cross.nix { inherit system nixpkgs; };
 		});
 		apps = forAll [ "x86_64-darwin" ] (system: {
-			builder-linux = { type = "app"; program = "${self.packages.${system}.builder-linux}/bin/run-nixos-vm"; };
-			run-linux = { type = "app"; program = "${self.packages.${system}.run-linux}"; };
+			builder-linux = {
+				type = "app";
+				program = "${self.packages.${system}.builder-linux}/bin/run-nixos-vm";
+				meta.description = "NixOS Linux VM as a builder for Linux derivations on Darwin";
+			};
+			run-linux = {
+				type = "app";
+				program = "${self.packages.${system}.run-linux}";
+				meta.description = "ephemeral VM to run Linux commands on macOS";
+			};
 		});
 		baseModules = import ./modules/all.nix;
 		baseConfigurations = forAll machines (machine:

@@ -19,7 +19,10 @@ let nixos = import "${path}/nixos" {
 			sharedDirectories.keys.source = lib.mkForce "/nix/var/ssh";
 		};
 		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] system;
-		boot.binfmt.emulatedSystems = if binfmt then [ "aarch64-linux" ] else [];
+		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr system {
+			aarch64-linux = [ "x86_64-linux" ];
+			x86_64-linux = [ "aarch64-linux" ];
+		} else [];
 	};
 
 	system = null;

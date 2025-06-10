@@ -3,14 +3,14 @@
 
 let
 	host = import path { inherit system; };
-	linux64 = import path { system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system; };
+	linuxPkgs = import path { system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system; };
 
 	vmTools = host.vmTools.override {
 		# instead of full cross compilation: surgically replace some packages with host versions
-		pkgs = linux64 // {
+		pkgs = linuxPkgs // {
 			makeInitrd = host.makeInitrd;
 			writeScript = host.writeScript;
-			buildPackages = linux64.buildPackages // {
+			buildPackages = linuxPkgs.buildPackages // {
 				qemu_kvm = host.qemu_kvm;
 			};
 		};
@@ -26,7 +26,7 @@ in host.writeScript "run-linux" ''#!/bin/sh
 	TMPDIR=''${TMPDIR:-/tmp}/run-linux-$$
 	trap 'rm -rf "$TMPDIR"' EXIT HUP INT TERM QUIT
 	mkdir -p "$TMPDIR/xchg"
-	
+
 	# this script is sourced within Linux
 	cat <<- EOF > "$TMPDIR/xchg/saved-env"
 
@@ -35,15 +35,15 @@ in host.writeScript "run-linux" ''#!/bin/sh
 		unset PS1 PS2 PS4
 
 		# mount current host directory at same path
-		${linux64.coreutils}/bin/mkdir -p "$PWD"
-		${linux64.busybox}/bin/mount -t 9p cwd "$PWD" -o trans=virtio,version=9p2000.L,msize=131072
+		${linuxPkgs.coreutils}/bin/mkdir -p "$PWD"
+		${linuxPkgs.busybox}/bin/mount -t 9p cwd "$PWD" -o trans=virtio,version=9p2000.L,msize=131072
 
 		# configure the network
-		export MODULE_DIR=${linux64.linux}/lib/modules/
-		${linux64.kmod}/bin/modprobe virtio_net
-		${linux64.busybox}/bin/ip link set eth0 up
-		${linux64.busybox}/bin/ip addr add 10.0.2.10/24 dev eth0
-		${linux64.busybox}/bin/ip route add default via 10.0.2.2
+		export MODULE_DIR=${linuxPkgs.linux}/lib/modules/
+		${linuxPkgs.kmod}/bin/modprobe virtio_net
+		${linuxPkgs.busybox}/bin/ip link set eth0 up
+		${linuxPkgs.busybox}/bin/ip addr add 10.0.2.10/24 dev eth0
+		${linuxPkgs.busybox}/bin/ip route add default via 10.0.2.2
 		echo "nameserver 10.0.2.3" > /etc/resolv.conf
 
 		# setup command to execute and redirect stdio

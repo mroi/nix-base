@@ -44,7 +44,7 @@
 		legacyPackages = forAll (builtins.attrNames systemPackages) (system: {
 			cross = import ./cross.nix { inherit system nixpkgs; };
 		});
-		apps = forAll [ "x86_64-darwin" ] (system: {
+		apps = forAll [ "aarch64-darwin" "x86_64-darwin" ] (system: {
 			builder-linux = {
 				type = "app";
 				program = "${self.packages.${system}.builder-linux}/bin/run-nixos-vm";

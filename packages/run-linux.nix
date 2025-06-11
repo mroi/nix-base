@@ -2,6 +2,15 @@
 { system, path }:
 
 let
+	# TODO: we are using the last commit of vmTools using 9p for shared file systems
+	# commits since a8032f78ada76191673433db713e6fd725ca35ac use virtiofs, but no
+	# virtiofsd exists for macOS yet (https://gitlab.com/virtio-fs/virtiofsd/-/issues/169)
+	path = builtins.fetchGit {
+		url = "https://github.com/NixOS/nixpkgs.git";
+		rev = "581db02151b5cf62bfde2949f01ce36e63c10547";
+		shallow = true;
+	};
+
 	host = import path { inherit system; };
 	linuxPkgs = import path { system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system; };
 
@@ -15,6 +24,8 @@ let
 			};
 		};
 	};
+
+	qemuSerialDevice = if builtins.substring 0 3 system == "x86" then "isa-serial" else "pci-serial";
 
 in host.writeScript "run-linux" ''#!/bin/sh
 	if test $# = 0 ; then
@@ -46,26 +57,33 @@ in host.writeScript "run-linux" ''#!/bin/sh
 		${linuxPkgs.busybox}/bin/ip route add default via 10.0.2.2
 		echo "nameserver 10.0.2.3" > /etc/resolv.conf
 
+		# initialize stage2 environment
+		stdenv=${linuxPkgs.stdenvNoCC}
+		out=/tmp
+
 		# setup command to execute and redirect stdio
 		command="$(for arg ; do echo "$arg" ; done)"
-		function runCommand() { cd "$PWD" ; IFS=$'\n' ; \$command > /dev/ttyS1 2> /dev/ttyS1 < /dev/ttyS1 ; }
+		function runCommand() { set +e ; cd "$PWD" ; IFS=$'\n' ; \$command > /dev/ttyS1 2> /dev/ttyS1 < /dev/ttyS1 ; }
 		origBuilder=runCommand
 	EOF
 
 	# add extra QEMU options:
 	# separate between kernel console and stdio, export current host directory, enable networking
 	QEMU_OPTS="
+		-m 512M
 		-machine accel=hvf
 		-monitor none
+		-serial none
 		-chardev file,id=console,path=$TMPDIR/console.log
 		-chardev stdio,id=stdio,signal=on
-		-device isa-serial,chardev=console
-		-device isa-serial,chardev=stdio
+		-device ${qemuSerialDevice},chardev=console
+		-device ${qemuSerialDevice},chardev=stdio
 		-virtfs local,path=$PWD,security_model=none,mount_tag=cwd
 		-nic user,model=virtio
 	"
 
 	# run Nix’ default QEMU command
+	cd "$TMPDIR"
 	${vmTools.qemuCommandLinux} 2> /dev/null
 
 	# handle exit code

@@ -14,9 +14,6 @@ rustPlatform.buildRustPackage {
 
 	useFetchCargoVendor = true;
 	cargoHash = "sha256-FhENsOGv4jN9A0HS0TIPJMiXA4mYBL668jyckVNGOKc=";
-	buildInputs = lib.optionals stdenv.isDarwin [
-		darwin.apple_sdk.frameworks.CoreServices
-	];
 
 	checkFlags = [
 		# test uses a symlink escaping the nix sandbox

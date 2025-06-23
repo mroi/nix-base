@@ -1,23 +1,6 @@
 # tex wrapper package with useful environment variables and a fonts.conf file
 # pass a package set for a custom tex distribution, otherwise defaults apply
-{ lib, extend, texPkgs ? {} }:
-
-with extend (final: prev: {
-	# modify derivation construction so XeTeX builds with CoreText rendering
-	stdenv = prev.stdenv // {
-		mkDerivation = arg: if builtins.isAttrs arg then
-			prev.stdenv.mkDerivation (arg // (
-				if builtins.elem "xetex" (arg.outputs or []) then {
-					buildInputs = arg.buildInputs ++ final.lib.optionals prev.stdenv.isDarwin [
-						final.darwin.apple_sdk.frameworks.ApplicationServices
-						final.darwin.apple_sdk.frameworks.Cocoa
-						final.darwin.libobjc
-					];
-				} else {}
-			))
-		else prev.stdenv.mkDerivation arg;
-	};
-});
+{ lib, stdenv, texlive, makeFontsConf, ghostscript, texPkgs ? {} }:
 
 let tex = texlive.combine (
 	if texPkgs != {} then texPkgs else {

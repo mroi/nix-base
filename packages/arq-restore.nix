@@ -19,7 +19,7 @@ in stdenv.mkDerivation {
 	};
 
 	nativeBuildInputs = [ xcbuildHook ];
-	buildInputs = [ darwin.apple_sdk.frameworks.Cocoa darwin.ICU openssl_1_1 zlib ];
+	buildInputs = [ darwin.ICU openssl_1_1 zlib ];
 	xcbuildFlags = "GCC_TREAT_WARNINGS_AS_ERRORS=NO";
 
 	patches = [ ./arq-restore-openssl.patch ];

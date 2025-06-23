@@ -3,7 +3,6 @@
 
 stdenv.mkDerivation {
 	name = "hires";
-	buildInputs = with darwin.apple_sdk.frameworks; [ CoreGraphics ];
 	unpackPhase = ''
 		cat > hires.c <<- EOF
 			#include <CoreGraphics/CoreGraphics.h>

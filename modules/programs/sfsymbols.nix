@@ -7,7 +7,7 @@
 		sf-symbols-installer = let
 			version = "6.0";
 			macOS = "15";
-			catalog = "https://swscan.apple.com/content/catalogs/others/index-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
+			catalog = "https://swscan.apple.com/content/catalogs/others/index-26-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
 			productId = "042-53422";
 		in pkgs.stdenvNoCC.mkDerivation {
 			inherit version;

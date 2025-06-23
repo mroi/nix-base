@@ -27,7 +27,6 @@
 				pkg = pkgs.callPackage ../../packages/veusz.nix {};
 				install = ''
 					makeTree 755::admin "$out" "$pkg/Applications/Veusz.app"
-					checkSig "$out"
 				'';
 			};
 

@@ -7,6 +7,7 @@
 			default = "";
 			description = "Selects a specific Xcode toolchain and SDK root to consult.";
 		};
+		beta = lib.mkEnableOption "Xcode beta version";
 	};
 
 	config = lib.mkIf config.programs.xcode.enable {
@@ -16,7 +17,24 @@
 			message = "Xcode is only available on Darwin";
 		}];
 
-		environment.apps = [ 497799835 ];
+		environment.apps = lib.mkIf (!config.programs.xcode.beta) [ 497799835 ];
+		environment.bundles = lib.mkIf config.programs.xcode.beta {
+			"/Applications/Xcode.app" = {
+				pkg = derivation {
+					name = "xcode-beta-dummy";
+					builder = "/bin/sh";
+					args = [ "-c" "echo > $out" ];
+					system = pkgs.stdenv.system;
+					version = null;
+				};
+				install = ''
+					printInfo 'Check here for current Xcode beta versions:'
+					printInfo 'https://developer.apple.com/download/all/?q=Xcode'
+					printInfo "Install manually to $out"
+					unset out
+				'';
+			};
+		};
 
 		system.activationScripts.xcode = lib.stringAfter [ "apps" ] (let
 			link = "/var/db/xcode_select_link";

@@ -68,6 +68,7 @@
 				if grep -Eqw '(com.apple.mail.managed|com.apple.ews.account)' "$1" ; then
 					printInfo
 					printInfo 'Mail account payload in profile needs attention:'
+					printInfo '• Account visibility in Notes.app'
 					printInfo '• Account order and folder favorites in Mail.app'
 					printInfo '• Account settings: attachment download, mail deletion'
 					printInfo '• Visibility in focus mode filters'

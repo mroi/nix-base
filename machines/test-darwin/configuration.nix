@@ -1,7 +1,7 @@
 {
 	imports = [ ../common.nix ];
 
-	nixpkgs.system = "x86_64-darwin";
+	nixpkgs.system = "aarch64-darwin";
 	networking.hostName = "test-darwin";
 
 	services.sshProxy.enableClient = true;

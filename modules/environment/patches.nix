@@ -64,7 +64,15 @@
 				# check wheather we can read all the patched files
 				files="$(grep '^+++' "${patch.file}" | cut -f1 | cut -c5-)"
 				readable=true
-				forFile() {	if ! test -r "$1" ; then readable=false ; fi }
+				forFile() {
+					file=$1
+					dir=''${file%/*}
+					if test -r "$dir" ; then
+						if test -e "$file" -a ! -r "$file" ; then readable=false ; fi
+					else
+						readable=false
+					fi
+				}
 				forLines "$files" forFile
 				if $readable ; then
 					# reapply patch

@@ -110,6 +110,8 @@ let
 			Darwin = [ xcode ];
 			Linux = [ stdenv.cc ];
 		};
+		# disable fortify as it causes function wrapping, perturbing intercept linking
+		hardeningDisable = [ "fortify" ];
 		preBuild = ''
 			touch encrypt/.git  # prevent submodule init by Makefile
 		'' + lib.optionalString stdenv.isDarwin ''
@@ -131,6 +133,10 @@ let
 			mkdir -p $out/bin $out/lib
 			cp ${unisonPackage}/bin/unison $out/bin/
 			cp libintercept.so $out/lib/
+		'';
+		# link against system C library
+		postFixup = lib.optionalString stdenv.isLinux ''
+			${patchelf}/bin/patchelf --remove-rpath $out/lib/*
 		'';
 		passthru.updateScript = "nixUpdate --version branch";
 	};

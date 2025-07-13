@@ -18,7 +18,7 @@ if checkArgs --help -h ; then
 		echo "Usage: ${0##*/} [ <commands> ]"
 		echo
 		# shellcheck disable=SC2154
-		if test "$self" -a "$machine"; then
+		if command -v nix > /dev/null && test "$self" -a "$machine"; then
 			echo "Default commands for this machine:"
 			nix eval --quiet --no-warn-dirty --apply toString --raw \
 				"${self}#baseConfigurations.${machine}.config.system.defaultCommands"

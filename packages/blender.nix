@@ -3,13 +3,13 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "blender";
-	version = "4.4.3";
+	version = "4.5.0";
 
 	src = fetchurl {
 		url = let
 			series = lib.head (lib.match "([0-9]+\.[0-9]+).*" version);
 		in "https://download.blender.org/release/Blender${series}/blender-${version}-macos-arm64.dmg";
-		hash  = "sha256-m1kv3HWLkGnCEElPEBCLBu+C/WWkqowMwH1uugWFV4s=";
+		hash  = "sha256-8D5a54E9tiyGZBdrYmOOEsFBPNnVmog7t7+2fLqoxS4=";
 	};
 
 	nativeBuildInputs = [ undmg ];

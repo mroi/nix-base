@@ -29,8 +29,8 @@
 		system.activationScripts.apps = lib.mkIf (config.environment.apps != null) (lib.stringAfter [ "volumes" ] (''
 			storeHeading 'Installing and removing applications'
 
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 			target='${lib.concatLines (map toString config.environment.apps)}'
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 			current=$(mdfind 'kMDItemAppStoreAdamID > 0' | while read -r app ; do
 				mdls -attr kMDItemAppStoreAdamID -raw "$app" ; echo
 			done)
@@ -57,6 +57,30 @@
 				fi
 			}
 			forLines "$current" forCurrent
+		'' + lib.optionalString (pkgs.stdenv.isLinux && config.environment.flatpak != "none") ''
+			current=$(flatpak --${config.environment.flatpak} list --app --columns=application)
+
+			# install missing apps
+			forTarget() {
+				if ! hasLine "$current" "$1" ; then
+					${lib.getAttr config.environment.flatpak {
+						system = "trace sudo flatpak --system install --app \"$1\"";
+						user = "trace flatpak --user install --app \"$1\"";
+					}}
+				fi
+			}
+			forLines "$target" forTarget
+
+			# remove unneeded apps
+			forCurrent() {
+				if ! hasLine "$target" "$1" ; then
+					${lib.getAttr config.environment.flatpak {
+						system = "trace sudo flatpak --system uninstall --app \"$1\"";
+						user = "trace flatpak --user uninstall --app \"$1\"";
+					}}
+				fi
+			}
+			forLines "$current" forCurrent
 		''));
 
 		system.updateScripts.apps = lib.stringAfter [ "packages" ] (''
@@ -65,12 +89,12 @@
 			trace "${pkgs.lazyBuild pkgs.mas}/bin/mas" upgrade
 		'' + lib.getAttr config.environment.flatpak {
 			system = ''
-				trace sudo flatpak update || true
-				trace sudo flatpak uninstall --unused || true
+				trace sudo flatpak --system update || true
+				trace sudo flatpak --system uninstall --unused || true
 			'';
 			user = ''
-				trace flatpak update --user || true
-				trace flatpak uninstall --user --unused || true
+				trace flatpak --user update || true
+				trace flatpak --user uninstall --unused || true
 			'';
 			none = "";
 		});
@@ -79,12 +103,12 @@
 			storeHeading 'Cleaning applications'
 		'' + lib.getAttr config.environment.flatpak {
 			system = ''
-				trace sudo flatpak uninstall --assumeyes --unused
-				trace sudo flatpak repair
+				trace sudo flatpak --system uninstall --assumeyes --unused
+				trace sudo flatpak --system repair
 			'';
 			user = ''
-				trace flatpak uninstall --assumeyes --user --unused
-				trace flatpak repair --user
+				trace flatpak --user uninstall --assumeyes --unused
+				trace flatpak --user repair
 			'';
 			none = "";
 		});

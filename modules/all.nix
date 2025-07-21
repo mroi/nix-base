@@ -6,6 +6,7 @@
 
 	# underlying system setup
 	"boot" = ./system/boot.nix;
+	"distro" = ./system/distro.nix;
 	"drift" = ./system/drift.nix;
 	"nvram" = ./system/nvram.nix;
 	"packages" = ./system/packages.nix;

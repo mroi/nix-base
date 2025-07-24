@@ -274,6 +274,7 @@
 
 				# set modification date based on the current config
 				plutil -extract trustList raw trust-${mode}-target.plist | while read -r hash ; do
+					test "$hash" || continue  # empty target trustList runs one loop interation with empty hash
 					trust1=$(plutil -extract "trustList.$hash.trustSettings" xml1 -o - trust-${mode}-current.plist 2> /dev/null || true)
 					trust2=$(plutil -extract "trustList.$hash.trustSettings" xml1 -o - trust-${mode}-target.plist || true)
 					if test "$trust1" = "$trust2" ; then

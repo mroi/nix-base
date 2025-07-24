@@ -4,6 +4,7 @@
 
 	system.packages = lib.mkIf pkgs.stdenv.isLinux [
 		"patch"
+		"screen"
 	];
 
 	environment.profile = [

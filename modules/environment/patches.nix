@@ -45,7 +45,7 @@
 					highlightOutput '
 						/^---/n
 						/^+++/n
-						/^-/{s/^/%RED%/;s/$/%RED%/;}
+						/^-/{s/^/%RED%/;s/$/%NORMAL%/;}
 						/^+/{s/^/%GREEN%/;s/$/%NORMAL%/;}
 					' < "${patch.file}"
 				fi

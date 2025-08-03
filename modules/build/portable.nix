@@ -39,7 +39,11 @@
 			base64 --decode << %EOF% | tar --extract --gunzip --directory=${tmpDir}
 				${lib.fileContents rebuildClosure}
 			%EOF%
-			${tmpDir}/rebuild "$@"
+			if test "$*" = "" -o "$*" = -i -o "$*" = --interactive ; then
+				${tmpDir}/rebuild "$@" ${lib.escapeShellArgs config.system.defaultCommands}
+			else
+				${tmpDir}/rebuild "$@"
+			fi
 		'';
 		checkPhase = ''
 			${pkgs.stdenv.shellDryRun} "$out"

@@ -86,7 +86,7 @@
 				printWarning 'Manual profile installation required'
 				printInfo '${profile.file}'
 				profileHints '${profile.file}'
-				if who | grep -Fqw console ; then
+				if who | grep -Fw "$(id -un)" | grep -Fqw console ; then
 					open '${profile.file}'
 				fi
 				if test -t 0 ; then

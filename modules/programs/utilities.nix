@@ -8,16 +8,6 @@
 
 		(lib.mkIf pkgs.stdenv.isDarwin {
 
-			environment.apps = [
-				1365531024  # 1Blocker
-				1037126344  # Apple Configurator
-				1352778147  # Bitwarden
-				1381004916  # Discovery
-				1358823008  # Flighty
-				6444602274  # Ivory
-				406825478   # Telefon
-			];
-
 			environment.bundles."/Applications/ImageOptim.app" = {
 				pkg = pkgs.callPackage ../../packages/imageoptim.nix {};
 				install = ''

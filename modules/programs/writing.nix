@@ -8,8 +8,6 @@
 
 		(lib.mkIf pkgs.stdenv.isDarwin {
 
-			environment.apps = [ 6612007609 ];  # Highland Pro
-
 			environment.bundles."/Applications/Research.localized/LyX.app" = {
 				pkg = pkgs.callPackage ../../packages/lyx.nix {};
 				install = ''

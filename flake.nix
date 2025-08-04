@@ -5,12 +5,12 @@
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
 				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "run-linux" "texlive"
-				"unison" "unison-fsmonitor" "veusz" "vmware-vmx"
+				"unison" "unison-fsmonitor" "veusz" "vmware-fusion" "vmware-vmx"
 			];
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "fish" "gitup"
 				"hires" "imageoptim" "lyx" "nix" "run-linux" "texlive" "unison"
-				"unison-fsmonitor" "veusz" "vmware-vmx"
+				"unison-fsmonitor" "veusz" "vmware-fusion" "vmware-vmx"
 			];
 			aarch64-linux = [
 				"bitwarden-decrypt" "fish" "nix" "texlive" "unison" "vmware-vmx"
@@ -66,9 +66,11 @@
 			}
 		);
 		checks = forAll (builtins.attrNames systemPackages) (system:
-			(forAll systemPackages.${system} (package:
-				self.packages.${system}.${package}
-			)) // (lib.pipe (forAll machines lib.id) [
+			(lib.pipe (forAll systemPackages.${system} lib.id) [
+				(lib.mapAttrs (name: value: self.packages.${system}.${name}))
+				# vmware cannot be downloaded automatically, remove from checks
+				(lib.filterAttrs (name: value: name != "vmware-fusion"))
+			]) // (lib.pipe (forAll machines lib.id) [
 				(lib.mapAttrs (name: value: self.baseConfigurations.${name}.config))
 				(lib.filterAttrs (name: value: value.nixpkgs.system == system))
 				(lib.concatMapAttrs (name: value: {

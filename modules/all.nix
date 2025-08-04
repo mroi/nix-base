@@ -72,6 +72,7 @@
 	"develop" = ./programs/develop.nix;
 	"sfsymbols" = ./programs/sfsymbols.nix;
 	"utilities" = ./programs/utilities.nix;
+	"vmware" = ./programs/vmware.nix;
 	"writing" = ./programs/writing.nix;
 	"xcode" = ./programs/xcode.nix;
 }

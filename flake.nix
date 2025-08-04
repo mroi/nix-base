@@ -1,7 +1,8 @@
 {
 	description = "custom Nix packages";
 	outputs = { self, nixpkgs }: let
-		systemPackages = {
+
+		packages = {
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
 				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "run-linux" "texlive"
@@ -24,6 +25,7 @@
 		forAll = list: f: lib.genAttrs list f;
 		callPackage = system: lib.callPackageWith nixpkgs.legacyPackages.${system};
 
+		systems = builtins.attrNames packages;
 		machines = lib.pipe ./machines [
 			builtins.readDir
 			(lib.filterAttrs (file: type: type == "directory"))
@@ -31,19 +33,21 @@
 		];
 
 	in {
-		packages = forAll (builtins.attrNames systemPackages) (system:
-			forAll systemPackages.${system} (package:
+
+		packages = forAll systems (system:
+			forAll packages.${system} (package:
 				callPackage system ./packages/${package}.nix {}
 			)
 		);
 		overlays.default = final: prev: (
-			forAll (lib.flatten lib.attrValues systemPackages) (package:
+			forAll (lib.flatten lib.attrValues packages) (package:
 				final.callPackage ./packages/${package}.nix {}
 			)
 		);
-		legacyPackages = forAll (builtins.attrNames systemPackages) (system: {
+		legacyPackages = forAll systems (system: {
 			cross = import ./cross.nix { inherit system nixpkgs; };
 		});
+
 		apps = forAll [ "aarch64-darwin" "x86_64-darwin" ] (system: {
 			builder-linux = {
 				type = "app";
@@ -56,6 +60,7 @@
 				meta.description = "ephemeral VM to run Linux commands on macOS";
 			};
 		});
+
 		baseModules = import ./modules/all.nix;
 		baseConfigurations = forAll machines (machine:
 			lib.evalModules {
@@ -65,8 +70,9 @@
 				class = "base";
 			}
 		);
-		checks = forAll (builtins.attrNames systemPackages) (system:
-			(lib.pipe (forAll systemPackages.${system} lib.id) [
+
+		checks = forAll systems (system:
+			(lib.pipe (forAll packages.${system} lib.id) [
 				(lib.mapAttrs (name: value: self.packages.${system}.${name}))
 				# vmware cannot be downloaded automatically, remove from checks
 				(lib.filterAttrs (name: value: name != "vmware-fusion"))
@@ -80,6 +86,7 @@
 				}))
 			])
 		);
+
 		templates = {
 			default = self.templates.shell;
 			shell = {

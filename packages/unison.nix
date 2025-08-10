@@ -26,9 +26,7 @@ let
 
 	# build Unison.app for Darwin
 	unisonDarwin = stdenvNoCC.mkDerivation {
-		name = unison.name;
-		version = unison.version;
-		src = unison.src;
+		inherit (unison) name pname version src meta;
 		__noChroot = true;
 		nativeBuildInputs = [ ocaml' xcode ];
 		patches = writeText "unison-fixes.patch" ''
@@ -71,7 +69,6 @@ let
 			mkdir -p $out/Library/CoreServices
 			cp -R src/uimac/build/Default/Unison.app $out/Library/CoreServices/
 		'';
-		meta = unison.meta;
 	};
 
 	# command-line-only Linux build
@@ -96,8 +93,7 @@ let
 
 	# Unison with intercept library for additional Unison functionality
 	unisonIntercept = stdenvNoCC.mkDerivation {
-		name = unison.name;
-		version = unison.version;
+		inherit (unison) name pname version;
 		src = fetchFromGitHub {
 			owner = "mroi";
 			repo = "unison-intercept";

@@ -6,7 +6,6 @@
 	system.systemwideSetup = false;
 
 	environment.flatpak = "none";
-
 	environment.profile = [
 		# Unison file sync
 		"nix-base#unison"

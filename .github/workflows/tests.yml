@@ -59,9 +59,5 @@ jobs:
     - name: Run cleanup
       run: ./rebuild clean
 
-    - name: Pre-heat store for Linux builder
-      if: ${{ runner.os == 'macOS' }}
-      run: ~/.local/state/nix/profile/bin/nix build --no-link nixpkgs/$(jq --raw-output .nodes.nixpkgs.locked.rev flake.lock)#darwin.linux-builder
-
     - name: Check flake
       run: ~/.local/state/nix/profile/bin/nix flake check

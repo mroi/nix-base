@@ -1,9 +1,6 @@
 # launch a NixOS Linux VM as a builder for Linux derivations on Darwin
 { system, path, binfmt ? false }:
 
-# The necessary packages should be in the Nix binary cache, but sometimes the local store
-# needs to be populated using: nix build --no-link nixpkgs/<commit>#darwin.linux-builder
-
 let nixos = import "${path}/nixos" {
 
 	configuration = { lib, modulesPath, ... }: {

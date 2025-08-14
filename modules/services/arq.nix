@@ -33,7 +33,7 @@
 						printInfo "obtained: $shaObtained"
 						hash=${lib.fakeHash}
 					fi
-					if ! checkSig Arq.pkg 48ZCSDVL96 ; then
+					if ! $isDarwin || ! checkSig Arq.pkg 48ZCSDVL96 ; then
 						hash=${lib.fakeHash}
 					fi
 					updateHash hash "$hash"

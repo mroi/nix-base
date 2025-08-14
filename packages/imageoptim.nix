@@ -28,7 +28,7 @@ stdenvNoCC.mkDerivation rec {
 			curl --silent --output ImageOptim.tar.xz "https://imageoptim.com/ImageOptim''${version}.tar.xz"
 			mkdir root
 			tar -xf ImageOptim.tar.xz --directory root
-			if checkSig root/ImageOptim.app 59KZTZA4XR ; then
+			if $isDarwin && checkSig root/ImageOptim.app 59KZTZA4XR ; then
 				updateHash hash "$(nix hash path root)"
 			else
 				updateHash hash ${lib.fakeHash}

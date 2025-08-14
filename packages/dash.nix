@@ -28,7 +28,7 @@ in fetchzip rec {
 			mkdir root
 			unzip -q -d root/Applications Dash.zip
 			rm -rf root/Applications/__MACOSX
-			if checkSig root/Applications/Dash.app JP58VMK957 ; then
+			if $isDarwin && checkSig root/Applications/Dash.app JP58VMK957 ; then
 				updateHash hash "$(nix hash path root)"
 			else
 				updateHash hash ${lib.fakeHash}

@@ -24,7 +24,7 @@ fetchzip rec {
 			mkdir root
 			unzip -q -d root/Applications GitUp.zip
 			rm -rf root/Applications/__MACOSX
-			if checkSig root/Applications/GitUp.app FP44AY6HHW ; then
+			if $isDarwin && checkSig root/Applications/GitUp.app FP44AY6HHW ; then
 				updateHash hash "$(nix hash path root)"
 			else
 				updateHash hash ${lib.fakeHash}

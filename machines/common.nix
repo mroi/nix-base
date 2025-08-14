@@ -48,8 +48,6 @@
 		"CABD2A79A1076A31F21D253635CB039D4329A5E8" = { sslServer = true; };
 		# AAA Certificate Services: some Apple Server certs
 		"D1EB23A46D17D68FD92564C2F1F1601764D8E349" = { sslServer = true; };
-		# Baltimore CyberTrust Root: older parts of AWS
-		"D4DE20D05E66FC53FE1A50882C78DB2852CAE474" = { sslServer = true; };
 		# GlobalSign
 		"D69B561148F01C77C54578C10926DF5B856976AD" = { sslServer = true; };
 		# DigiCert Global Root G2: basicX509 needed by GitHub action runner

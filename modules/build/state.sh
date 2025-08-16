@@ -192,6 +192,14 @@ makeTree() {
 	_target=$1
 	_source=$2
 
+	if $isDarwin && ! test -w "$_source" ; then
+		# rsync fails to propagate extended attributes if the source is not writable
+		mkdir source
+		cp -Rc "$_source/" source/
+		chmod -RH u+w source/
+		_source=source
+	fi
+
 	# shellcheck disable=SC2086
 	trace $_sudo rsync --recursive --delete --links --executability \
 		"$(if $isDarwin ; then echo --extended-attributes ; fi)" "$_source/" "$_target"
@@ -202,6 +210,8 @@ makeTree() {
 	test -z "$_owner" || trace $_sudo chown -Rh "$_owner" "$1"
 	# shellcheck disable=SC2086
 	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
+
+	rm -rf source
 }
 
 # custom icons

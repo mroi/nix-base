@@ -38,9 +38,11 @@
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 			storeHeading -
 			# prompt the user to delete relocated items
-			find "${config.users.shared.folder}/"*Relocated\ Items* > relocated 2> /dev/null || true
-			interactiveDeletes relocated 'These files got moved to ${config.users.shared.folder} by a macOS update.'
-			rm relocated
+			if ls -d "${config.users.shared.folder}/"*Relocated\ Items* > /dev/null 2>&1 ; then
+				find "${config.users.shared.folder}/"*Relocated\ Items* > relocated 2> /dev/null || true
+				interactiveDeletes relocated 'These files got moved to ${config.users.shared.folder} by a macOS update.'
+				rm relocated
+			fi
 		'';
 
 		system.activationScripts.profile = lib.mkIf (config.environment.profile != null) {

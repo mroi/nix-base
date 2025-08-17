@@ -288,7 +288,13 @@
 				done
 
 				printDiff trust-${mode}-current.plist trust-${mode}-target.plist
-				trace ${lib.optionalString (mode == "system") "sudo"} security trust-settings-import ${lib.optionalString (mode == "system") "-d"} trust-${mode}-target.plist
+				trace ${lib.optionalString (mode == "system") "sudo"} security trust-settings-import ${lib.optionalString (mode == "system") "-d"} trust-${mode}-target.plist || {
+					status=$?
+					install -m 600 trust-${mode}-target.plist "''${TMPDIR:-/tmp}/"
+					printWarning 'Importing the trust settings failed'
+					printInfo "Please install manually: ''${TMPDIR:-/tmp}/trust-${mode}-target.plist"
+					exit $status
+				}
 			fi
 
 			rm -f trust-${mode}-current.plist trust-${mode}-target.plist

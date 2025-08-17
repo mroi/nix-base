@@ -27,18 +27,24 @@
 		system.activationScripts.sshkeys = lib.mkIf (config.services.openssh.passwordlessKeys != []) ''
 			storeHeading 'Storing SSH key passwords'
 
-			# load all keys to the ssh agent with stored passwords
-			stored=$(ssh-add -c --apple-load-keychain 2>&1 | sed -n '/^Identity added:/{s/^Identity added: //;s/ (.*)$//;p;}')
+			if test "$SSH_AUTH_SOCK" ; then
 
-			# ask and store password for keys that should be passwordless
-			${lib.concatLines (map keyScript config.services.openssh.passwordlessKeys)}
+				# load all keys to the ssh agent with stored passwords
+				stored=$(ssh-add -c --apple-load-keychain 2>&1 | sed -n '/^Identity added:/{s/^Identity added: //;s/ (.*)$//;p;}')
 
-			# remove stored keys from the ssh agent
-			oldIFS=$IFS
-			IFS=$(printf '\n\t')
-			# shellcheck disable=SC2086
-			ssh-add -d $stored 2> /dev/null
-			IFS=$oldIFS
+				# ask and store password for keys that should be passwordless
+				${lib.concatLines (map keyScript config.services.openssh.passwordlessKeys)}
+
+				# remove stored keys from the ssh agent
+				oldIFS=$IFS
+				IFS=$(printf '\n\t')
+				# shellcheck disable=SC2086
+				ssh-add -d $stored 2> /dev/null
+				IFS=$oldIFS
+
+			else
+				printWarning 'No connection to SSH authentication agent'
+			fi
 		'';
 	};
 }

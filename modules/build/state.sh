@@ -648,7 +648,7 @@ makePref() {
 				_expected=$(printf '(' ; for _value ; do test "$_value" = "$1" || printf , ; printf '\n    "%s"' "$_value" ; done ; printf '\n)\n')
 				if test "$(_getPref || true)" != "$_expected" ; then _setPref "$@" ; fi ;;
 			array-add)
-				if ! _getPref | grep -Fq "\"$1\"" ; then _setPref "$1" ; fi ;;
+				if ! _getPref | grep -Fqw "$1" ; then _setPref "$1" ; fi ;;
 			delete)
 				# shellcheck disable=SC2086
 				if _getPref > /dev/null ; then trace $_sudo defaults delete "${_file%.plist}" "$_key" ; fi ;;

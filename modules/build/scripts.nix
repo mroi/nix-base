@@ -11,9 +11,8 @@
 
 	scriptOption = description: lib.mkOption {
 		inherit description;
-		type = lib.types.attrsOf (lib.types.either
-			lib.types.str
-			(lib.types.submodule { options = {
+		type = let
+			submodule = lib.types.submodule { options = {
 				deps = lib.mkOption {
 					type = lib.types.listOf lib.types.str;
 					default = [];
@@ -23,8 +22,15 @@
 					type = lib.types.lines;
 					description = "Script text.";
 				};
-			};})
-		);
+			};};
+		in lib.types.attrsOf ((lib.types.either lib.types.lines submodule) // {
+			merge = loc: defs: if lib.all (x: lib.isString x.value) defs then
+				lib.types.lines.merge loc defs
+			else if lib.all (x: lib.isAttrs x.value) defs then
+				submodule.merge loc defs
+			else
+				throw "incompatible types on option ${lib.concatStringsSep "." loc}";
+		});
 		default = {};
 	};
 

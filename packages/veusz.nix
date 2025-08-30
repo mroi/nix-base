@@ -21,13 +21,13 @@ stdenvNoCC.mkDerivation rec {
 
 	nativeBuildInputs = [ _7zz ];
 	sourceRoot = ".";
+	unpackPhase = "7zz x -snld20 $src";
 	__noChroot = true;
 
 	installPhase = ''
 		mkdir -p $out/Applications
 		mv Veusz.app $out/Applications/
 		/usr/bin/ditto -xz ${./veusz-icon.cpgz} $out/Applications/Veusz.app/
-		unset DEVELOPER_DIR  # FIXME: remove when https://github.com/NixOS/nixpkgs/issues/371465 is resolved
 		/usr/bin/SetFile -a C $out/Applications/Veusz.app
 	'';
 	dontFixup = true;

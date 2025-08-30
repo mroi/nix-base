@@ -22,7 +22,6 @@ stdenvNoCC.mkDerivation rec {
 		mkdir -p $out/Applications
 		mv LyX.app $out/Applications/
 		/usr/bin/ditto -xz ${./lyx-icon.cpgz} $out/Applications/LyX.app/
-		unset DEVELOPER_DIR  # FIXME: remove when https://github.com/NixOS/nixpkgs/issues/371465 is resolved
 		/usr/bin/SetFile -a C $out/Applications/LyX.app
 	'';
 	dontFixup = true;

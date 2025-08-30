@@ -6,13 +6,13 @@ let
 
 in stdenvNoCC.mkDerivation {
 	pname = "vmware-vmx";
-	version = "1.0.7-unstable-2024-02-10";
+	version = "1.0.7-unstable-2025-08-19";
 
 	src = fetchFromGitHub {
 		owner = "RF3";
 		repo = "VMwareVMX";
-		rev = "0cdfe49c486fd41de73dd8decb2b4a83791ec28f";
-		hash = "sha256-cIA0qLwxuBtEyRnWug/pLtm2PaCLWruuvp9HQSwBy0M=";
+		rev = "7a514f040263b60e9e471248fd56afe0ed190a8a";
+		hash = "sha256-luZH7KV3mmCGo2uJnaZNC2RJCMgtj6NGXJhsjA20Ee8=";
 	};
 
 	installPhase = ''

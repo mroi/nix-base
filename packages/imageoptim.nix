@@ -16,7 +16,6 @@ stdenvNoCC.mkDerivation rec {
 		mkdir -p $out/Applications
 		mv ImageOptim.app $out/Applications/
 		/usr/bin/ditto -xz ${./imageoptim-icon.cpgz} $out/Applications/ImageOptim.app/
-		unset DEVELOPER_DIR  # FIXME: remove when https://github.com/NixOS/nixpkgs/issues/371465 is resolved
 		/usr/bin/SetFile -a C $out/Applications/ImageOptim.app
 	'';
 	dontFixup = true;

@@ -8,7 +8,7 @@
 	config = let
 
 		flakeRepo = "mroi/aws-ssh-proxy";
-		flakeRev = "68d87e785413ff2ca4e1db3613a764220080c587";
+		flakeRev = "3ec6a4cfea765e7cad53cae2e810fa5caba2802a";
 		flakeUrl = "github:${flakeRepo}/${flakeRev}";
 		flake = builtins.getFlake flakeUrl;
 		flakeAttr = "ssh-proxy";

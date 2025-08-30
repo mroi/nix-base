@@ -18,10 +18,12 @@
 			"/System/Library/CoreServices/UniversalControl.app/Contents/MacOS/UniversalControl"
 			"/System/Library/PrivateFrameworks/ChronoCore.framework/Support/chronod"
 			"/System/Library/PrivateFrameworks/IDS.framework/identityservicesd.app/Contents/MacOS/identityservicesd"
+			"/System/Library/PrivateFrameworks/ReplicatorCore.framework/Support/replicatord"
 			"/usr/libexec/AirPlayXPCHelper"
 			"/usr/libexec/audioclocksyncd"
 			"/usr/libexec/rapportd"
 			"/usr/libexec/sharingd"
+			"/usr/libexec/sshd-session"
 		];
 	};
 
@@ -56,6 +58,7 @@
 
 	environment.extensions = lib.mkIf pkgs.stdenv.isDarwin {
 		"com.apple.photo-editing"."com.apple.MarkupUI.MarkupPhotoExtension" = true;
+		"com.apple.quicklook.preview"."com.apple.tips.TipsQuicklook" = true;
 		"com.apple.share-services"."com.apple.CloudSharingUI.CopyLink" = true;
 		"com.apple.share-services"."com.apple.CloudSharingUI.invite" = true;
 		"com.apple.share-services"."com.apple.MailShareExtension" = true;

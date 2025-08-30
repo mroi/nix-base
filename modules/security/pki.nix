@@ -283,7 +283,7 @@
 						plutil -replace "trustList.$hash.modDate" -date "$date" trust-${mode}-target.plist
 					else
 						# different trust settings, set current modification date
-						plutil -replace "trustList.$hash.modDate" -date "$(date +%Y-%m-%dT%H:%M:%SZ)" trust-${mode}-target.plist
+						plutil -replace "trustList.$hash.modDate" -date "$(date -z UTC +%Y-%m-%dT%H:%M:%SZ)" trust-${mode}-target.plist
 					fi
 				done
 

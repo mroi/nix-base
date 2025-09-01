@@ -192,7 +192,7 @@ checkSig() {
 	_team=$2
 
 	case "$_path" in
-	*.app)
+	*.app|*.dmg)
 		if ! codesign --verify "$_path" -R='anchor trusted' --strict=symlinks --deep ; then
 			printWarning "Code signature invalid for $_path"
 			return 1

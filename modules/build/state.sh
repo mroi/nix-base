@@ -258,7 +258,7 @@ makeFinderInfo() {
 
 makeIcon() {
 	_target=$1
-	_source=$2
+	_icon=$2
 
 	if test -w "$_target" ; then
 		_sudo=
@@ -266,11 +266,14 @@ makeIcon() {
 		_sudo=sudo
 	fi
 
-	if ! test -f "$_target"/Icon? ; then
-		# shellcheck disable=SC2086
-		trace $_sudo ditto -xz "$_source" "$_target"/
-		# shellcheck disable=SC2086
-		trace $_sudo SetFile -a C "$_target"
+	if test -f "$_icon" ; then
+		if ! test -f "$_target"/Icon? ; then
+			trace $_sudo ditto -xz "$_icon" "$_target"/
+			trace $_sudo SetFile -a C "$_target"
+		fi
+	else
+		makeAttr "$_target" com.apple.icon.folder\#S "{\"sym\":\"$_icon\"}"
+		makeFinderInfo "$_target" flag C
 	fi
 }
 

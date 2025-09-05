@@ -36,7 +36,7 @@
 				if ! test -d /Applications/Research.localized/.localized ; then
 					trace sudo tar -x --file=${./research-localized.tar.gz} --directory=/Applications/Research.localized
 				fi
-				makeIcon /Applications/Research.localized ${./research-icon.cpgz}
+				makeIcon /Applications/Research.localized graduationcap.fill
 			'';
 		})
 	]);

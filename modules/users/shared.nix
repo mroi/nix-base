@@ -25,6 +25,9 @@
 			storeHeading -
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
 			makeDir 3777:root:${config.users.shared.group} '${config.users.shared.folder}'
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			makeDir 1777:root:wheel '${config.users.shared.folder}'
+			makeIcon '${config.users.shared.folder}' person.3.fill
 		'' + lib.optionalString (config.environment.profile != null) ''
 			storeHeading 'Redirecting Nix profile to shared folder'
 			stateDir=''${XDG_STATE_HOME:-$HOME/.local/state}

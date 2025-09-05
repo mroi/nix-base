@@ -141,7 +141,6 @@ makeFile() {
 		else
 			_update=modified
 		fi
-		# shellcheck disable=SC2086
 		trace $_sudo cp -a "$_source" "$_target"
 	fi
 	if ! test -f "$_target" && ! test "$_source" ; then
@@ -169,7 +168,6 @@ deleteFile() {
 			else
 				_sudo=sudo
 			fi
-			# shellcheck disable=SC2086
 			trace $_sudo rm "$_file"
 			_deleted=true
 		fi
@@ -646,7 +644,6 @@ makePref() {
 		fi
 
 		_getPref() { defaults read "${_file%.plist}" "$_key" 2> /dev/null ; }
-		# shellcheck disable=SC2086
 		_setPref() { trace $_sudo defaults write "${_file%.plist}" "$_key" "-$_type" "$@" ; }
 
 		case "$_type" in
@@ -660,7 +657,6 @@ makePref() {
 			array-add)
 				if ! _getPref | grep -Fqw "$1" ; then _setPref "$1" ; fi ;;
 			delete)
-				# shellcheck disable=SC2086
 				if _getPref > /dev/null ; then trace $_sudo defaults delete "${_file%.plist}" "$_key" ; fi ;;
 			*)
 				fatalError "Unsupported preference type $_type"

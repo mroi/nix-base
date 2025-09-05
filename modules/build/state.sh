@@ -212,7 +212,49 @@ makeTree() {
 	rm -rf source
 }
 
-# custom icons
+# extended attributes
+
+makeAttr() {
+	_target=$1
+	_attr=$2
+	_value=$3
+
+	if test -w "$_target" ; then
+		_sudo=
+	else
+		_sudo=sudo
+	fi
+
+	if $isDarwin ; then
+		if test "$(xattr -p "$_attr" "$_target" 2> /dev/null)" != "$_value" ; then
+			trace $_sudo xattr -w "$_attr" "$_value" "$_target"
+		fi
+	fi
+}
+
+makeFinderInfo() {
+	# supported finder info type: flag
+	_target=$1
+	_type=$2
+	_info=$3
+
+	if test -w "$_target" ; then
+		_sudo=
+	else
+		_sudo=sudo
+	fi
+
+	if $isDarwin ; then
+		case "$_type" in
+			flag)
+				case "$(GetFileInfo -a "$_target")" in
+					*$_info*) ;;
+					*) trace $_sudo SetFile -a "$_info" "$_target" ;;
+				esac
+				;;
+		esac
+	fi
+}
 
 makeIcon() {
 	_target=$1

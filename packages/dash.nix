@@ -2,16 +2,16 @@
 { lib, fetchzip }:
 
 let
-	major = "7";
+	version = "8.0.0";
+	major = lib.head (lib.splitVersion version);
 	url = "https://kapeli.com/downloads/v${major}/Dash.zip";
 
 in fetchzip rec {
-	inherit url;
+	inherit version url;
 
 	pname = "dash";
-	version = "7.3.5";
 
-	hash  = "sha256-z6OYLYjjDbAUfdG45BvWtC+1y29kLG0K4Ns7UN3herk=";
+	hash  = "sha256-xYvj3Du/dQdM45KbgBKwrhbcrTdZuMSNpzjuUDp41tw=";
 	stripRoot = false;
 
 	postFetch = ''
@@ -20,7 +20,9 @@ in fetchzip rec {
 		mv Dash.app $out/Applications/
 	'';
 
-	passthru.updateScript = ''
+	passthru.updateScript = let
+		major = "7";  # weird, but the RSS feed version does not seem to follow the package version
+	in ''
 		version=$(curl --silent https://kapeli.com/Dash${major}.xml | xmllint --xpath 'string(/rss/channel/item/enclosure/@*[local-name()="shortVersionString"])' -)
 		updateVersion version "$version"
 		if didUpdate ; then

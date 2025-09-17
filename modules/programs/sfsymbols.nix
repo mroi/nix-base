@@ -5,7 +5,7 @@
 	config = let
 
 		sf-symbols-installer = let
-			version = "6.0";
+			version = "7.0";
 			catalog = "https://swscan.apple.com/content/catalogs/others/index-26-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
 			macOS = lib.elemAt (lib.splitString "-" catalog) 1;
 			productId = "042-53422";
@@ -15,7 +15,7 @@
 
 			src = pkgs.fetchurl {
 				url = "https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-6.dmg";
-				hash = "sha256-hG6QyidNVtI0pXO698oGVsG4awy8XWr27nEyYSUMhPo=";
+				hash = "sha256-RNH7JXEXt/ne5K8a10N2JZW/Y9+Z84JMVJeq3XL4tWw=";
 			};
 
 			nativeBuildInputs = [ pkgs.undmg ];
@@ -27,7 +27,7 @@
 					printWarning 'Update the software catalog URL for current macOS'
 				fi
 			'' + ''
-				metadata=$(curl --silent '${catalog}' | xmllint --xpath '/plist/dict/dict/key[text()="${productId}"]/following-sibling::dict[1]/key[text()="ServerMetadataURL"]/following-sibling::string[1]/text()' -)
+				metadata=$(curl --silent '${catalog}' | xmllint --xpath '/plist/dict/dict/dict/key[text()="ServerMetadataURL"]/following-sibling::string[contains(text(),"SFSymbols")]/text()' -)
 				version=$(curl --silent "$metadata" | xmllint --xpath '/plist/dict/key[text()="CFBundleShortVersionString"]/following-sibling::string[1]/text()' -)
 				updateVersion version "$version"
 				if didUpdate ; then

@@ -51,8 +51,14 @@
 				fi
 			'';
 			environment.logoutHook.guest = ''
-				# delete the guest account home directory after logout
-				if test "$USER" = Guest ; then (sleep 5 ; rm -rf /Users/Guest) & fi
+				# guest account logout
+				if test "$USER" = Guest ; then
+					# unmark the guest account, otherwise it does not show up in fast user switching
+					dscl . -delete /users/Guest _guest || true
+					defaults delete /Library/Preferences/com.apple.loginwindow.plist GuestEnabled || true
+					# delete the guest account home directory after logout
+					(sleep 5 ; rm -rf /Users/Guest) &
+				fi
 			'';
 		})
 	]);

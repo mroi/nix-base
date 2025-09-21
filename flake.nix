@@ -5,19 +5,19 @@
 		packages = {
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
-				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "run-linux" "texlive"
-				"unison" "unison-fsmonitor" "veusz" "vmware-vmx"
+				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama" "run-linux"
+				"texlive" "unison" "unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "fish" "gitup"
-				"hires" "imageoptim" "lyx" "nix" "run-linux" "texlive" "unison"
+				"hires" "imageoptim" "lyx" "nix" "ollama" "run-linux" "texlive" "unison"
 				"unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
-				"bitwarden-decrypt" "fish" "nix" "texlive" "unison" "vmware-vmx"
+				"bitwarden-decrypt" "fish" "nix" "ollama" "texlive" "unison" "vmware-vmx"
 			];
 			x86_64-linux = [
-				"bitwarden-decrypt" "fish" "nix" "texlive" "unison" "vmware-vmx"
+				"bitwarden-decrypt" "fish" "nix" "ollama" "texlive" "unison" "vmware-vmx"
 			];
 		};
 

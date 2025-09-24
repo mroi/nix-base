@@ -3,7 +3,7 @@
 	options.environment.rootPaths = lib.mkOption {
 		type = lib.types.listOf lib.types.pathInStore;
 		default = [];
-		example = "[ (lib.getExe pkgs.nix) ]";
+		example = lib.literalExpression "[ (lib.getExe pkgs.nix) ]";
 		description = "Files to be installed in the Nix profile of the root user.";
 	};
 

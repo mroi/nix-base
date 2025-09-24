@@ -15,6 +15,8 @@
 
 			programs.xcode.enable = lib.mkDefault true;
 			programs.sfSymbols.enable = lib.mkDefault true;
+			services.ollama.enable = lib.mkDefault true;
+			services.ollama.models = [ "devstral" ];
 
 			environment.bundles."/Applications/GitUp.app" = {
 				pkg = pkgs.callPackage ../../packages/gitup.nix {};

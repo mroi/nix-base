@@ -39,7 +39,7 @@
 					"# print assertions"
 					"printError 'Failed assertions while evaluating the configuration:'"
 				] ++ x ++ [
-					"exit 1"
+					"exit 64  # EX_USAGE"
 				]))
 				lib.concatLines
 			];

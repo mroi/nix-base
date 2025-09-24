@@ -61,6 +61,7 @@
 	# service configurations
 	"arq" = ./services/arq.nix;
 	"awssync" = ./services/awssync.nix;
+	"ollama" = ./services/ollama.nix;
 	"ssh" = ./services/ssh.nix;
 	"sshkeys" = ./services/sshkeys.nix;
 	"sshproxy" = ./services/sshproxy.nix;

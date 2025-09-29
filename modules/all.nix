@@ -52,6 +52,7 @@
 	"services" = ./environment/services.nix;
 
 	# security settings
+	"inject" = ./security/inject.nix;
 	"password" = ./security/password.nix;
 	"pki" = ./security/pki.nix;
 	"prefsec" = ./security/prefsec.nix;

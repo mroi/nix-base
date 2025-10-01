@@ -196,9 +196,9 @@ cdTemporaryDirectory() {
 	fi
 	_tmpdir=$(mktemp --directory --tmpdir="$_tmpdir" -t "rebuild$($isDarwin || echo .XXXXXXXX)")
 	# shellcheck disable=SC2064
-	trap "rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
+	trap "test ! -e .pids || xargs kill < .pids ; rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
 	# shellcheck disable=SC2064
-	trap "rm -rf \"$_tmpdir\" ; exit 75  # EX_TEMPFAIL" INT
+	trap "test ! -e .pids || xargs kill < .pids ; rm -rf \"$_tmpdir\" ; exit 75  # EX_TEMPFAIL" INT
 	cd "$_tmpdir"
 }
 

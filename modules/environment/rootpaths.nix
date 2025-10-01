@@ -30,6 +30,8 @@
 		system.activationScripts.rootpaths = lib.stringAfter [ "nix" "staging" ] ''
 			storeHeading 'Updating Nix profile paths for the root user'
 
+			requireCommands activate-staging activate-root
+
 			# add all requested paths
 			makeDir 700 "${config.users.root.stagingDirectory}/.nix"
 			${lib.concatLines (map addPathScript config.environment.rootPaths)}

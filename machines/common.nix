@@ -2,9 +2,10 @@
 
 	system.defaultCommands = [ "activate" ];
 
-	system.packages = lib.mkIf pkgs.stdenv.isLinux [
+	system.packages = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) [
 		"patch"
 		"screen"
+		"sqlite3"
 	];
 
 	environment.profile = [

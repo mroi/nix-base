@@ -202,6 +202,30 @@ cdTemporaryDirectory() {
 	cd "$_tmpdir"
 }
 
+# run an in-memory SQLite database
+
+runSQL() {
+	if ! test -d .sqlite ; then
+		# database not started yet
+		mkdir .sqlite
+		mkfifo .sqlite/in
+		exec 3<> .sqlite/in
+		sqlite3 :memory: < .sqlite/in 2> .sqlite/out 1>&2 &
+		echo $! > .pids
+	fi
+	# truncate the output file
+	: > .sqlite/out
+	# run commands from stdin against the database
+	cat > .sqlite/in
+	# wait until the database has finished processing
+	echo '.once .sqlite/done' > .sqlite/in
+	echo "SELECT '';" > .sqlite/in
+	while ! test -f .sqlite/done ; do sleep 1 ; done
+	rm .sqlite/done
+	# pass database output as stdout
+	cat .sqlite/out
+}
+
 # code signature check
 
 checkSig() {

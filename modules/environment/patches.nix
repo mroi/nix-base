@@ -103,6 +103,8 @@
 		system.activationScripts.patches = lib.stringAfter [ "staging" "packages" ] ''
 			storeHeading 'Managing patches for system files'
 
+			requireCommands activate-staging activate-root
+
 			patches="${lib.concatLines patchNames}"
 
 			# revert patches not in requested list

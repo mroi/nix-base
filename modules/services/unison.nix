@@ -98,6 +98,7 @@
 				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
 			fi
 		'' + lib.optionalString cfg.syncRoot (''
+			requireCommands activate-staging activate-root
 			${makeHomeDir stagingDir binDir}
 			makeFile 755 ${stagingDir}/${binDir}/unison ${rootScript}
 			${makeHomeDir stagingDir configDir}

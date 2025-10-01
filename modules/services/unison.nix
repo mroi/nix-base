@@ -69,6 +69,9 @@
 	in lib.mkIf cfg.enable {
 
 		assertions = [{
+			assertion = config.users.root.stagingDirectory != null || ! cfg.syncRoot;
+			message = "Syncing the root user with Unison requires users.root.stagingDirectory.";
+		} {
 			assertion = config.users.shared.folder != null || cfg.userAccountProfile == null;
 			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder";
 		}];
@@ -98,6 +101,7 @@
 				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
 			fi
 		'' + lib.optionalString cfg.syncRoot (''
+			requireCommands activate-staging activate-root
 			${makeHomeDir stagingDir binDir}
 			makeFile 755 ${stagingDir}/${binDir}/unison ${rootScript}
 			${makeHomeDir stagingDir configDir}

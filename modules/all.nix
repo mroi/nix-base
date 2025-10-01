@@ -4,10 +4,11 @@
 	"rebuild" = ./build/rebuild.nix;
 	"scripts" = ./build/scripts.nix;
 
-	# underlying system setup
+	# underlying system
 	"boot" = ./system/boot.nix;
 	"distro" = ./system/distro.nix;
 	"drift" = ./system/drift.nix;
+	"files" = ./system/files.nix;
 	"nvram" = ./system/nvram.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;

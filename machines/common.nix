@@ -5,6 +5,7 @@
 	system.packages = lib.mkIf pkgs.stdenv.isLinux [
 		"patch"
 		"screen"
+		"sqlite3"
 	];
 
 	environment.profile = [

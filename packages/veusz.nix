@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "veusz";
-	version = "4.1";
+	version = "4.2";
 
 	src = let
-		aarch64-hash = "sha256-fHewfMNTTRCbjMRntY+o4FTE1105HXRcDgs5S9f+sOw=";
-		x86_64-hash = "sha256-F0jzw/jLcLBFhtZFwglQ8xetlnz/nl/PeTG40qAWTPY=";
+		aarch64-hash = "sha256-DP7wAibVhjGyfPzA4wD48S0rsWqVNJdX6S/pAI/E//8=";
+		x86_64-hash = "sha256-HCPThezAIeY/wr+EWaFzrKNoSBZ2PdMr32H5DO1T1/M=";
 	in builtins.getAttr stdenvNoCC.system {
 		aarch64-darwin = fetchurl {
 			url = "https://github.com/veusz/veusz/releases/download/veusz-${version}/veusz-${version}-AppleOSX-arm.dmg";

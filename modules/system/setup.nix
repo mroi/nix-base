@@ -11,6 +11,7 @@
 
 		# disable changes with system-level effects
 		networking.hostName = null;
+		security.gatekeeper.enable = null;
 		security.password.yescrypt.rounds = null;
 		security.pki.certificateTrust.system = null;
 		security.preferences.passwordProtect = null;

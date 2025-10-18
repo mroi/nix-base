@@ -52,6 +52,7 @@
 	"services" = ./environment/services.nix;
 
 	# security settings
+	"gatekeeper" = ./security/gatekeeper.nix;
 	"inject" = ./security/inject.nix;
 	"password" = ./security/password.nix;
 	"pki" = ./security/pki.nix;

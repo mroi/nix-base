@@ -87,7 +87,7 @@
 
 		environment.loginHook = lib.mkIf (config.fileSystems != {}) {
 			volumes = lib.optionalString pkgs.stdenv.isDarwin (
-				lib.concatLines (map mountVolumeScript volumesToCreate)
+				lib.concatLines (map mountVolumeScript (lib.filter (x: x.name != "/") volumesToCreate))
 			);
 		};
 		system.activationScripts.hooks = lib.mkIf (config.fileSystems != {}) {

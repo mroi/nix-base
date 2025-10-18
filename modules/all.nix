@@ -21,6 +21,7 @@
 	"store" = ./nix/store.nix;
 
 	# volumes and file systems
+	"filevault" = ./filesystems/filevault.nix;
 	"volumes" = ./filesystems/volumes.nix;
 
 	# root account, groups, and users

@@ -60,6 +60,7 @@
 	"prefsec" = ./security/prefsec.nix;
 	"sip" = ./security/sip.nix;
 	"sudo" = ./security/sudo.nix;
+	"xprotect" = ./security/xprotect.nix;
 
 	# service configurations
 	"arq" = ./services/arq.nix;

@@ -15,8 +15,6 @@ stdenvNoCC.mkDerivation rec {
 	installPhase = ''
 		mkdir -p $out/Applications
 		mv ImageOptim.app $out/Applications/
-		/usr/bin/ditto -xz ${./imageoptim-icon.cpgz} $out/Applications/ImageOptim.app/
-		/usr/bin/SetFile -a C $out/Applications/ImageOptim.app
 	'';
 	dontFixup = true;
 

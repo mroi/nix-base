@@ -247,10 +247,15 @@ makeFinderInfo() {
 	if $isDarwin ; then
 		case "$_type" in
 			flag)
-				case "$(GetFileInfo -a "$_target")" in
-					*$_info*) ;;
-					*) trace $_sudo SetFile -a "$_info" "$_target" ;;
-				esac
+				if xcode-select -p > /dev/null 2>&1 ; then
+					case "$(GetFileInfo -a "$_target")" in
+						*$_info*) ;;
+						*) trace $_sudo SetFile -a "$_info" "$_target" ;;
+					esac
+				else
+					printError "Unable to set Finder flags: $_target"
+					printInfo 'Finder flags require Xcode command line tools'
+				fi
 				;;
 		esac
 	fi
@@ -269,12 +274,11 @@ makeIcon() {
 	if test -f "$_icon" ; then
 		if ! test -f "$_target"/Icon? ; then
 			trace $_sudo ditto -xz "$_icon" "$_target"/
-			trace $_sudo SetFile -a C "$_target"
 		fi
 	else
 		makeAttr "$_target" com.apple.icon.folder\#S "{\"sym\":\"$_icon\"}"
-		makeFinderInfo "$_target" flag C
 	fi
+	makeFinderInfo "$_target" flag C
 }
 
 # volume management

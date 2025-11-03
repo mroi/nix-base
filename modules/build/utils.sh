@@ -177,7 +177,12 @@ fi
 # transition to temporary directory
 
 cdTemporaryDirectory() {
-	_tmpdir=$(mktemp --directory --tmpdir=/nix/var/tmp -t "rebuild$($isDarwin || echo .XXXXXXXX)")
+	if test -d /nix/var/tmp ; then
+		_tmpdir=/nix/var/tmp
+	else
+		_tmpdir=${TMPDIR%/}
+	fi
+	_tmpdir=$(mktemp --directory --tmpdir="$_tmpdir" -t "rebuild$($isDarwin || echo .XXXXXXXX)")
 	# shellcheck disable=SC2064
 	trap "rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
 	# shellcheck disable=SC2064

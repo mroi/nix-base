@@ -35,7 +35,7 @@
 					trace sudo pwpolicy -setaccountpolicies globalpwpolicy.plist
 					rm globalpwpolicy.plist
 					# refresh potential user list in Control Center
-					trace pkill ControlCenter
+					trace pkill ControlCenter || true
 				fi
 			'';
 

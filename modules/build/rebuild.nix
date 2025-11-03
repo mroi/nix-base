@@ -34,10 +34,15 @@
 
 			assertions = lib.pipe config.assertions [
 				(lib.filter (x: !x.assertion))
-				(map (x: "printError '• ${x.message}'"))
+				(x: if lib.length x > 1 then
+					map (x: "printError '• ${x.message}'") x
+				else
+					map (x: "printError '${x.message}'") x
+				)
 				(x: if x == [] then [] else ([
 					"# print assertions"
-					"printError 'Failed assertions while evaluating the configuration:'"
+					"printInfo"
+					"printInfo 'Failed assertions while evaluating the configuration:'"
 				] ++ x ++ [
 					"exit 64  # EX_USAGE"
 				]))
@@ -45,10 +50,15 @@
 			];
 
 			warnings = lib.pipe config.warnings [
-				(map (x: "printWarning '• ${x}'"))
+				(x: if lib.length x > 1 then
+					map (x: "printWarning '• ${x}'") x
+				else
+					map (x: "printWarning '${x}'") x
+				)
 				(x: if x == [] then [] else ([
 					"# print warnings"
-					"printWarning 'Warnings while evaluating the configuration:'"
+					"printInfo"
+					"printInfo 'Warnings while evaluating the configuration:'"
 				] ++ x))
 				lib.concatLines
 			];

@@ -9,6 +9,8 @@
 			message = "Affinity is only available on Darwin";
 		}];
 
+		# FIXME: Affinity apps are discontinued, now single side-loaded app from https://www.affinity.studio/
+		# wait for potential Pixelmator successor from Apple?
 		environment.apps = [ 1616831348 1616822987 1606941598 ];
 
 		environment.extensions = {

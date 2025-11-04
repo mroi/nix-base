@@ -271,14 +271,18 @@ makeIcon() {
 		_sudo=sudo
 	fi
 
-	if test -f "$_icon" ; then
-		if ! test -f "$_target"/Icon? ; then
-			trace $_sudo ditto -xz "$_icon" "$_target"/
+	if $isDarwin ; then
+		if test -f "$_icon" ; then
+			if ! test -f "$_target"/Icon? ; then
+				trace $_sudo ditto -xz "$_icon" "$_target"/
+			fi
+		else
+			makeAttr "$_target" com.apple.icon.folder\#S "{\"sym\":\"$_icon\"}"
 		fi
+		makeFinderInfo "$_target" flag C
 	else
-		makeAttr "$_target" com.apple.icon.folder\#S "{\"sym\":\"$_icon\"}"
+		fatalError 'No folder icon support on Linux'
 	fi
-	makeFinderInfo "$_target" flag C
 }
 
 # volume management

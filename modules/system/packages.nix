@@ -35,14 +35,46 @@
 			trace sudo apt-get clean
 		'';
 
-		system.cleanupScripts.packages = lib.stringAfter [ "volumes" ] (lib.optionalString pkgs.stdenv.isLinux ''
+		system.cleanupScripts.packages = lib.stringAfter [ "files" "volumes" ] (''
 			storeHeading 'Cleaning system-level packages'
+
+		'' + lib.optionalString pkgs.stdenv.isLinux ''
 			trace sudo apt-get --assume-yes autoremove --purge
 			trace sudo apt-get clean
 			trace sudo apt-cache gencaches
 			trace sudo apt-get --quiet check
 			trace sudo dpkg --clear-avail
 			trace sudo dpkg --audit
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			requireCommands clean-files
+
+			# print heading for potentially long running operation
+			flushHeading
+
+			# shellcheck disable=SC2043
+			for volume in / ; do
+				pkgutil --volume "$volume" --packages | while read -r package ; do
+					# check if any file is installed by this package
+					needed=$(echo "SELECT 'true' FROM files NATURAL JOIN sources WHERE system = 'pkg' AND name = '$package' LIMIT 1;" | runSQL)
+					if test "$needed" = true ; then continue ; fi
+					# check if this package is SIP protected
+					unset flags
+					for receipts in Library/Receipts var/db/receipts Library/Apple/System/Library/Receipts ; do
+						if test -f "$volume/$receipts/$package.plist" ; then
+							flags=$(stat -f %Sf "$volume/$receipts/$package.plist")
+						fi
+					done
+					if test "$flags" = restricted ; then
+						quote() { echo "$1" | sed "/ /s/.*/'&'/" ; }
+						receipts=''${receipts%Library/Receipts}
+						receipts=''${receipts%/}
+						echo "pkgutil --volume $(quote "$receipts") --forget $(quote "$package")"
+					else
+						trace sudo pkgutil --volume "$volume" --forget "$package"
+					fi
+				done
+			done | recoveryCommands
 		'');
 
 		system.cleanupScripts.files.text = lib.mkOrder 2000 (''

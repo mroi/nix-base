@@ -47,14 +47,17 @@
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool false
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool false
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool false
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist SplatEnabled bool false
 		'' + lib.optionalString (cfg.autoInstall == "critical") ''
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool false
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool true
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool true
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist SplatEnabled bool true
 		'' + lib.optionalString (cfg.autoInstall == "all") ''
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates bool true
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall bool true
 			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall bool true
+			makePref /Library/Preferences/com.apple.SoftwareUpdate.plist SplatEnabled bool true
 		'' + lib.optionalString (cfg.autoAppUpdate != null) ''
 			makePref /Library/Preferences/com.apple.commerce.plist AutoUpdate bool ${lib.boolToString cfg.autoAppUpdate}
 		'';

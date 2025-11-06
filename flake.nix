@@ -5,19 +5,21 @@
 		packages = {
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
-				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama" "run-linux"
-				"texlive" "unison" "unison-fsmonitor" "veusz" "vmware-vmx"
+				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama" "outlookmsg"
+				"run-linux" "texlive" "unison" "unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "fish" "gitup"
-				"hires" "imageoptim" "lyx" "nix" "ollama" "run-linux" "texlive" "unison"
-				"unison-fsmonitor" "veusz" "vmware-vmx"
+				"hires" "imageoptim" "lyx" "nix" "ollama" "outlookmsg" "run-linux"
+				"texlive" "unison" "unison-fsmonitor" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
-				"bitwarden-decrypt" "fish" "nix" "ollama" "texlive" "unison" "vmware-vmx"
+				"bitwarden-decrypt" "fish" "nix" "ollama" "outlookmsg" "texlive" "unison"
+				"vmware-vmx"
 			];
 			x86_64-linux = [
-				"bitwarden-decrypt" "fish" "nix" "ollama" "texlive" "unison" "vmware-vmx"
+				"bitwarden-decrypt" "fish" "nix" "ollama" "outlookmsg" "texlive" "unison"
+				"vmware-vmx"
 			];
 		};
 

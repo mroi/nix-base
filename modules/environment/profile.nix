@@ -55,6 +55,7 @@
 			forTarget() {
 				package=$1
 				found=false
+				# shellcheck disable=SC2329
 				forCurrent() { if test "$package" = "''${1#*=}" ; then found=true ; fi ; }
 				forLines "$current" forCurrent
 				if ! $found ; then

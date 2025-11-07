@@ -1,10 +1,10 @@
 # command line restore utility for the Arq backup tool
-{ lib, system, path, stdenv, fetchFromGitHub, xcbuildHook, darwin, zlib }:
+{ lib, path, stdenv, fetchFromGitHub, xcbuildHook, darwin, zlib }:
 
 let
 	openssl_1_1 = (import path {
 		config.permittedInsecurePackages = [ "openssl-1.1.1w" ];
-		inherit system;
+		inherit (stdenv.hostPlatform) system;
 	}).openssl_1_1;
 
 in stdenv.mkDerivation {

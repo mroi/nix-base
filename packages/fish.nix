@@ -38,7 +38,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-UpoZPipXZbzLWCOXzDjfyTDrsKyXGbh3Rkwj5IeWeY4=";
+			expected = "sha256-oNRC1NWYE0LEK2a/7nHtlmp20f8hn/1FZgaySqzwSbg=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
 				"curl -L https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x ; nix hash path ${fish.src.repo}-${fish.src.tag} ; rm -rf ${fish.src.repo}-${fish.src.tag} ; echo");
@@ -47,7 +47,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-FkJB33vVVz7Kh23kfmjQDn61X2VkKLG9mUt8f3TrCHg=";
+			expected = "sha256-7mYWCHH6DBWTIJV8GPRjjf6QulwlYjwv0slablDvBF8=";
 			actual = fish.cargoDeps.hash;
 			error = "cargo deps hash changed:";
 		};

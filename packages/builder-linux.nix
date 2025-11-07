@@ -1,5 +1,5 @@
 # launch a NixOS Linux VM as a builder for Linux derivations on Darwin
-{ system, path, binfmt ? false }:
+{ stdenvNoCC, path, binfmt ? false }:
 
 let nixos = import "${path}/nixos" {
 
@@ -7,7 +7,7 @@ let nixos = import "${path}/nixos" {
 
 		imports = [ "${modulesPath}/profiles/nix-builder-vm.nix" ];
 
-		virtualisation = let hostPkgs = import path { inherit system; }; in {
+		virtualisation = let hostPkgs = import path { inherit (stdenvNoCC.hostPlatform) system; }; in {
 			host.pkgs = hostPkgs;
 			diskSize = lib.mkForce (128 * 1024);
 
@@ -36,8 +36,8 @@ let nixos = import "${path}/nixos" {
 			'';
 		};
 
-		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] system;
-		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr system {
+		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] stdenvNoCC.hostPlatform.system;
+		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr stdenvNoCC.hostPlatform.system {
 			aarch64-linux = [ "x86_64-linux" ];
 			x86_64-linux = [ "aarch64-linux" ];
 		} else [];

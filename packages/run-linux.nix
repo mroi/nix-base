@@ -1,5 +1,5 @@
 # bring up an ephemeral VM to run Linux commands on macOS
-{ system, path }:
+{ stdenvNoCC, path }:
 
 let
 	# TODO: we are using the last commit of vmTools using 9p for shared file systems
@@ -11,8 +11,10 @@ let
 		shallow = true;
 	};
 
-	host = import path { inherit system; };
-	linuxPkgs = import path { system = builtins.replaceStrings [ "darwin" ] [ "linux" ] system; };
+	host = import path { inherit (stdenvNoCC.hostPlatform) system; };
+	linuxPkgs = import path {
+		system = builtins.replaceStrings [ "darwin" ] [ "linux" ] stdenvNoCC.hostPlatform.system;
+	};
 
 	vmTools = host.vmTools.override {
 		# instead of full cross compilation: surgically replace some packages with host versions
@@ -25,7 +27,7 @@ let
 		};
 	};
 
-	qemuSerialDevice = if builtins.substring 0 3 system == "x86" then "isa-serial" else "pci-serial";
+	qemuSerialDevice = if stdenvNoCC.hostPlatform.isx86 then "isa-serial" else "pci-serial";
 
 in host.writeScript "run-linux" ''#!/bin/sh
 	if test $# = 0 ; then

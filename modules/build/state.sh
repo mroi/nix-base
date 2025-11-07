@@ -536,6 +536,7 @@ makeService() {
 		fi
 		if test "$environment" ; then
 			_environmentEntry=Environment=
+			# shellcheck disable=SC2329
 			_() {
 				if test "$1" = "${1#* }" ; then
 					_environmentEntry="$_environmentEntry$1 "
@@ -604,6 +605,7 @@ makeService() {
 		fi
 		if test "$environment" ; then
 			_environmentEntry="\"EnvironmentVariables\": {"
+			# shellcheck disable=SC2329
 			_() { _environmentEntry="$_environmentEntry\"${1%%=*}\":\"${1#*=}\"," ; }
 			forLines "$environment" _
 			_environmentEntry="$_environmentEntry},"

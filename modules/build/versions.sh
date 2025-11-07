@@ -105,6 +105,8 @@ _updateEntry() {
 		else
 			printInfo "${UPDATE_NIX_ATTR_PATH##*.} $_type unchanged"
 		fi
+	else
+		fatalError "unexpected empty $_type value"
 	fi
 }
 

@@ -803,7 +803,7 @@ installPackage() {
 	rm "$_name"
 }
 
-# interactive script editing
+# commands in interactive scripts
 
 interactiveCommands() {
 	if test -t 3 -a -t 4 ; then
@@ -833,5 +833,39 @@ interactiveDeletes() {
 			cat
 		} | sort | sed "s/'/'\"'\"'/ ; s/^/rm -rf '/ ; s/$/'/" | \
 			interactiveCommands "$1" "$2" 'Files will be deleted unless lines are commented or removed.'
+	fi
+}
+
+recoveryCommands() {
+	if test -d "$HOME/Desktop" ; then
+		_recovery=$HOME/Desktop/recovery.sh
+	else
+		_recovery=$HOME/recovery.sh
+	fi
+	if read -r first ; then
+		if ! test -f "$_recovery" ; then
+			{
+				echo '#!/bin/sh -e'
+				echo '#'
+				echo '# This script needs to be executed from the macOS Recovery environment.'
+				echo '#'
+				echo '# To enter Recovery, shut down and restart with the power button held down.'
+				echo '# Within Recovery, launch Terminal (⌘T) and mount the data volume:'
+				echo '#'
+				echo '# diskutil apfs unlock Data'
+				echo '#'
+				echo "# Then run this script from /Volumes/Data$_recovery"
+				echo
+				# shellcheck disable=SC2016
+				echo 'self=$(cd "$(dirname "$0")" ; pwd -P)/$(basename "$0")'
+				echo "trap 'test \$? -eq 0 && rm \"\$self\"' EXIT"
+				echo 'cd /Volumes/Data'
+				echo "PS4='> ' ; set -x"
+			} > "$_recovery"
+			chmod a+x "$_recovery"
+		fi
+		{ echo ; echo "$first" ; cat ; } >> "$_recovery"
+		printWarning 'Command execution deferred to macOS Recovery'
+		printInfo "$_recovery"
 	fi
 }

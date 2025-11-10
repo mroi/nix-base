@@ -4,7 +4,7 @@
 		type = lib.types.nullOr (lib.types.listOf (lib.types.strMatching ".*#.*"));
 		default = [];
 		example = [ "nixpkgs#hello" ];
-		description = "The Nix packages to be installed in the Nix profile, given as flake references with short (no `packages` or `legacyPackages` prefix) package names.";
+		description = "The Nix packages to be included in the Nix profile, given as flake references with short (no `packages` or `legacyPackages` prefix) package names.";
 	};
 
 	config = let
@@ -51,7 +51,7 @@
 			}
 			forLines "$current" forCurrent
 
-			# install packages not in current profile
+			# add packages not in current profile
 			forTarget() {
 				package=$1
 				found=false
@@ -59,7 +59,7 @@
 				forCurrent() { if test "$package" = "''${1#*=}" ; then found=true ; fi ; }
 				forLines "$current" forCurrent
 				if ! $found ; then
-					toInstall="$toInstall $1"
+					toAdd="$toAdd $1"
 				fi
 			}
 			forLines "$target" forTarget
@@ -69,9 +69,9 @@
 				# shellcheck disable=SC2086
 				trace nix profile remove --quiet $toRemove
 			fi
-			if test "$toInstall" ; then
+			if test "$toAdd" ; then
 				# shellcheck disable=SC2086
-				trace nix profile install --quiet $toInstall
+				trace nix profile add --quiet $toAdd
 			fi
 		'';
 

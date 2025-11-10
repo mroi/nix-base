@@ -9,11 +9,13 @@
 
 	config = lib.mkIf (config.nix.enable && config.nix.builders.linux) {
 
+		# should be localhost, but that does not work in Nix 2.31.2
+		# https://github.com/NixOS/nix/pull/14178/commits/823c630b2e0ee5ffe07152ff3f3eddfcfe216fe1
 		nix.settings.builders = [
-			"ssh://builder@localhost:33022 aarch64-linux,x86_64-linux - - - big-parallel,kvm"
+			"ssh://builder@127.0.0.1:33022 aarch64-linux,x86_64-linux - - - big-parallel,kvm"
 		];
 		nix.ssh.knownHosts = lib.concatLines [
-			"[localhost]:33022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBWcxb/Blaqt1auOtE+F8QUWrUotiC5qBJ+UuEWdVCb"
+			"[127.0.0.1]:33022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBWcxb/Blaqt1auOtE+F8QUWrUotiC5qBJ+UuEWdVCb"
 		];
 		nix.ssh.keygen = true;
 		system.activationScripts.nix.text = lib.mkAfter ''

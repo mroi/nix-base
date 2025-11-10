@@ -46,6 +46,18 @@
 			trace sudo dpkg --clear-avail
 			trace sudo dpkg --audit
 
+			# purge half-installed packages
+			dpkg-query --showformat ''\'''${Status}|''${Package}\n' --show '*' | \
+				sed '
+					/^install ok installed/d
+					/^unknown ok not-installed/d
+					s/^[^|]*|//
+					s/^/dpkg --purge /
+				' | \
+				interactiveCommands incomplete \
+					'These packages are in an incomplete installation state.' \
+					'They will be uninstalled unless lines are commented or removed.'
+
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 			requireCommands clean-files
 

@@ -36,8 +36,8 @@
 		];
 
 		builderOptions = lib.optionals (config.nix.settings.builders != []) [
-			(if lib.any (builder: lib.hasPrefix "builder-linux" builder) cfg.builders then
-				"\n# the Linux builder VM has to be started manually on port 33022"
+			(if lib.any (builder: lib.hasInfix "localhost" builder) cfg.builders then
+				"\n# local builder VMs have to be started manually"
 			else
 				"")
 			"builders = ${lib.concatStringsSep " ; " cfg.builders}"

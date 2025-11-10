@@ -5,14 +5,14 @@
 	config = let
 
 		vmware-fusion-installer = let
-			version = "25H2";
+			marketingVersion = "25H2";
 		in pkgs.requireFile {
-			name = "VMware-Fusion-${version}-24995814_universal.dmg";
+			name = "VMware-Fusion-${marketingVersion}-24995814_universal.dmg";
 			url = "https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion&freeDownloads=true";
 			# nix hash convert --from base16 --hash-algo sha256 <hash in hex from website>
 			hash = "sha256-qZXr1v3tQbPy2ofv/2uGdNZon0yZd3KBDqGlwuvijA4=";
 		} // {
-			inherit version;
+			version = "25.0.0";
 			passthru.updateScript = ''
 				fusion=$(curl --silent https://techdocs.broadcom.com/us/en/vmware-cis/desktop-hypervisors.html | \
 					xmllint --html --xpath 'string(//*[text()="VMware Fusion Pro"]/following::a[1]/@href)' - 2> /dev/null)
@@ -20,8 +20,11 @@
 					xmllint --html --xpath 'string(//*[text()="Release Notes"]/following::span[1]/@href)' - 2> /dev/null)
 				version=$(curl --silent "https://techdocs.broadcom.com$relnotes" | \
 					xmllint --html --xpath 'substring-before(substring-after(//div[text()="Release Notes"]/following::a[1]//text(),"VMware Fusion ")," Release Notes")' - 2> /dev/null)
-				updateVersion version "$version"
-				if didUpdate ; then updateHash hash ${lib.fakeHash} ; fi
+				updateVersion marketingVersion "$version"
+				if didUpdate ; then
+					updateHash hash ${lib.fakeHash}
+					updateVersion version 0
+				fi
 			'';
 		};
 

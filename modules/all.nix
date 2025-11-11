@@ -53,12 +53,11 @@
 	"services" = ./environment/services.nix;
 
 	# security settings
+	"checks" = ./security/checks.nix;
 	"gatekeeper" = ./security/gatekeeper.nix;
-	"inject" = ./security/inject.nix;
 	"password" = ./security/password.nix;
 	"pki" = ./security/pki.nix;
 	"prefsec" = ./security/prefsec.nix;
-	"sip" = ./security/sip.nix;
 	"sudo" = ./security/sudo.nix;
 	"xprotect" = ./security/xprotect.nix;
 

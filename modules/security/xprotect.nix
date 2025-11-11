@@ -1,25 +1,25 @@
 { config, lib, pkgs, ... }: {
 
-	options.security = {
+	options.security.checks = {
 
-		checkXProtect = lib.mkEnableOption "checking for XProtect malware scanner";
+		XProtect = lib.mkEnableOption "checking for XProtect malware scanner";
 	};
 
 	config = {
 
-		security.checkXProtect = lib.mkDefault pkgs.stdenv.isDarwin;
+		security.checks.XProtect = lib.mkDefault pkgs.stdenv.isDarwin;
 
 		assertions = [{
-			assertion = ! config.security.checkXProtect || pkgs.stdenv.isDarwin;
-			message = "security.checkXProtect is only available on Darwin";
+			assertion = ! config.security.checks.XProtect || pkgs.stdenv.isDarwin;
+			message = "security.checks.XProtect is only available on Darwin";
 		}];
 
-		system.activationScripts.xprotect = ''
+		system.activationScripts.checks = ''
 			storeHeading -
 
-		'' + lib.optionalString config.security.checkXProtect ''
+		'' + lib.optionalString config.security.checks.XProtect ''
 			if xprotect status --json | grep -Fqw false ; then
-				printWarning 'XProtect malware scans are disabled'
+				printError 'XProtect malware scans are disabled'
 			fi
 		'';
 

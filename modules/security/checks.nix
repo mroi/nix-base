@@ -6,6 +6,12 @@
 		SSV = lib.mkEnableOption "checking for Signed System Volume";
 		injection = lib.mkEnableOption "checking for unwanted code injection";
 		execution = lib.mkEnableOption "checking for unwanted code execution";
+
+		known = lib.mkOption {
+			type = lib.types.listOf lib.types.str;
+			default = [];
+			description = "A list of known-good items for the code injection or code execution checks.";
+		};
 	};
 
 	config = let
@@ -25,6 +31,9 @@
 
 		system.activationScripts.checks = ''
 			storeHeading -
+
+			# shellcheck disable=SC2034
+			known="${lib.concatLines config.security.checks.known}"
 
 		'' + lib.optionalString config.security.checks.SIP ''
 			if ! csrutil status | head -n1 | grep -Fqw enabled ; then
@@ -51,10 +60,15 @@
 			# check plugin directories
 			while read -r dir ; do
 				plugins=$(find "$dir" -mindepth 1 -maxdepth 1 ! -name .localized 2> /dev/null || true)
-				if test "$plugins" ; then
-					printWarning 'Code injection point detected in plugin directory'
-					printInfo "$plugins"
-				fi
+				first=true
+				forPlugin() {
+					if ! hasLine "$known" "$1" ; then
+						if $first ; then printWarning 'Code injection point detected in plugin directory' ; fi
+						first=false
+						printInfo "$1"
+					fi
+				}
+				forLines "$plugins" forPlugin
 			done <<- EOF
 				$HOME/Library/Address Book Plug-Ins
 				$HOME/Library/Input Methods
@@ -68,9 +82,11 @@
 
 			# check preferences governing code execution
 			while read -r domain key ; do
-				if defaults read "$domain" "$key" > /dev/null 2>&1 ; then
-					printWarning 'Code execution point detected in preferences'
-					printInfo "$domain/$key"
+				if ! hasLine "$known" "$domain/$key" ; then
+					if defaults read "$domain" "$key" > /dev/null 2>&1 ; then
+						printWarning 'Code execution point detected in preferences'
+						printInfo "$domain/$key"
+					fi
 				fi
 			done <<- EOF
 				com.apple.FolderActions folderActions
@@ -79,17 +95,22 @@
 
 			# check login items
 			loginitems=/var/db/com.apple.xpc.launchd/loginitems.$(id -u).plist
-			if test -f "$loginitems" ; then
+			if test -f "$loginitems" && ! hasLine "$known" "$loginitems" ; then
 				printWarning 'Code execution point detected in login items'
 				printInfo "$loginitems"
 			fi
 
 			# check launch agents
 			agents=$(find "$HOME/Library/LaunchAgents" -mindepth 1 -maxdepth 1 2> /dev/null || true)
-			if test "$agents" ; then
-				printWarning 'Code execution point detected in launch agents'
-				printInfo "$agents"
-			fi
+			first=true
+			forAgents() {
+				if ! hasLine "$known" "$1" ; then
+					if $first ; then printWarning 'Code execution point detected in launch agents' ; fi
+					first=false
+					printInfo "$1"
+				fi
+			}
+			forLines "$agents" forAgents
 		'';
 	};
 }

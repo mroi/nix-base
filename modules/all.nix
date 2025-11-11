@@ -9,6 +9,7 @@
 	"distro" = ./system/distro.nix;
 	"drift" = ./system/drift.nix;
 	"files" = ./system/files.nix;
+	"nodepend" = ./system/nodepend.nix;
 	"nvram" = ./system/nvram.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;

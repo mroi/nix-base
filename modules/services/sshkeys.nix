@@ -30,7 +30,8 @@
 			if test "$SSH_AUTH_SOCK" ; then
 
 				# load all keys to the ssh agent with stored passwords
-				stored=$(ssh-add -c --apple-load-keychain 2>&1 | sed -n '/^Identity added:/{s/^Identity added: //;s/ (.*)$//;p;}')
+				stored=$(ssh-add -c --apple-load-keychain 2>&1 | \
+					sed -n '/^Identity added:/ { s/^Identity added: // ; s/ (.*)$// ; p ; }')
 
 				# ask and store password for keys that should be passwordless
 				${lib.concatLines (map keyScript config.services.openssh.passwordlessKeys)}

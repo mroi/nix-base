@@ -11,7 +11,7 @@
 
 		extensionTypes = lib.attrNames config.environment.extensions;
 		extensionTypeScript = type: ''
-			current="$(pluginkit --match --protocol ${type} | sed 's/  *//;s/(.*)$//')"
+			current="$(pluginkit --match --protocol ${type} | sed 's/  *// ; s/(.*)$//')"
 			${lib.concatLines (map (extensionEnableScript type) (extensionsToEnable type))}
 			${lib.concatLines (map (extensionDisableScript type) (extensionsToDisable type))}
 		'';

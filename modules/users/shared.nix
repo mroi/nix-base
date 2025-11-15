@@ -42,9 +42,8 @@
 			storeHeading -
 			# prompt the user to delete relocated items
 			if ls -d "${config.users.shared.folder}/"*Relocated\ Items* > /dev/null 2>&1 ; then
-				find "${config.users.shared.folder}/"*Relocated\ Items* > relocated 2> /dev/null || true
-				interactiveDeletes relocated 'These files got moved to ${config.users.shared.folder} by a macOS update.'
-				rm relocated
+				find "${config.users.shared.folder}/"*Relocated\ Items* 2> /dev/null | \
+					interactiveDeletes relocated 'These files got moved to ${config.users.shared.folder} by a macOS update.'
 			fi
 		'';
 

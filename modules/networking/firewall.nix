@@ -69,7 +69,7 @@
 			${settingScript cfg.stealth "stealthmode"}
 
 			current="$(${socketfilterfw} --listapps | \
-				sed -En '/^[0-9]* : /{s/ *$//;N;s/^.* : *(.*)\n.*(Allow|Block).*/\2 \1/;p;}')"
+				sed -En '/^[0-9]* : / { s/ *$// ; N ; s/^.* : *(.*)\n.*(Allow|Block).*/\2 \1/ ; p ; }')"
 			allow="${lib.concatLines cfg.allow}"
 			block="${lib.concatLines cfg.block}"
 

@@ -136,7 +136,7 @@
 						if test -f ${baseDir}/${configDir}/"$1" ; then
 							ln -s ${baseDir}/${configDir}/"$1" ${configDir}/
 							# symlink all includes within this file
-							sed -n '/^include /{s/^include //;p;}' ${configDir}/"$1" | while read -r include ; do
+							sed -n '/^include / { s/^include //; p; }' ${configDir}/"$1" | while read -r include ; do
 								symlinkRecursive "$include"
 							done
 						elif test "$1" = common.root ; then

@@ -229,9 +229,9 @@
 		'' + lib.optionalString (mode == "system") ''
 			# sync the system trust settings with available system root certs
 			systemRoots=$(security find-certificate -aZ /System/Library/Keychains/SystemRootCertificates.keychain | \
-				sed -n '/^SHA-1 hash: /{s/^SHA-1 hash: //;p;}' | sort)
+				sed -n '/^SHA-1 hash: / { s/^SHA-1 hash: // ; p ; }' | sort)
 			systemCerts=$(security find-certificate -aZ /Library/Keychains/System.keychain | \
-				sed -n '/^SHA-1 hash: /{s/^SHA-1 hash: //;p;}' | sort)
+				sed -n '/^SHA-1 hash: / { s/^SHA-1 hash: // ; p ; }' | sort)
 			config='${lib.concatLines (lib.attrNames config.security.pki.certificateTrust."${mode}")}'
 			for hash in $config ; do
 				if ! hasLine "$systemRoots" "$hash" && ! hasLine "$systemCerts" "$hash" ; then

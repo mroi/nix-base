@@ -297,7 +297,7 @@ makeVolume() {
 			_password=
 			if test -f "$keyStorage" ; then
 				if grep -qF "${keyVariable}=" "$keyStorage" ; then
-					_password=$(sed -nE "/${keyVariable}=/{s/^[^=]*=([^[:space:]#]*)/\1/;p;}" "$keyStorage")
+					_password=$(sed -nE "/${keyVariable}=/ { s/^[^=]*=([^[:space:]#]*)/\1/ ; p ; }" "$keyStorage")
 				else
 					echo "${keyVariable}=" >> "$keyStorage"
 				fi
@@ -307,7 +307,7 @@ makeVolume() {
 			fi
 			if test -z "$_password" ; then
 				_password=$(dd if=/dev/urandom bs=24 count=1 2> /dev/null | base64)
-				sed -i_ "/${keyVariable}=/{s|=.*|=${_password}|;}" "$keyStorage"
+				sed -i_ "/${keyVariable}=/ { s|=.*|=${_password}| ; }" "$keyStorage"
 				rm "${keyStorage}_"
 			fi
 		fi
@@ -749,7 +749,7 @@ interactiveDeletes() {
 		{
 			echo "# $2"
 			echo '# Files will be deleted unless lines are commented or removed.'
-			sort "$1" | sed "s/'/\\'/;s/^/rm -rf '/;s/$/'/"
+			sort "$1" | sed "s/'/\\'/ ; s/^/rm -rf '/ ; s/$/'/"
 		} > "$1.sh"
 		# shellcheck disable=SC2086
 		eval ${EDITOR:-vi} "$1.sh"

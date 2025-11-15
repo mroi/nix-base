@@ -8,7 +8,7 @@
 			tmpDir = "/tmp/rebuild-closure";
 			rebuildClosure = pkgs.runCommand "rebuild-closure" {} ''
 				# rewrite all store paths in the rebuild script
-				sed -E '\|${builtins.storeDir}/[[:alnum:]]{32}|s|${builtins.storeDir}/|${tmpDir}/|g' ${config.system.build.rebuild} > rebuild
+				sed -E '\|${builtins.storeDir}/[[:alnum:]]{32}| s|${builtins.storeDir}/|${tmpDir}/|g' ${config.system.build.rebuild} > rebuild
 				chmod a+x rebuild
 				tar --create --file=rebuild-closure.tar rebuild
 

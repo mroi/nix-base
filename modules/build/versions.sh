@@ -82,17 +82,17 @@ _updateEntry() {
 			"${self}#$UPDATE_NIX_ATTR_PATH")
 		_file=${self}/${_file#/*/}
 		# extract current value: first _match after the first line mentioning _trigger
-		_current=$(sed -n -E "/$_trigger/,\${
+		_current=$(sed -n -E "/$_trigger/,\$ {
 			s!.*\"($_match)\".*!\1!
 			t print
 			b
 			:print
-			p;q
+			p ; q
 		}" "$_file")
 		if test "$_current" != "$_value" ; then
 			printInfo "${UPDATE_NIX_ATTR_PATH##*.} $_type $_current -> $_value"
 			# replace first _match after the first line mentioning _trigger
-			sed -E -i_ "/$_trigger/,\${
+			sed -E -i_ "/$_trigger/,\$ {
 				s!\"$_match\"!\"$_value\"!
 				t loop
 				b

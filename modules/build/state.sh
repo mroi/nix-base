@@ -805,16 +805,33 @@ installPackage() {
 
 # interactive script editing
 
+interactiveCommands() {
+	if test -t 3 -a -t 4 ; then
+		if read -r first ; then
+			{
+				if test "$2" ; then echo "# $2" ; fi
+				if test "$3" ; then echo "# $3" ; fi
+				if test "$4" ; then echo "# $4" ; fi
+				echo "$first"
+				cat
+			} > "$1.sh"
+			# shellcheck disable=SC2086
+			eval ${EDITOR:-vi} "$1.sh" <&3 >&4
+			trace sudo sh "$1.sh" <&3 >&4
+			rm "$1.sh"
+		fi
+	else
+		# consume input to not cause upstream SIGPIPE termination
+		cat > /dev/null
+	fi
+}
+
 interactiveDeletes() {
-	if test -t 0 -a -s "$1" ; then
+	if read -r first ; then
 		{
-			echo "# $2"
-			echo '# Files will be deleted unless lines are commented or removed.'
-			sort "$1" | sed "s/'/\\'/ ; s/^/rm -rf '/ ; s/$/'/"
-		} > "$1.sh"
-		# shellcheck disable=SC2086
-		eval ${EDITOR:-vi} "$1.sh"
-		trace sudo sh "$1.sh"
-		rm "$1.sh"
+			echo "$first"
+			cat
+		} | sort | sed "s/'/'\"'\"'/ ; s/^/rm -rf '/ ; s/$/'/" | \
+			interactiveCommands "$1" "$2" 'Files will be deleted unless lines are commented or removed.'
 	fi
 }

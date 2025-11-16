@@ -73,5 +73,25 @@
 			storeHeading 'Updating side-loaded software'
 			${allBundlesScript "update"}
 		'';
+
+		system.cleanupScripts.files.text = let
+
+			collectBundle = bundle: ''
+				echo '${bundle.name}' | addSource bundle '${bundle.value.pkg.name}' \
+					"WHERE (path = '&' OR path GLOB '&/*') AND NOT path GLOB '*/.DS_Store'"
+			'';
+
+		in lib.mkAfter ''
+			{
+				echo 'BEGIN IMMEDIATE TRANSACTION;'
+				printInfo 'Collecting installed files: side-loaded software'
+				${lib.pipe config.environment.bundles [
+					lib.attrsToList
+					(map collectBundle)
+					lib.concatLines
+				]}
+				echo 'COMMIT TRANSACTION;'
+			} | runSQL
+		'';
 	};
 }

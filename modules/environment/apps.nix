@@ -112,5 +112,33 @@
 			'';
 			none = "";
 		});
+
+		system.cleanupScripts.files = lib.mkIf (config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.isDarwin)) {
+
+			text = lib.mkAfter (''
+				{
+					echo 'BEGIN IMMEDIATE TRANSACTION;'
+			'' + lib.optionalString pkgs.stdenv.isDarwin ''
+					printInfo 'Collecting installed files: Mac App Store'
+					mdfind 'kMDItemAppStoreAdamID > 0' | while read -r app ; do
+						appid=$(mdls -attr kMDItemAppStoreAdamID -raw "$app")
+						echo "$app" | addSource macappstore "$appid" \
+							"WHERE (path = '&' OR path GLOB '&/*') AND NOT path GLOB '*/.DS_Store'"
+					done
+			'' + lib.optionalString (config.environment.flatpak == "system") ''
+					printInfo 'Collecting installed files: Flatpak'
+					flatpak list --all --system --columns=ref | while read -r ref ; do
+						path=$(flatpak info --show-location "$ref")
+						echo "$path" | addSource flatpak "$ref" \
+							"WHERE path GLOB '&/*'"
+						# also mark all path prefixes as installed by this flatpak
+						while test "$path" ; do echo "$path" ; path=''${path%/*} ; done | addSource flatpak "$ref" \
+							"WHERE path = '&'"
+					done
+			'' + ''
+					echo 'COMMIT TRANSACTION;'
+				} | runSQL
+			'');
+		};
 	};
 }

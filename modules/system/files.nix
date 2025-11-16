@@ -13,7 +13,16 @@
 
 			{
 				echo 'BEGIN IMMEDIATE TRANSACTION;'
-				echo 'CREATE TABLE files (path TEXT PRIMARY KEY);'
+				echo 'CREATE TABLE sources ('
+				echo '    source INTEGER PRIMARY KEY,'
+				echo '    system TEXT,'
+				echo '    name TEXT'
+				echo ');'
+				echo 'CREATE TABLE files ('
+				echo '    path TEXT PRIMARY KEY,'
+				echo '    source INTEGER,'
+				echo '    FOREIGN KEY (source) REFERENCES sources (id)'
+				echo ');'
 
 				{
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
@@ -65,6 +74,13 @@
 				echo 'COMMIT TRANSACTION;'
 
 			} | runSQL
+
+			# other NixOS modules will amend this cleanup script by marking files with install sources
+			# usage: <command listing files> | addSource <package system> <package name> <SQL WHERE clause>
+			addSource() {
+				echo "INSERT OR IGNORE INTO sources (system, name) VALUES ('$1', '$2');"
+				sed "s/'/'''/g ; s|.*|UPDATE files SET source = (SELECT source FROM sources WHERE system = '$1' AND name = '$2') $3;|"
+			}
 		'');
 	};
 }

@@ -6,7 +6,7 @@
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "fish"
 				"gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama" "outlookmsg"
-				"run-linux" "texlive" "unison" "veusz" "vmware-vmx"
+				"run-linux" "texlive" "unison" "veusz" "vice" "vmware-vmx"
 			];
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "fish" "gitup"

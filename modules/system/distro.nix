@@ -22,6 +22,19 @@
 
 		(lib.mkIf (config.system.distribution == "elementaryOS") {
 
+			system.packages = lib.mkIf config.system.systemwideSetup ([
+				{ name = "elementary-minimal"; includeRecommends = true; }
+				{ name = "elementary-standard"; includeRecommends = true; }
+				{ name = "elementary-desktop"; includeRecommends = true; }
+				{ name = "linux-image-generic-hwe-24.04"; includeRecommends = true; }
+				"bsdutils" "diffutils" "findutils" "util-linux"
+				"dash" "grep" "gzip" "hostname" "login" "ncurses-base" "ncurses-bin"
+			] ++ lib.optionals pkgs.stdenv.isx86_64 [
+				"grub-pc"
+			] ++ lib.optionals pkgs.stdenv.isAarch64 [
+				"grub-efi-arm64"
+			]);
+
 			environment.apps = lib.mkIf (config.environment.flatpak == "system") [
 				"io.elementary.calculator"
 				"io.elementary.camera"

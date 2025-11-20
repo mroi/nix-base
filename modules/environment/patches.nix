@@ -34,7 +34,7 @@
 		patchApplyScript = patch: let staged = "${patchStaging}/${patch.name}"; in ''
 			if test -f "${staged}" && ! cmp --quiet "${patch.file}" "${staged}" ; then
 				# revert previous patch
-				rootPatch=~root/patches/"${patch.name}"
+				rootPatch=${config.users.root.home}/patches/"${patch.name}"
 				trace sudo patch --strip 0 --directory / --reverse --input "$rootPatch"
 				rm "${staged}"
 			fi
@@ -85,7 +85,7 @@
 			fi
 		'';
 		patchRevertScript = patch: ''
-			rootPatch=~root/patches/"$(basename "${patch}")"
+			rootPatch=${config.users.root.home}/patches/"$(basename "${patch}")"
 			trace sudo patch --strip 0 --directory / --reverse --input "$rootPatch"
 			trace sudo rm "$rootPatch"
 			# remove from staging and possibly remove entire directory

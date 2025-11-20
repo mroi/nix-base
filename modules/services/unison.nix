@@ -50,7 +50,7 @@
 			(lib.optionalString cfg.intercept "LD_PRELOAD=~/${configDir}/libintercept.so " +
 				"exec ~/.nix/profile/bin/unison \"$@\"")
 		] ++ lib.optionals pkgs.stdenv.isDarwin [
-			"export HOME=/private/var/root"
+			"export HOME=${config.users.root.home}"
 			"cd $HOME/${binDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
 		]));

@@ -1,4 +1,4 @@
-{ config, lib, options, ... }: {
+{ config, lib, pkgs, options, ... }: {
 
 	options.users.root = {
 
@@ -6,6 +6,14 @@
 			type = lib.types.nullOr lib.types.str;
 			default = "\${XDG_STATE_HOME:-$HOME/${config.users.stateDir}}/rebuild";
 			description = "Files for the root account are staged in this directory to check for changes that need to be copied into root’s home.";
+		};
+		home = lib.mkOption {
+			type = lib.types.path;
+			default = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = "/root";
+				Darwin = "/private/var/root";
+			};
+			description = "Absolute physical path of root’s home directory.";
 		};
 		syncCommand = lib.mkOption {
 			type = lib.types.str;

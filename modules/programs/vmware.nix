@@ -50,5 +50,13 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf config.programs.vmware.enable [
+			"/private/var/run/VMware Fusion Services.lock"
+			"/private/var/run/VMware Fusion Services.sock"
+			"/private/var/run/vmware"
+			"/private/var/run/vmware/*"
+			"/usr/libexec/cups/filter/thnucups"
+		];
 	};
 }

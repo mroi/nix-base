@@ -96,5 +96,10 @@
 		environment.patches = lib.mkIf pkgs.stdenv.isLinux [
 			./hooks-lightdm.patch
 		];
+
+		system.files.known = [
+			"${config.users.root.home}/login-hook.sh"
+			"${config.users.root.home}/logout-hook.sh"
+		];
 	};
 }

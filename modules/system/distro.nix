@@ -48,5 +48,18 @@
 				"org.gnome.font-viewer"
 			];
 		})
+
+		(lib.mkIf (config.system.distribution == "macOS") {
+
+			system.files.known = [
+				"/Volumes/*"
+				"/private/var/root/Library/*"
+				"/private/var/rpc/*"
+				"/private/var/run/*"
+				"/private/var/sntpd/state.bin"
+				"/private/var/spool/cups/cache/*"
+				"/private/var/spool/postfix/*"
+			];
+		})
 	];
 }

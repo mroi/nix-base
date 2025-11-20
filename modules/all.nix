@@ -13,6 +13,7 @@
 	"nvram" = ./system/nvram.nix;
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
+	"unknown" = ./system/unknown.nix;
 	"updates" = ./system/updates.nix;
 
 	# Nix setup

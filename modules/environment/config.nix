@@ -151,5 +151,10 @@
 
 		# not strictly needed within the root folder, but setups may sync the files anyway
 		system.activationScripts.root.deps = [ "config" ];
+
+		system.files.known = [
+			"/Library/Managed Preferences"
+			"/Library/Managed Preferences/*"
+		];
 	};
 }

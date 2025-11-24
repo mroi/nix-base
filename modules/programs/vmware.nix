@@ -50,5 +50,17 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf config.programs.vmware.enable [
+			"/Library/Application Support/VMware"
+			"/Library/Application Support/VMware/*"
+			"/private/etc/cups/thnuclnt.convs"
+			"/private/etc/cups/thnuclnt.types"
+			"/private/etc/paths.d/com.vmware.fusion.public"
+			"/private/var/db/vmware"
+			"/private/var/db/vmware/*"
+			"/private/var/log/vnetlib"
+			"/usr/libexec/cups/filter/thnucups"
+		];
 	};
 }

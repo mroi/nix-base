@@ -13,6 +13,18 @@
 
 		knownFiles = pkgs.writeText "files-known" (lib.concatLines config.system.files.known);
 
+		# files configured as known, but where it is OK if they do not exist
+		notExistOk = pkgs.writeText "files-notexist" (lib.concatLines (lib.optionals pkgs.stdenv.isDarwin [
+			"/Users/Guest"
+			"/Users/Guest/*"
+			"/Volumes/*"
+			"/private/var/vm/sleepimage"
+			"/nonexistent"
+			"/nonexistent/*"
+			"/var/empty"
+			"/var/empty/*"
+		]));
+
 	in lib.mkIf condition {
 
 		system.cleanupScripts.unknown = lib.stringAfter [ "files" ] ''
@@ -50,7 +62,7 @@
 				case "$1" in
 					known) cat ${knownFiles} ;;
 				esac | sort | sed "s/'/'''/g ; s/.*/SELECT '&' WHERE NOT EXISTS (SELECT * FROM files WHERE path GLOB '&');/" | \
-					runSQL | if read -r first ; then
+					runSQL | grep -Fvx --file=${notExistOk} | if read -r first ; then
 						printWarning "Files listed as $1 do not exist:"
 						echo "$first" >&2
 						cat >&2

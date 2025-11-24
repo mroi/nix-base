@@ -66,5 +66,13 @@
 			${lib.concatLines (map deleteUserScript usersToDelete)}
 			${lib.concatLines (map createUserScript usersToCreate)}
 		'';
+
+		system.files.known = lib.pipe config.users.users [
+			# add all files under user home directories as known
+			lib.attrValues
+			(map (x: x.home))
+			(lib.concatMap (x: [ x (x + "/*") ]))
+			lib.unique
+		];
 	};
 }

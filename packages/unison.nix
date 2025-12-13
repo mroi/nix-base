@@ -30,17 +30,27 @@ let
 		__noChroot = true;
 		nativeBuildInputs = [ ocaml' xcode ];
 		patches = writeText "unison-fixes.patch" ''
-			--- a/src/Makefile.OCaml
-			+++ b/src/Makefile.OCaml
-			@@ -316,7 +316,7 @@
-			 	$(CC) $(CFLAGS) $(UIMACDIR)/cltool.c -o $(UIMACDIR)/build/Default/Unison.app/Contents/MacOS/cltool -framework Carbon
-			 	codesign --remove-signature $(UIMACDIR)/build/Default/Unison.app
-			 	codesign --force --sign - $(UIMACDIR)/build/Default/Unison.app/Contents/MacOS/cltool
-			-	codesign --force --sign - --entitlements $(UIMACDIR)/build/uimac*.build/Default/uimac.build/Unison.app.xcent $(UIMACDIR)/build/Default/Unison.app
-			+	codesign --force --sign - --entitlements $(NIX_BUILD_TOP)/DerivedData/Build/Intermediates.noindex/uimac*.build/Default/uimac.build/Unison.app.xcent $(UIMACDIR)/build/Default/Unison.app
-			 	codesign --verify --deep --strict $(UIMACDIR)/build/Default/Unison.app
+			--- a/src/uimac/Makefile
+			+++ b/src/uimac/Makefile
+			@@ -14,7 +14,7 @@
+			 	$(CC) $(CFLAGS) cltool.c -o build/Default/Unison.app/Contents/MacOS/cltool -framework Carbon
+			 	codesign --remove-signature build/Default/Unison.app
+			 	codesign --force --sign - build/Default/Unison.app/Contents/MacOS/cltool
+			-	codesign --force --sign - --entitlements build/uimac*.build/Default/uimac.build/Unison.app.xcent build/Default/Unison.app
+			+	codesign --force --sign - --entitlements $(NIX_BUILD_TOP)/DerivedData/Build/Intermediates.noindex/uimac*.build/Default/uimac.build/Unison.app.xcent build/Default/Unison.app
+			 	codesign --verify --deep --strict build/Default/Unison.app
 			 # cltool was added into the .app after it was signed, so the signature is now
 			 # broken. It must be removed, cltool separately signed, and then the entire
+			--- a/src/uimac/Info.plist
+			+++ b/src/uimac/Info.plist
+			@@ -26,5 +26,7 @@
+			 	<string>MainMenu</string>
+			 	<key>NSPrincipalClass</key>
+			 	<string>NSApplication</string>
+			+	<key>UIDesignRequiresCompatibility</key>
+			+	<true/>
+			 </dict>
+			 </plist>
 		'';
 		postPatch = ''
 			cp ${./unison.icns} src/uimac/Unison.icns
@@ -97,9 +107,9 @@ let
 		src = fetchFromGitHub {
 			owner = "mroi";
 			repo = "unison-intercept";
-			rev = "0bad2ed69c59b68313791be69d890db3c0eea4cf";
+			rev = "6247b870398b205de2ea16cb6649e3a5cf5a126c";
 			fetchSubmodules = true;
-			hash = "sha256-fTRVmZfJgMitq3n2txF3VaZc/3de18nRsOR3M9g1i/U=";
+			hash = "sha256-lqXmIAkyV6o6Ov3tO3LNio8jBZvUy6pVKtkDiaky0AY=";
 		};
 		__noChroot = stdenv.isDarwin;
 		nativeBuildInputs = lib.getAttr stdenv.hostPlatform.uname.system {

@@ -2,7 +2,7 @@
 # in addition, use XDG_STATE_DIR for fish state files and generated completions
 { lib, path, stdenv, rustPlatform,
 	cargo, cmake, coreutils, darwin, fetchFromGitHub, fishPlugins, gawk, getent, gettext,
-	glibcLocales, gnugrep, gnused, groff, libiconv, man-db, ncurses, ninja, nixosTests,
+	glibcLocales, gnugrep, gnused, libiconv, man-db, ncurses, ninja, nixosTests,
 	nix-update-script, pcre2, pkg-config, procps, python3, runCommand, rustc, sphinx,
 	versionCheckHook, writableTmpDirAsHomeHook, writeText
 }:
@@ -11,7 +11,7 @@ let
 	fish = import "${path}/pkgs/by-name/fi/fish/package.nix" {
 		# will cause errors if derivation inputs change
 		inherit cargo cmake coreutils darwin fishPlugins gawk getent gettext
-			glibcLocales gnugrep gnused groff lib libiconv man-db ncurses ninja nixosTests
+			glibcLocales gnugrep gnused lib libiconv man-db ncurses ninja nixosTests
 			nix-update-script pcre2 pkg-config procps python3 runCommand rustc sphinx
 			versionCheckHook writableTmpDirAsHomeHook writeText;
 		# passthrough functions for argument inspection
@@ -38,7 +38,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-oNRC1NWYE0LEK2a/7nHtlmp20f8hn/1FZgaySqzwSbg=";
+			expected = "sha256-BUtHMx44efWTiS6heCUqONxngLwUCBOoDQqxoCj189U=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
 				"curl -L https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x ; nix hash path ${fish.src.repo}-${fish.src.tag} ; rm -rf ${fish.src.repo}-${fish.src.tag} ; echo");
@@ -47,7 +47,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-7mYWCHH6DBWTIJV8GPRjjf6QulwlYjwv0slablDvBF8=";
+			expected = "sha256-00Ch1EcX4cxMwvuDQLzTUIY7XkE3WX8bXBUA3yMRAMI=";
 			actual = fish.cargoDeps.hash;
 			error = "cargo deps hash changed:";
 		};
@@ -69,7 +69,7 @@ in stdenv.mkDerivation {
 		error = "buildInputs changed:";
 	};
 	propagatedBuildInputs = expect {
-		expected = [ coreutils gnugrep gnused groff gettext ] ++ lib.optional (!stdenv.isDarwin) man-db;
+		expected = [ coreutils gnugrep gnused gettext ] ++ lib.optional (!stdenv.isDarwin) man-db;
 		actual = fish.propagatedBuildInputs;
 		error = "propagatedBuildInputs changed:";
 	};

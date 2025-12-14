@@ -98,7 +98,7 @@
 			${config.system.cleanupScripts.timemachine}
 		'');
 
-		system.cleanupScripts.timemachine = ''
+		system.cleanupScripts.timemachine = lib.mkIf pkgs.stdenv.isDarwin ''
 			storeHeading 'Checking Time Machine backup'
 
 			lastBackups="$(/usr/libexec/PlistBuddy -x -c 'Print :Destinations' /Library/Preferences/com.apple.TimeMachine.plist 2> /dev/null | \

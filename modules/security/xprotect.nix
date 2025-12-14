@@ -23,7 +23,7 @@
 			fi
 		'';
 
-		system.updateScripts.xprotect = ''
+		system.updateScripts.xprotect = lib.mkIf pkgs.stdenv.isDarwin ''
 			storeHeading -
 			trace sudo xprotect update
 		'';

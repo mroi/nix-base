@@ -13,7 +13,7 @@
 				tar --create --file=rebuild-closure.tar rebuild
 
 				# collect the Nix files used by the rebuild script and append to the tar
-				grep -E --only-matching '${builtins.storeDir}/[[:alnum:]._-]+' ${config.system.build.rebuild} | sort | uniq | while read -r store ; do
+				grep -E --only-matching '${builtins.storeDir}/[[:alnum:]._+-]+' ${config.system.build.rebuild} | sort | uniq | while read -r store ; do
 					# remove the Nix store dir prefix
 					echo "''${store#${builtins.storeDir}/}"
 				done | tar --append --file=rebuild-closure.tar --directory=${builtins.storeDir} --files-from=-

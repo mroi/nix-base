@@ -6,7 +6,7 @@ fetchzip rec {
 	version = "1.4.3";
 
 	url = "https://github.com/git-up/GitUp/releases/download/v${version}/GitUp.zip";
-	hash  = "sha256-aBS6X1pS8WuJa9ollYCV1Mp58gnJMYD/uBP0sBilEb0=";
+	hash = "sha256-aBS6X1pS8WuJa9ollYCV1Mp58gnJMYD/uBP0sBilEb0=";
 	stripRoot = false;
 
 	postFetch = ''

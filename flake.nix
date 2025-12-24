@@ -5,13 +5,13 @@
 		packages = {
 			aarch64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "blender" "builder-linux" "dash" "doom"
-				"fish" "gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama"
+				"doom3" "fish" "gitup" "hires" "imageoptim" "inkscape" "lyx" "nix" "ollama"
 				"outlookmsg" "run-linux" "texlive" "unison" "veusz" "vice" "vmware-vmx"
 			];
 			x86_64-darwin = [
-				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "doom" "fish"
-				"gitup" "hires" "imageoptim" "lyx" "nix" "ollama" "outlookmsg" "run-linux"
-				"texlive" "unison" "veusz" "vmware-vmx"
+				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "doom" "doom3"
+				"fish" "gitup" "hires" "imageoptim" "lyx" "nix" "ollama" "outlookmsg"
+				"run-linux" "texlive" "unison" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
 				"bitwarden-decrypt" "fish" "nix" "ollama" "outlookmsg" "texlive" "unison"

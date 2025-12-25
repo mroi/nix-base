@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "vice";
-	version = "3.9";
+	version = "3.10";
 
 	src = fetchurl {
 		url = "mirror://sourceforge/vice-emu/${pname}-arm64-gtk3-${version}.dmg";
-		hash  = "sha256-AvbaHIs33n63jvCC8sAL4KFe5M2/lYFBmxKoeaRGLkU=";
+		hash  = "sha256-YXB+t+XSmTmDMucDLjm42ZnpUZFpfg1CrlP5RH+0IOQ=";
 	};
 
 	nativeBuildInputs = [ undmg ];

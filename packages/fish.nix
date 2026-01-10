@@ -19,8 +19,11 @@ let
 		fetchFromGitHub = x: (fetchFromGitHub x) // x;
 		rustPlatform = rustPlatform // { fetchCargoVendor = x: (rustPlatform.fetchCargoVendor x) // x; };
 	};
-	expect = { expected, actual, error }:
-		if actual == expected then actual else throw ("fish " + error + " " + toString actual);
+	expect = { expected, actual, message, fixup ? null }: let
+		printFixup = builtins.trace ("<fixup>" + fixup + "</fixup>");
+		wrapper = if fixup != null then printFixup else lib.id;
+		error = "fish " + message + ": " + toString actual;
+	in if actual == expected then actual else wrapper throw error;
 
 in stdenv.mkDerivation {
 	pname = fish.pname;
@@ -29,19 +32,24 @@ in stdenv.mkDerivation {
 		owner = expect {
 			expected = "fish-shell";
 			actual = fish.src.owner;
-			error = "source owner changed:";
+			message = "source owner changed";
 		};
 		repo = expect {
 			expected = "fish-shell";
 			actual = fish.src.repo;
-			error = "source repo changed:";
+			message = "source repo changed";
 		};
 		tag = fish.version;
 		hash = expect {
 			expected = "sha256-mAEsqAXwge5FUuYD4yge7TfwrmAyhpzjrbjPOoQKQDo=";
 			actual = fish.src.hash;
-			error = ("source sha256 changed, please run and compare:\n" +
-				"curl -L https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x ; nix hash path ${fish.src.repo}-${fish.src.tag} ; rm -rf ${fish.src.repo}-${fish.src.tag} ; echo");
+			message = "source sha256 changed";
+			fixup = ''
+				curl --silent --location https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x
+				hash=$(nix hash path ${fish.src.repo}-${fish.src.tag})
+				if test "$hash" = ${fish.src.hash} ; then updateHash hash "$hash" ; fi
+				rm -rf ${fish.src.repo}-${fish.src.tag}
+			'';
 		};
 	};
 	cargoDeps = rustPlatform.fetchCargoVendor {
@@ -49,29 +57,33 @@ in stdenv.mkDerivation {
 		hash = expect {
 			expected = "sha256-fwERCvGfBOXlVFHQl6moZV8kNmHA7N/PkS3eDaLKPkA=";
 			actual = fish.cargoDeps.hash;
-			error = "cargo deps hash changed:";
+			message = "cargo deps hash changed";
+			fixup = ''
+				# TODO: find a way to verify the cargo dependencies
+				updateHash cargoDeps ${fish.cargoDeps.hash}
+			'';
 		};
 	};
 	outputs = expect {
 		expected = [ "out" "doc" ];
 		actual = fish.outputs;
-		error = "outputs changed:";
+		message = "outputs changed";
 	};
 
 	nativeBuildInputs = expect {
 		expected = [ cargo cmake gettext ninja pkg-config rustc rustPlatform.cargoSetupHook writableTmpDirAsHomeHook ];
 		actual = fish.nativeBuildInputs;
-		error = "nativeBuildInputs changed:";
+		message = "nativeBuildInputs changed";
 	};
 	buildInputs = expect {
 		expected = [ libiconv pcre2 ];
 		actual = fish.buildInputs;
-		error = "buildInputs changed:";
+		message = "buildInputs changed";
 	};
 	propagatedBuildInputs = expect {
 		expected = [ coreutils gnugrep gnused gettext ] ++ lib.optional (!stdenv.isDarwin) man-db;
 		actual = fish.propagatedBuildInputs;
-		error = "propagatedBuildInputs changed:";
+		message = "propagatedBuildInputs changed";
 	};
 
 	patches = writeText "fish-fix-xdg.patch" ''
@@ -124,7 +136,7 @@ in stdenv.mkDerivation {
 	preConfigure = expect {
 		expected = "patchShebangs ./build_tools/git_version_gen.sh\npatchShebangs ./tests/test_driver.py\n";
 		actual = fish.preConfigure;
-		error = "preConfigure changed:";
+		message = "preConfigure changed";
 	};
 	cmakeFlags = expect {
 		expected = [
@@ -132,9 +144,31 @@ in stdenv.mkDerivation {
 			"-DRust_CARGO_TARGET:STRING=${stdenv.hostPlatform.rust.rustcTarget}"
 		] ++ lib.optionals stdenv.isDarwin [ "-DMAC_CODESIGN_ID:BOOL=FALSE" ];
 		actual = fish.cmakeFlags;
-		error = "cmakeFlags changed:";
+		message = "cmakeFlags changed";
 	};
 	env = { FISH_BUILD_VERSION = fish.version; };
 
 	meta = fish.meta;
+
+	passthru.updateScript = ''
+		while true ; do
+			output="$(nix eval --quiet --no-warn-dirty "''${self}#$UPDATE_NIX_ATTR_PATH" 2>&1)"
+			case "$output" in
+				*derivation*)
+					printInfo 'evaluation successful'
+					break 2
+					;;
+				*fixup*)
+					# run fixup command
+					fixup="''${output#*<fixup>}"
+					fixup="''${fixup%</fixup>*}"
+					eval "$fixup"
+					;;
+				*)
+					fatalError "$status"
+					break 2
+					;;
+			esac
+		done
+	'';
 }

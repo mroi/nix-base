@@ -59,7 +59,7 @@ runAllUpdates() {
 nixUpdate() {
 	_pwd=$PWD
 	cd "$self" || exit
-	NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
+	NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
 		/^fetch /Ip
 		/^update /Ip
 		/^no changes /Ip

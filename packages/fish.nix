@@ -38,7 +38,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-BUtHMx44efWTiS6heCUqONxngLwUCBOoDQqxoCj189U=";
+			expected = "sha256-mAEsqAXwge5FUuYD4yge7TfwrmAyhpzjrbjPOoQKQDo=";
 			actual = fish.src.hash;
 			error = ("source sha256 changed, please run and compare:\n" +
 				"curl -L https://github.com/${fish.src.owner}/${fish.src.repo}/archive/refs/tags/${fish.src.tag}.tar.gz | tar x ; nix hash path ${fish.src.repo}-${fish.src.tag} ; rm -rf ${fish.src.repo}-${fish.src.tag} ; echo");
@@ -47,7 +47,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-00Ch1EcX4cxMwvuDQLzTUIY7XkE3WX8bXBUA3yMRAMI=";
+			expected = "sha256-fwERCvGfBOXlVFHQl6moZV8kNmHA7N/PkS3eDaLKPkA=";
 			actual = fish.cargoDeps.hash;
 			error = "cargo deps hash changed:";
 		};
@@ -75,9 +75,9 @@ in stdenv.mkDerivation {
 	};
 
 	patches = writeText "fish-fix-xdg.patch" ''
-		--- fish-shell/src/path.rs	2025-03-18 21:23:26
-		+++ fish-shell/src/path.rs	2025-03-18 21:24:22
-		@@ -94,7 +94,7 @@
+		--- fish-shell/src/path.rs
+		+++ fish-shell/src/path.rs
+		@@ -93,7 +93,7 @@
 		             L!("data"),
 		             wgettext!("can not save history"),
 		             data.used_xdg,
@@ -86,25 +86,25 @@ in stdenv.mkDerivation {
 		             &data.path,
 		             data.err,
 		             vars,
-		@@ -769,13 +769,13 @@
+		@@ -730,13 +730,13 @@
 		 
 		 fn get_data_directory() -> &'static BaseDirectory {
-		     static DIR: Lazy<BaseDirectory> =
-		-        Lazy::new(|| make_base_directory(L!("XDG_DATA_HOME"), L!("/.local/share/fish")));
-		+        Lazy::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
+		     static DIR: LazyLock<BaseDirectory> =
+		-        LazyLock::new(|| make_base_directory(L!("XDG_DATA_HOME"), L!("/.local/share/fish")));
+		+        LazyLock::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
 		     &DIR
 		 }
 		 
 		 fn get_cache_directory() -> &'static BaseDirectory {
-		     static DIR: Lazy<BaseDirectory> =
-		-        Lazy::new(|| make_base_directory(L!("XDG_CACHE_HOME"), L!("/.cache/fish")));
-		+        Lazy::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
+		     static DIR: LazyLock<BaseDirectory> =
+		-        LazyLock::new(|| make_base_directory(L!("XDG_CACHE_HOME"), L!("/.cache/fish")));
+		+        LazyLock::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
 		     &DIR
 		 }
 		 
-		--- fish-shell/share/tools/create_manpage_completions.py	2025-03-18 22:35:42
-		+++ fish-shell/share/tools/create_manpage_completions.py	2025-03-18 22:37:10
-		@@ -1136,11 +1136,11 @@
+		--- fish-shell/share/tools/create_manpage_completions.py
+		+++ fish-shell/share/tools/create_manpage_completions.py
+		@@ -2207,11 +2207,11 @@
 		         sys.exit(0)
 		 
 		     if not args.stdout and not args.directory:

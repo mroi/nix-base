@@ -60,7 +60,7 @@
 		}];
 
 		system.activationScripts.firewall = lib.mkIf cfg.enable (lib.stringAfter [ "apps"] ''
-			storeHeading Configuring the application firewall
+			storeHeading 'Configuring the application firewall'
 
 			${settingScript cfg.enable "globalstate"}
 			${settingScript cfg.blockAll "blockall"}

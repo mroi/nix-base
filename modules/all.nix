@@ -37,6 +37,7 @@
 	# network setup
 	"firewall" = ./networking/firewall.nix;
 	"hostname" = ./networking/hostname.nix;
+	"interfaces" = ./networking/interfaces.nix;
 
 	# timekeeping setup
 	"timezone" = ./time/timezone.nix;

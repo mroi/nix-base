@@ -95,6 +95,10 @@ _sudoColor=$(if $_hasColorStdout ; then tput setaf 5 ; fi)
 _resetStdout=$(if $_hasColorStdout ; then tput sgr0 ; fi)
 _resetStderr=$(if $_hasColorStderr ; then tput sgr0 ; fi)
 
+# keep original stdin and stdout to access during redirects
+exec 3<&0
+exec 4>&1
+
 storeHeading() {
 	# heading will only be printed if any other output is generated
 	_heading=$*
@@ -102,16 +106,16 @@ storeHeading() {
 flushHeading() {
 	# actually print heading
 	if test "$_heading" ; then
-		echo
+		echo >&4
 		if test "$_heading" != - ; then
-			echo "$_headingColor$_heading$_resetStdout"
+			echo "$_headingColor$_heading$_resetStdout" >&4
 		fi
 		unset _heading
 	fi
 }
 printSubheading() {
 	flushHeading
-	echo "$_underline$*$_resetStdout"
+	echo "$_underline$*$_resetStdout" >&4
 }
 printError() {
 	flushHeading
@@ -131,7 +135,7 @@ printDiff() {
 		_length=$(diff -u "$1" "$2" 2> /dev/null | sed 51q | wc -l)
 		if test "$_length" -gt 3 -a "$_length" -lt 51 ; then
 			flushHeading
-			diff -u --color=auto "$1" "$2" || true
+			diff -u --color=auto "$1" "$2" >&4 || true
 		fi
 	fi
 }
@@ -139,12 +143,12 @@ trace() {
 	flushHeading
 	if test "$1" = sudo ; then
 		shift
-		printf %s "$_traceColor>$_resetStdout$_sudoColor sudo$_resetStdout $_traceColor$*$_resetStdout"
-		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi
+		printf %s "$_traceColor>$_resetStdout$_sudoColor sudo$_resetStdout $_traceColor$*$_resetStdout" >&4
+		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi >&4
 		sudo "$@"
 	else
-		printf %s "$_traceColor> $*$_resetStdout"
-		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi
+		printf %s "$_traceColor> $*$_resetStdout" >&4
+		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi >&4
 		"$@"
 	fi
 }

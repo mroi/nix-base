@@ -34,6 +34,8 @@
 		system.activationScripts.staging = ''
 			storeHeading -
 
+			requireCommands activate-root
+
 			# set permissions
 			if $isLinux ; then rootPerm=700 ; fi
 			if $isDarwin ; then rootPerm=750 ; fi
@@ -60,6 +62,8 @@
 
 		system.activationScripts.root = lib.stringAfter [ "staging" ] ''
 			storeHeading "Updating files in root’s home directory"
+
+			requireCommands activate-staging
 
 			rootStagingChecksumAfter=$(
 				find "${config.users.root.stagingDirectory}" -print0 | \

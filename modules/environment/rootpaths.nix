@@ -25,10 +25,12 @@
 			makeLink 755 "${profilePath path}" "${path}"
 		'';
 
-	in lib.mkIf (config.environment.rootPaths != []) {
+	in lib.mkIf (config.users.root.stagingDirectory != null && config.environment.rootPaths != []) {
 
 		system.activationScripts.rootpaths = lib.stringAfter [ "nix" "staging" ] ''
 			storeHeading 'Updating Nix profile paths for the root user'
+
+			requireCommands activate-staging activate-root
 
 			# add all requested paths
 			makeDir 700 "${config.users.root.stagingDirectory}/.nix"

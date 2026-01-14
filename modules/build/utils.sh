@@ -11,6 +11,14 @@ checkArgs() {
 	return 1
 }
 
+requireCommands() {
+	for _arg in "$@" ; do
+		if ! checkArgs "$_arg" "${_arg%%-*}" all ; then
+			fatalError "Command required to proceed: $_arg"
+		fi
+	done
+}
+
 # help printing mode
 
 if checkArgs --help -h ; then

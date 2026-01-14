@@ -93,7 +93,7 @@
 			rmdir "${patchStaging}" 2> /dev/null || true
 		'';
 
-	in lib.mkIf (config.environment.patches != []) {
+	in lib.mkIf (config.users.root.stagingDirectory != null && config.environment.patches != []) {
 
 		assertions = [{
 			assertion = lib.allUnique patchNames;
@@ -102,6 +102,8 @@
 
 		system.activationScripts.patches = lib.stringAfter [ "staging" "packages" ] ''
 			storeHeading 'Managing patches for system files'
+
+			requireCommands activate-staging activate-root
 
 			patches="${lib.concatLines patchNames}"
 

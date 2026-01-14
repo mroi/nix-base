@@ -132,11 +132,11 @@ trace() {
 	if test "$1" = sudo ; then
 		shift
 		printf %s "$_traceColor>$_resetStdout$_sudoColor sudo$_resetStdout $_traceColor$*$_resetStdout"
-		if checkArgs -i --interactive ; then read -r _ < /dev/tty ; else echo ; fi
+		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi
 		sudo "$@"
 	else
 		printf %s "$_traceColor> $*$_resetStdout"
-		if checkArgs -i --interactive ; then read -r _ < /dev/tty ; else echo ; fi
+		if checkArgs --interactive -i ; then read -r _ < /dev/tty ; else echo ; fi
 		"$@"
 	fi
 }

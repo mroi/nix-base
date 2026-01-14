@@ -54,7 +54,7 @@
 	in lib.mkIf (config.environment.bundles != {}) {
 
 		assertions = [{
-			assertion = config.environment.bundles == {} || pkgs.stdenv.isDarwin;
+			assertion = config.environment.bundles != {} -> pkgs.stdenv.isDarwin;
 			message = "Bundle installation is only available on Darwin";
 		} {
 			assertion = lib.all (lib.hasPrefix "/") (lib.attrNames config.environment.bundles);

@@ -69,7 +69,7 @@
 	in lib.mkIf cfg.enable {
 
 		assertions = [{
-			assertion = config.users.shared.folder != null || cfg.userAccountProfile == null;
+			assertion = cfg.userAccountProfile != null -> config.users.shared.folder != null;
 			message = "Syncing the Unison profile ${cfg.userAccountProfile} requires users.shared.folder";
 		}];
 

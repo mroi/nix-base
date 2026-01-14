@@ -112,7 +112,7 @@
 	in lib.mkIf (config.environment.configurationProfiles != null) {
 
 		assertions = [{
-			assertion = config.environment.configurationProfiles == [] || pkgs.stdenv.isDarwin;
+			assertion = config.environment.configurationProfiles != [] -> pkgs.stdenv.isDarwin;
 			message = "Configuration profiles are only supported on Darwin";
 		} {
 			assertion = lib.allUnique profileNames;

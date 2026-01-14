@@ -304,7 +304,7 @@
 
 		assertions = [{
 			assertion = with config.security.pki.certificateTrust;
-				(system == null && user == null) || pkgs.stdenv.isDarwin;
+				(system != null || user != null) -> pkgs.stdenv.isDarwin;
 			message = "Certificate trust currently can only be configured on Darwin";
 		}];
 

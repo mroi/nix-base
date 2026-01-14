@@ -35,7 +35,7 @@
 	in lib.mkIf isEnabled {
 
 		assertions = [{
-			assertion = isEnabled || pkgs.stdenv.isDarwin;
+			assertion = isEnabled -> pkgs.stdenv.isDarwin;
 			message = "Automatic updates of system software is only supported on Darwin";
 		}];
 

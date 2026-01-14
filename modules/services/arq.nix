@@ -45,7 +45,7 @@
 	in {
 
 		assertions = [{
-			assertion = ! config.services.arq.enable || pkgs.stdenv.isDarwin;
+			assertion = config.services.arq.enable -> pkgs.stdenv.isDarwin;
 			message = "Arq is only available on Darwin";
 		}];
 

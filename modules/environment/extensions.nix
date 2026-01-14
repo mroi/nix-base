@@ -33,7 +33,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.environment.extensions == {} || pkgs.stdenv.isDarwin;
+			assertion = config.environment.extensions != {} -> pkgs.stdenv.isDarwin;
 			message = "Extension selection is only supported on Darwin";
 		} {
 			assertion = lib.all (type: type == lib.escapeShellArg type) extensionTypes;

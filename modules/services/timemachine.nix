@@ -21,7 +21,7 @@
 	config = lib.mkIf (config.services.timeMachine.destinations != null) {
 
 		assertions = [{
-			assertion = config.services.timeMachine.destinations == [] || pkgs.stdenv.isDarwin;
+			assertion = config.services.timeMachine.destinations != [] -> pkgs.stdenv.isDarwin;
 			message = "Time Machine is only available on Darwin";
 		} {
 			assertion = lib.all (s: (lib.hasPrefix "/Volumes/" s) || (lib.hasInfix "://" s)) config.services.timeMachine.destinations;

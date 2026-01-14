@@ -15,7 +15,7 @@
 	config = lib.mkIf (config.security.gatekeeper.enable != null) {
 
 		assertions = [{
-			assertion = ! config.security.gatekeeper.enable || pkgs.stdenv.isDarwin;
+			assertion = config.security.gatekeeper.enable -> pkgs.stdenv.isDarwin;
 			message = "Gatekeeper is only available on Darwin";
 		}];
 

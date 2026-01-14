@@ -5,7 +5,7 @@
 	config = lib.mkIf config.programs.affinity.enable {
 
 		assertions = [{
-			assertion = ! config.programs.affinity.enable || pkgs.stdenv.isDarwin;
+			assertion = config.programs.affinity.enable -> pkgs.stdenv.isDarwin;
 			message = "Affinity is only available on Darwin";
 		}];
 

@@ -2,10 +2,10 @@
 { lib, stdenv, stdenvNoCC, ocaml, xcodeenv, fetchFromGitHub, writeText, glibc, patchelf, unison,
 	intercept ? false, backDeploy ? false, static ? false }:
 
-assert !intercept || !backDeploy;
-assert !intercept || !static;
-assert !backDeploy || stdenv.isDarwin;
-assert !static || stdenv.isLinux;
+assert intercept -> ! backDeploy;
+assert intercept -> ! static;
+assert backDeploy -> stdenv.isDarwin;
+assert static -> stdenv.isLinux;
 
 let
 

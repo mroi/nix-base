@@ -13,7 +13,7 @@
 	config = lib.mkIf config.programs.xcode.enable {
 
 		assertions = [{
-			assertion = ! config.programs.xcode.enable || pkgs.stdenv.isDarwin;
+			assertion = config.programs.xcode.enable -> pkgs.stdenv.isDarwin;
 			message = "Xcode is only available on Darwin";
 		}];
 

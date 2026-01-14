@@ -3,7 +3,7 @@
 	config = lib.mkIf (config ? fileSystems."/") {
 
 		assertions = [{
-			assertion = ! config.fileSystems."/".encrypted || pkgs.stdenv.isDarwin;
+			assertion = config.fileSystems."/".encrypted -> pkgs.stdenv.isDarwin;
 			message = "Root volume encryption is only available on Darwin";
 		}];
 

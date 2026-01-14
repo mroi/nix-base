@@ -9,7 +9,7 @@
 	config = lib.mkIf (config.system.packages != null) {
 
 		assertions = [{
-			assertion = config.system.packages == null || config.system.packages == [] || pkgs.stdenv.isLinux;
+			assertion = (config.system.packages != null && config.system.packages != []) -> pkgs.stdenv.isLinux;
 			message = "System-level package installation is currently only supported on Linux";
 		}];
 

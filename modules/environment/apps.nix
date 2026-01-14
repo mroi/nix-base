@@ -22,7 +22,7 @@
 	config = {
 
 		assertions = [{
-			assertion = config.environment.flatpak == "none" || pkgs.stdenv.isLinux;
+			assertion = config.environment.flatpak != "none" -> pkgs.stdenv.isLinux;
 			message = "Flatpak apps are only supported on Linux";
 		}];
 

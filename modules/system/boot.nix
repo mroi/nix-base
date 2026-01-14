@@ -9,7 +9,7 @@
 	config = lib.mkIf (config.system.boot.chime != null) {
 
 		assertions = [{
-			assertion = ! config.system.boot.chime || pkgs.stdenv.isDarwin;
+			assertion = config.system.boot.chime -> pkgs.stdenv.isDarwin;
 			message = "Startup chime is only available on Darwin";
 		}];
 

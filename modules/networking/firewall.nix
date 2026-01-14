@@ -49,10 +49,10 @@
 	in {
 
 		assertions = [{
-			assertion = ! cfg.enable || pkgs.stdenv.isDarwin;
+			assertion = cfg.enable -> pkgs.stdenv.isDarwin;
 			message = "Application firwall is only available on Darwin";
 		} {
-			assertion = cfg.enable || !(cfg.blockAll || cfg.allowSystem || cfg.allowApps || cfg.stealth || cfg.allow != [] || cfg.block != []);
+			assertion = (cfg.blockAll || cfg.allowSystem || cfg.allowApps || cfg.stealth || cfg.allow != [] || cfg.block != []) -> cfg.enable;
 			message = "Detailed application firewall settings require enabling the firewall";
 		} {
 			assertion = (lib.intersectLists cfg.allow cfg.block) == [];

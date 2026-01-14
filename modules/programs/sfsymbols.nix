@@ -42,7 +42,7 @@
 	in  {
 
 		assertions = [{
-			assertion = ! config.programs.sfSymbols.enable || pkgs.stdenv.isDarwin;
+			assertion = config.programs.sfSymbols.enable -> pkgs.stdenv.isDarwin;
 			message = "SF Symbols is only available on Darwin";
 		}];
 

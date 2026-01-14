@@ -74,7 +74,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.fileSystems == {} || pkgs.stdenv.isDarwin;
+			assertion = config.fileSystems != {} -> pkgs.stdenv.isDarwin;
 			message = "Volume creation is currently only supported on Darwin";
 		}];
 

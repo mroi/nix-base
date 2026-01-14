@@ -26,8 +26,8 @@
 	in {
 
 		assertions = [{
-			assertion = ! config.services.sshProxy.enableServer || ! pkgs.stdenv.isLinux;
-			message = "The SSH proxy server is currently not supported on Linux";
+			assertion = config.services.sshProxy.enableServer -> pkgs.stdenv.isDarwin;
+			message = "The SSH proxy server is currently only supported on Darwin";
 		}];
 
 		system.build.packages = { inherit ssh-proxy; };

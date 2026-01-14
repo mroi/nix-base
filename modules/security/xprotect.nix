@@ -10,7 +10,7 @@
 		security.checks.XProtect = lib.mkDefault pkgs.stdenv.isDarwin;
 
 		assertions = [{
-			assertion = ! config.security.checks.XProtect || pkgs.stdenv.isDarwin;
+			assertion = config.security.checks.XProtect -> pkgs.stdenv.isDarwin;
 			message = "security.checks.XProtect is only available on Darwin";
 		}];
 

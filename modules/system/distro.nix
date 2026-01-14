@@ -12,10 +12,10 @@
 	config = lib.mkMerge [
 		{
 			assertions = [{
-				assertion = config.system.distribution == "macOS" || pkgs.stdenv.isLinux;
+				assertion = config.system.distribution != "macOS" -> pkgs.stdenv.isLinux;
 				message = "The only supported Darwin variant is macOS";
 			} {
-				assertion = config.system.distribution != "macOS" || pkgs.stdenv.isDarwin;
+				assertion = config.system.distribution == "macOS" -> pkgs.stdenv.isDarwin;
 				message = "System variant macOS is only supported on Darwin";
 			}];
 		}

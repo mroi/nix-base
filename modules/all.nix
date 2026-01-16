@@ -14,6 +14,7 @@
 	"packages" = ./system/packages.nix;
 	"setup" = ./system/setup.nix;
 	"unknown" = ./system/unknown.nix;
+	"unused" = ./system/unused.nix;
 	"updates" = ./system/updates.nix;
 
 	# Nix setup

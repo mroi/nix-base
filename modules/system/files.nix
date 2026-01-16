@@ -11,6 +11,19 @@
 			"/Library/SystemMigration/History/*"
 		]);
 
+		# files in file lists, where it is OK if they do not exist
+		notExistOk = pkgs.writeText "files-notexist" (lib.concatLines (lib.optionals pkgs.stdenv.isLinux [
+			"/nonexistent"
+			"/nonexistent/*"
+		] ++ lib.optionals pkgs.stdenv.isDarwin [
+			"/Users/Guest"
+			"/Users/Guest/*"
+			"/Volumes/*"
+			"/private/var/empty"
+			"/private/var/empty/*"
+			"/private/var/vm/sleepimage"
+		]));
+
 	in lib.mkIf enable {
 
 		system.cleanupScripts.files = lib.stringAfter [ "volumes" ] (''
@@ -116,7 +129,7 @@
 				fi
 				# warn about files being listed that do not exist
 				cat "$2" | sort | sed "s/'/'''/g ; s/.*/SELECT '&' WHERE NOT EXISTS (SELECT * FROM files WHERE path GLOB '&');/" | \
-					runSQL | if read -r first ; then
+					runSQL | grep -Fvx --file=${notExistOk} | if read -r first ; then
 						printWarning "Files listed as $1 do not exist:"
 						echo "$first" >&2
 						cat >&2

@@ -88,5 +88,26 @@
 		'');
 
 		system.activationScripts.services.deps = [ "nix" ];
+
+		system.files.known = [
+			"/nix"
+			"/nix/nix.conf"
+			"/nix/var"
+			"/nix/var/nix"
+			"/nix/var/nix/*"
+			"/nix/var/ssh"
+			"/nix/var/ssh/config"
+			"/nix/var/ssh/known_hosts"
+			"/nix/var/tmp"
+		] ++ lib.optionals config.nix.ssh.keygen [
+			"/nix/var/ssh/id_ed25519"
+			"/nix/var/ssh/id_ed25519.pub"
+		] ++ lib.optionals pkgs.stdenv.isDarwin [
+			"/nix/.Trashes"
+			"/nix/.fseventsd"
+			"/nix/.fseventsd/no_log"
+			"/nix/.metadata_never_index"
+			"/private/etc/synthetic.conf"
+		];
 	};
 }

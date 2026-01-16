@@ -12,6 +12,7 @@
 		condition = (import ./files.nix { inherit config lib pkgs; }).config.condition;
 
 		knownFiles = pkgs.writeText "files-known" (lib.concatLines config.system.files.known);
+		usedFiles = pkgs.writeText "files-used" (lib.concatLines config.system.files.used);
 
 	in lib.mkIf condition {
 
@@ -26,6 +27,7 @@
 				echo 'ALTER TABLE files ADD COLUMN known INTEGER DEFAULT FALSE;'
 				find "$(pwd -P)" | sed "s/.*/UPDATE files SET known = TRUE WHERE path = '&';/"  # tempdir is known
 				sed "s/'/'''/g ; s/.*/UPDATE files SET known = TRUE WHERE path GLOB '&';/" ${knownFiles}
+				sed "s/'/'''/g ; s/.*/UPDATE files SET known = TRUE WHERE path GLOB '&';/" ${usedFiles}
 				echo 'UPDATE files SET known = TRUE WHERE source IS NOT NULL;'
 				echo 'COMMIT TRANSACTION;'
 			} | runSQL

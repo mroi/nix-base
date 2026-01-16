@@ -54,5 +54,12 @@
 		# some non-sandboxed Nix builds may want to use the native Xcode toolchain
 		system.activationScripts.bundles.deps = [ "xcode" ];
 		system.activationScripts.profile.deps = [ "xcode" ];
+
+		system.files.known = [
+			"/Library/Developer/CoreSimulator/*"
+			"/Library/Developer/DeveloperDiskImages"
+			"/Library/Developer/DeveloperDiskImages/*"
+			"/private/etc/paths.d/100-rvictl"
+		];
 	};
 }

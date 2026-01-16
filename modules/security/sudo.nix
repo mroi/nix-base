@@ -28,5 +28,15 @@
 			patch = ./sudo-no-admin-flag.patch;
 			doCheck = false;
 		}];
+
+		system.files.known = let
+			prefix = if pkgs.stdenv.isDarwin then "/private" else "";
+		in lib.optionals (!config.security.sudo.wheelNeedsPassword) [
+			"${prefix}/etc/sudoers.d/group-wheel"
+		] ++ lib.optionals config.security.sudo.touchId [
+			"${prefix}/etc/pam.d/sudo_local"
+		] ++ lib.optionals (pkgs.stdenv.isLinux && ! config.security.sudo.adminFlagFile) [
+			"${prefix}/etc/sudoers.d/no-admin-flag"
+		];
 	};
 }

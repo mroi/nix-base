@@ -50,5 +50,19 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf config.programs.vmware.enable [
+			"/Library/Application Support/VMware"
+			"/Library/Application Support/VMware/*"
+			"/Library/PrivilegedHelperTools"
+			"/private/etc/com.apple.mis.rtadvd.conf"
+			"/private/etc/cups/thnuclnt.convs"
+			"/private/etc/cups/thnuclnt.types"
+			"/private/etc/paths.d/com.vmware.fusion.public"
+			"/private/var/db/vmware"
+			"/private/var/db/vmware/*"
+			"/private/var/log/vnetlib"
+			"/usr/libexec/cups/filter/thnucups"
+		];
 	};
 }

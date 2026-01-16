@@ -53,5 +53,9 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf (config.services.sshProxy.enableServer && pkgs.stdenv.isDarwin) [
+			"/Library/LaunchDaemons/de.reactorcontrol.ssh-proxy.plist"
+		];
 	};
 }

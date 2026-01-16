@@ -16,11 +16,13 @@
 			"[localhost]:33022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBWcxb/Blaqt1auOtE+F8QUWrUotiC5qBJ+UuEWdVCb"
 		];
 		nix.ssh.keygen = true;
+
 		system.activationScripts.nix.text = lib.mkAfter ''
 			if ! test -f /nix/var/ssh/builder_ed25519.pub ; then
 				# offer the SSH public key under the name expected by the Linux builder
 				trace sudo ln /nix/var/ssh/id_ed25519.pub /nix/var/ssh/builder_ed25519.pub
 			fi
 		'';
+		system.files.known = [ "/nix/var/ssh/builder_ed25519.pub" ];
 	};
 }

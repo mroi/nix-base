@@ -224,5 +224,12 @@
 				exec ${config.users.root.home}/${binDir}/unison "$@" -batch -terse
 			fi
 		'')));
+
+		system.files.known = lib.mkIf cfg.syncRoot [
+			"${config.users.root.home}/${binDir}"
+			"${config.users.root.home}/${binDir}/unison"
+			"${config.users.root.home}/${configDir}"
+			"${config.users.root.home}/${configDir}/*"
+		];
 	};
 }

@@ -104,6 +104,24 @@
 				echo "INSERT OR IGNORE INTO sources (system, name) VALUES ('$1', '$2');"
 				sed "s/'/'''/g ; s|.*|UPDATE files SET source = (SELECT source FROM sources WHERE system = '$1' AND name = '$2') $3;|"
 			}
+
+			# other NixOS modules will evaluate lists of known/used files which we want to check
+			# usage: sanitizeFileList <list type> <list file>
+			sanitizeFileList() {
+				# warn about files being listed multiple times
+				cat "$2" | sort | uniq -d | if read -r first ; then
+					printWarning "Files listed as $1 multiple times:"
+					echo "$first" >&2
+					cat >&2
+				fi
+				# warn about files being listed that do not exist
+				cat "$2" | sort | sed "s/'/'''/g ; s/.*/SELECT '&' WHERE NOT EXISTS (SELECT * FROM files WHERE path GLOB '&');/" | \
+					runSQL | if read -r first ; then
+						printWarning "Files listed as $1 do not exist:"
+						echo "$first" >&2
+						cat >&2
+					fi
+			}
 		'');
 	};
 }

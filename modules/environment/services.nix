@@ -115,5 +115,15 @@
 			${lib.concatLines (map createServiceScript servicesToCreate)}
 			${lib.concatLines (map deleteServiceScript servicesToDelete)}
 		'';
+
+		system.files.known = lib.concatMap (service:
+			lib.optionals pkgs.stdenv.isLinux [
+				"/etc/systemd/system/${service.name}.service"
+			] ++ lib.optionals (pkgs.stdenv.isLinux && service.value.socket != null) [
+				"/etc/systemd/system/${service.name}.socket"
+			] ++ lib.optionals pkgs.stdenv.isDarwin [
+				"/Library/LaunchDaemons/${service.value.label}.plist"
+			]
+		) servicesToCreate;
 	};
 }

@@ -50,5 +50,11 @@
 		'';
 
 		system.activationScripts.root.deps = [ "rootpaths" ];
+
+		system.files.known = [
+			"${config.users.root.home}/.nix"
+			"${config.users.root.home}/.nix/profile"
+			"${config.users.root.home}/.nix/profile/*"
+		];
 	};
 }

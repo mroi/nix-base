@@ -20,6 +20,12 @@
 				fi
 				makeIcon /Applications/Games.localized gamecontroller.fill
 			'';
+
+			system.files.used = [
+				"/Applications/Games.localized"
+				"/Applications/Games.localized/.localized"
+				"/Applications/Games.localized/.localized/*"
+			];
 		})
 	]);
 }

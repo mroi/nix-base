@@ -173,6 +173,12 @@
 				"/private/var/spool/postfix/*"
 				"/private/var/vm/sleepimage"
 			];
+			system.files.used = [
+				"/Library/InstallerSandboxes/.metadata_never_index"
+				"/Library/Keychains/.fl043D1EDD"
+				"/Library/Keychains/.fl947E1BDB"
+				"/Library/Preferences/com.apple.apsd.launchd"
+			];
 		})
 	];
 }

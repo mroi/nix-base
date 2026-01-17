@@ -5,6 +5,12 @@
 		enable = config.system.packages != null || config.environment.bundles != {} ||
 			(config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.isDarwin));
 
+		# files implicitly (i.e. not by file flags) protected from being modified
+		sipProtectedFiles = pkgs.writeText "files-protected" (lib.concatLines [
+			"/Library/SystemExtensions/.staging"
+			"/Library/SystemMigration/History/*"
+		]);
+
 	in lib.mkIf enable {
 
 		system.cleanupScripts.files = lib.stringAfter [ "volumes" ] (''
@@ -19,6 +25,7 @@
 				echo ');'
 				echo 'CREATE TABLE files ('
 				echo '    path TEXT PRIMARY KEY,'
+				echo '    protected INTEGER,'
 				echo '    source INTEGER,'
 				echo '    FOREIGN KEY (source) REFERENCES sources (id)'
 				echo ');'
@@ -65,10 +72,26 @@
 					# override checkArgs in subshell so interactive runs won’t prompt twice within this pipe
 					checkArgs() { return 1 ; }
 					trace sudo xargs -0 stat ${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-						Linux = "-c %n";
-						Darwin = "-f %N";
+						Linux = "-c '- %n'";
+						Darwin = "-f '%Sf %N'";
 					}}
-				} | sed "s/'/'''/g ; s/.*/INSERT OR IGNORE INTO files (path) VALUES ('&');/"
+				} | awk '{
+					# extract metadata columns
+					flags = $1;
+					if (flags ~ /restricted/ || flags ~ /sunlnk/) protected = "TRUE"; else protected = "FALSE";
+					# remove extracted leading columns
+					sub(/^[^ ]+ /, "");
+					# SQL-escape single quotation marks
+					quote = "\047";
+					gsub(quote, quote quote);
+					path = $0;
+					# print SQL statement
+					print "INSERT OR IGNORE INTO files (path, protected) VALUES (" quote path quote ", " protected ");";
+				}'
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+				sed "s/'/'''/g ; s/.*/UPDATE files SET protected = TRUE WHERE path GLOB '&';/" ${sipProtectedFiles}
+		'' + ''
 
 			} | runSQL
 

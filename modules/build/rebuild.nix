@@ -44,7 +44,8 @@
 					"printInfo"
 					"printInfo 'Failed assertions while evaluating the configuration:'"
 				] ++ x ++ [
-					"exit 64  # EX_USAGE"
+					# obscure the exit command, otherwise shellcheck reports many unused functions
+					"if true ; then exit 64 ; fi  # EX_USAGE"
 				]))
 				lib.concatLines
 			];

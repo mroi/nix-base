@@ -599,12 +599,12 @@ makeService() {
 		if test "$waitForPath" ; then
 			_commandEntry="\"ProgramArguments\": [\"/bin/sh\",\"-c\",\"/bin/wait4path $waitForPath && exec $command\"],"
 		else
-			_commandEntry="\"ProgramArguments\": ["
+			_commandEntry='"ProgramArguments": ['
 			for _part in $command ; do _commandEntry=$_commandEntry\"$_part\", ; done
 			_commandEntry="$_commandEntry],"
 		fi
 		if test "$environment" ; then
-			_environmentEntry="\"EnvironmentVariables\": {"
+			_environmentEntry='"EnvironmentVariables": {'
 			# shellcheck disable=SC2329
 			_() { _environmentEntry="$_environmentEntry\"${1%%=*}\":\"${1#*=}\"," ; }
 			forLines "$environment" _
@@ -612,24 +612,24 @@ makeService() {
 		else
 			_environmentEntry=
 		fi
-		if test "$oneshot" ; then
-			_keepaliveEntry=
-		else
-			_keepaliveEntry='"KeepAlive": true,'
-		fi
 		if test "$group" ; then
 			_groupEntry="\"GroupName\": \"$group\","
 		else
 			_groupEntry=
 		fi
+		if test "$oneshot" ; then
+			_keepaliveEntry=
+		else
+			_keepaliveEntry='"KeepAlive": true,'
+		fi
 		plutil -convert xml1 -o "$label.plist" - <<- EOF
 			{
-				$_environmentEntry
-				$_groupEntry
-				$_keepaliveEntry
 				"Label": "$label",
 				$_commandEntry
+				$_environmentEntry
+				$_groupEntry
 				"RunAtLoad": true,
+				$_keepaliveEntry
 				"StandardErrorPath": "/dev/null",
 				"StandardOutPath": "/dev/null"
 			}

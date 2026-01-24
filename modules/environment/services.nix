@@ -26,6 +26,11 @@
 					default = [];
 					description = "Environment variables in the form `<variable>=<value>`.";
 				};
+				user = lib.mkOption {
+					type = lib.types.nullOr (lib.types.passwdEntry lib.types.str);
+					default = null;
+					description = "The service will run under this user.";
+				};
 				group = lib.mkOption {
 					type = lib.types.nullOr (lib.types.passwdEntry lib.types.str);
 					default = null;
@@ -76,14 +81,14 @@
 			message = "Socket-activated services are currently not implemented on Darwin";
 		}) servicesToCreate);
 
-		warnings = lib.pipe config.environment.services [
+		warnings = lib.concatMap (entry: lib.pipe config.environment.services [
 			lib.attrValues
-			(lib.catAttrs "group")
-			(lib.filter (group: group != null))
-			(lib.subtractLists (lib.attrNames config.users.groups))
+			(lib.catAttrs entry)
+			(lib.filter (x: x != null))
+			(lib.subtractLists (lib.attrNames config.users."${entry}s"))
 			(lib.subtractLists [ "" ])
-			(map (group: "Group ${group} referenced by a service is not known to exist"))
-		];
+			(map (x: "The ${entry} ${x} referenced by a service is not known to exist"))
+		]) [ "user" "group" ];
 
 		system.activationScripts.services = lib.stringAfter [ "users" "groups" ] ''
 			storeHeading 'Installing system services'

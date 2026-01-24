@@ -513,7 +513,7 @@ deleteGroup() {
 # service management
 
 makeService() {
-	name= ; label= ; description= ; dependencies= ; oneshot= ; command= ; environment= ; group= ; socket= ; waitForPath=
+	name= ; label= ; description= ; dependencies= ; oneshot= ; command= ; environment= ; user= ; group= ; socket= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
@@ -549,6 +549,11 @@ makeService() {
 		else
 			_environmentEntry=
 		fi
+		if test "$user" ; then
+			_userEntry="User=$user$newline"
+		else
+			_userEntry=
+		fi
 		if test "$group" ; then
 			_groupEntry="Group=$group$newline"
 		else
@@ -574,7 +579,7 @@ makeService() {
 			Description=$description
 			$_conditionEntries
 			[Service]
-			${_groupEntry}StandardOutput=null
+			${_userEntry}${_groupEntry}StandardOutput=null
 			StandardError=null
 			${_typeEntry}${_environmentEntry}ExecStart=$command
 
@@ -612,6 +617,11 @@ makeService() {
 		else
 			_environmentEntry=
 		fi
+		if test "$user" ; then
+			_userEntry="\"UserName\": \"$user\","
+		else
+			_userEntry=
+		fi
 		if test "$group" ; then
 			_groupEntry="\"GroupName\": \"$group\","
 		else
@@ -627,6 +637,7 @@ makeService() {
 				"Label": "$label",
 				$_commandEntry
 				$_environmentEntry
+				$_userEntry
 				$_groupEntry
 				"RunAtLoad": true,
 				$_keepaliveEntry
@@ -642,7 +653,7 @@ makeService() {
 			restartService "$name"
 		fi
 	fi
-	unset name label description dependencies oneshot command environment group socket waitForPath
+	unset name label description dependencies oneshot command environment user group socket waitForPath
 }
 
 deleteService() {

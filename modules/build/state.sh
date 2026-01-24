@@ -513,7 +513,7 @@ deleteGroup() {
 # service management
 
 makeService() {
-	name= ; label= ; description= ; dependencies= ; lifecycle= ; command= ; environment= ; user= ; group= ; socket= ; waitForPath=
+	name= ; label= ; description= ; dependencies= ; lifecycle= ; command= ; environment= ; user= ; group= ; socket= ; socketName= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
@@ -526,7 +526,7 @@ makeService() {
 		if test "$waitForPath" ; then
 			_conditionEntries="${_conditionEntries}RequiresMountsFor=$waitForPath$newline"
 		fi
-		if test "$socket" ; then
+		if test "${socket#/}" != "$socket" ; then
 			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}$newline"
 		fi
 		if test "$lifecycle" = oneshot ; then
@@ -560,14 +560,31 @@ makeService() {
 			_groupEntry=
 		fi
 		if test "$socket" ; then
+			if test "${socket#/}" != "$socket" ; then
+				_socketEntry="ListenStream=$socket$newline"
+			else
+				case "$socket" in
+					tcp*) _socketEntry="ListenStream=" ;;
+					udp*) _socketEntry="ListenDatagram=" ;;
+				esac
+				case "$socket" in
+					*4://*) _socketEntry="BindIPv6Only=both$newline$_socketEntry" ;;
+					*6://*) _socketEntry="BindIPv6Only=ipv6-only$newline$_socketEntry" ;;
+				esac
+				socket=${socket#*://}
+				if test "${socket#\*}" = "$socket" ; then
+					_socketEntry="$_socketEntry$socket$newline"
+				else
+					_socketEntry="$_socketEntry${socket#*:}$newline"
+				fi
+			fi
 			cat > "$name.socket" <<- EOF
 				[Unit]
 				Description=$description Socket
 				Before=multi-user.target
 				$_conditionEntries
 				[Socket]
-				ListenStream=$socket
-
+				$_socketEntry
 				[Install]
 				WantedBy=sockets.target
 			EOF
@@ -633,6 +650,30 @@ makeService() {
 			demand) _lifecycleEntry='"EnablePressuredExit": true,' ;;
 			*) fatalError "Unsupported service lifecycle value $lifecycle" ;;
 		esac
+		if test "$socket" ; then
+			socketName=${socketName:-$name}
+			_socketEntry="\"Sockets\": { \"$socketName\": {"
+			if test "${socket#/}" != "$socket" ; then
+				_socketEntry="$_socketEntry\"SockFamily\":\"Unix\",\"SockPathName\":\"$socket\""
+			else
+				case "$socket" in
+					tcp*) _socketEntry="$_socketEntry\"SockProtocol\":\"TCP\"," ;;
+					udp*) _socketEntry="$_socketEntry\"SockProtocol\":\"UDP\"," ;;
+				esac
+				case "$socket" in
+					*4://*) _socketEntry="$_socketEntry\"SockFamily\":\"IPv4\"," ;;
+					*6://*) _socketEntry="$_socketEntry\"SockFamily\":\"IPv6\"," ;;
+				esac
+				socket=${socket#*://}
+				if test "${socket#\*}" = "$socket" ; then
+					_socketEntry="$_socketEntry\"SockNodeName\":\"${socket%:*}\","
+				fi
+				_socketEntry="$_socketEntry\"SockServiceName\":\"${socket#*:}\","
+			fi
+			_socketEntry="$_socketEntry}},"
+		else
+			_socketEntry=
+		fi
 		plutil -convert xml1 -o "$label.plist" - <<- EOF
 			{
 				"Label": "$label",
@@ -641,6 +682,7 @@ makeService() {
 				$_userEntry
 				$_groupEntry
 				$_lifecycleEntry
+				$_socketEntry
 				"StandardErrorPath": "/dev/null",
 				"StandardOutPath": "/dev/null"
 			}
@@ -653,7 +695,7 @@ makeService() {
 			restartService "$name"
 		fi
 	fi
-	unset name label description dependencies lifecycle command environment user group socket waitForPath
+	unset name label description dependencies lifecycle command environment user group socket socketName waitForPath
 }
 
 deleteService() {

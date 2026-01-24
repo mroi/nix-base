@@ -41,9 +41,17 @@
 					description = "The service will run within this group.";
 				};
 				socket = lib.mkOption {
-					type = lib.types.nullOr lib.types.path;
+					type = lib.types.nullOr (lib.types.either
+						lib.types.path
+						(lib.types.strMatching "(tcp|udp)?(4|6)?://[a-z0-9*-]+:[a-z0-9-]+")
+					);
 					default = null;
 					description = "Demand-launch the service when this socket is accessed.";
+				};
+				socketName = lib.mkOption {
+					type = lib.types.nullOr lib.types.singleLineStr;
+					default = null;
+					description = "Socket identifier by which the service obtains the socket from launchd on Darwin.";
 				};
 				waitForPath = lib.mkOption {
 					type = lib.types.nullOr lib.types.path;
@@ -76,14 +84,13 @@
 
 	in {
 
-		assertions = (map (service: {
+		assertions = lib.concatMap (service: [{
 			assertion = lib.hasSuffix service.name service.value.label;
 			message = "The last component of label ${service.value.label} must match the service name ${service.name}";
-		}) servicesToCreate)
-		++ lib.optionals pkgs.stdenv.isDarwin (map (service: {
-			assertion = service.value.socket == null;
-			message = "Socket-activated services are currently not implemented on Darwin";
-		}) servicesToCreate);
+		} {
+			assertion = service.value.socketName != null -> service.value.socket != null;
+			message = "Setting a socket name requires configuring a socket on service ${service.name}";
+		}]) servicesToCreate;
 
 		warnings = lib.concatMap (entry: lib.pipe config.environment.services [
 			lib.attrValues

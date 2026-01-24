@@ -513,7 +513,7 @@ deleteGroup() {
 # service management
 
 makeService() {
-	name= ; label= ; description= ; dependencies= ; oneshot= ; command= ; environment= ; user= ; group= ; socket= ; waitForPath=
+	name= ; label= ; description= ; dependencies= ; lifecycle= ; command= ; environment= ; user= ; group= ; socket= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
@@ -529,7 +529,7 @@ makeService() {
 		if test "$socket" ; then
 			_conditionEntries="${_conditionEntries}ConditionPathIsReadWrite=${socket%/*}$newline"
 		fi
-		if test "$oneshot" ; then
+		if test "$lifecycle" = oneshot ; then
 			_typeEntry="Type=oneshot$newline"
 		else
 			_typeEntry=
@@ -627,11 +627,12 @@ makeService() {
 		else
 			_groupEntry=
 		fi
-		if test "$oneshot" ; then
-			_keepaliveEntry=
-		else
-			_keepaliveEntry='"KeepAlive": true,'
-		fi
+		case "$lifecycle" in
+			daemon) _lifecycleEntry='"RunAtLoad": true, "KeepAlive": true,' ;;
+			oneshot) _lifecycleEntry='"RunAtLoad": true,' ;;
+			demand) _lifecycleEntry='"EnablePressuredExit": true,' ;;
+			*) fatalError "Unsupported service lifecycle value $lifecycle" ;;
+		esac
 		plutil -convert xml1 -o "$label.plist" - <<- EOF
 			{
 				"Label": "$label",
@@ -639,8 +640,7 @@ makeService() {
 				$_environmentEntry
 				$_userEntry
 				$_groupEntry
-				"RunAtLoad": true,
-				$_keepaliveEntry
+				$_lifecycleEntry
 				"StandardErrorPath": "/dev/null",
 				"StandardOutPath": "/dev/null"
 			}
@@ -653,7 +653,7 @@ makeService() {
 			restartService "$name"
 		fi
 	fi
-	unset name label description dependencies oneshot command environment user group socket waitForPath
+	unset name label description dependencies lifecycle command environment user group socket waitForPath
 }
 
 deleteService() {

@@ -153,6 +153,6 @@ makeService << EOF
 		TMPDIR=/nix/var/tmp
 		XDG_CACHE_HOME=/nix/var
 	"
-	group=nix ; socket=$socket ; waitForPath=/nix/store
+	lifecycle=daemon ; group=nix ; socket=$socket ; waitForPath=/nix/store
 EOF
 while ! test -S /nix/var/nix/daemon-socket/socket ; do sleep 1 ; done

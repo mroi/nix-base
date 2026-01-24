@@ -16,7 +16,11 @@
 					default = [];
 					description = "Other services or service targets this service depends upon.";
 				};
-				oneshot = lib.mkEnableOption "run-to-completion behavior";
+				lifecycle = lib.mkOption {
+					type = lib.types.enum [ "daemon" "oneshot" "demand" ];
+					default = "daemon";
+					description = "Lifecycle type of the service.";
+				};
 				command = lib.mkOption {
 					type = lib.types.nonEmptyStr;
 					description = "Command to start the service.";

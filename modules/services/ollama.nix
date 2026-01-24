@@ -11,33 +11,61 @@
 
 	config = lib.mkIf config.services.ollama.enable {
 
+		users = {
+			users._ollama = {
+				uid = 601;
+				group = "_ollama";
+				home = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+					Linux = "/var/lib/ollama";
+					Darwin = "/private/var/db/ollama";
+				};
+				description = "Ollama AI Server";
+			};
+			groups._ollama = {
+				gid = 601;
+				description = "Ollama AI Server";
+			};
+		};
+
+		environment.services.ollama-serve = {
+			label = "com.ollama.ollama-serve";
+			description = "Ollama AI Server";
+			command = "${config.users.users._ollama.home}/bin/ollama serve --launchd";
+			environment = [ "OLLAMA_MODELS=${config.users.users._ollama.home}" ];
+			user = "_ollama";
+			lifecycle = "demand";
+			socket = "tcp4://localhost:11434";
+			socketName = "ollama";
+		};
+
 		environment.profile = [ "nix-base#ollama" ];
 
 		system.activationScripts.ollama = let
+
 			ollama = lib.getExe (pkgs.callPackage ../../packages/ollama.nix {});
-		in ''
+			datadir = config.users.users._ollama.home;
+
+		in lib.stringAfter [ "users" "services" ] (''
 			storeHeading 'Loading and removing Ollama models'
 
-			target='${lib.concatLines config.services.ollama.models}'
-			current="$(cd "$HOME/.local/state/ollama/manifests/registry.ollama.ai/library" 2> /dev/null || exit 0 ; ls -d -- *)"
-			running=
+			makeDir 755:_ollama:_ollama ${datadir} ${datadir}/bin
+			makeLink 755:_ollama:_ollama ${datadir}/bin/ollama ${ollama}
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			if ! xattr -p com.apple.metadata:com_apple_backup_excludeItem ${datadir} > /dev/null 2> /dev/null ; then
+				trace sudo tmutil addexclusion ${datadir}
+			fi
+		'' + ''
 
-			runServer() {
-				if test -z "$running" ; then
-					running=$(if pgrep -q ollama ; then echo true ; else echo false ; fi)
-				fi
-				if ! $running ; then ${ollama} serve > /dev/null 2>&1 & fi
-			}
-			killServer() {
-				if test -z "$running" ; then return ; fi
-				if ! $running ; then pkill ollama ; fi
-			}
+			target='${lib.concatLines config.services.ollama.models}'
+			current="$(cd ${datadir}/manifests/registry.ollama.ai/library 2> /dev/null || exit 0 ; ls -d -- *)"
+
+			# beautify ollama invocations: do not show store path
+			ollama() { ${ollama} "$@" ; }
 
 			# install missing models
 			forTarget() {
 				if ! hasLine "$current" "$1" ; then
-					runServer
-					trace ${ollama} pull "$1"
+					trace ollama pull "$1"
 				fi
 			}
 			forLines "$target" forTarget
@@ -45,13 +73,10 @@
 			# remove unneeded models
 			forCurrent() {
 				if ! hasLine "$target" "$1" ; then
-					runServer
-					trace ${ollama} rm "$1"
+					trace ollama rm "$1"
 				fi
 			}
 			forLines "$current" forCurrent
-
-			killServer
-		'';
+		'');
 	};
 }

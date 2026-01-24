@@ -16,7 +16,11 @@
 					default = [];
 					description = "Other services or service targets this service depends upon.";
 				};
-				oneshot = lib.mkEnableOption "run-to-completion behavior";
+				lifecycle = lib.mkOption {
+					type = lib.types.enum [ "daemon" "oneshot" "demand" ];
+					default = "daemon";
+					description = "Lifecycle type of the service.";
+				};
 				command = lib.mkOption {
 					type = lib.types.nonEmptyStr;
 					description = "Command to start the service.";
@@ -26,15 +30,33 @@
 					default = [];
 					description = "Environment variables in the form `<variable>=<value>`.";
 				};
+				user = lib.mkOption {
+					type = lib.types.nullOr (lib.types.passwdEntry lib.types.str);
+					default = null;
+					description = "The service will run under this user.";
+				};
 				group = lib.mkOption {
 					type = lib.types.nullOr (lib.types.passwdEntry lib.types.str);
 					default = null;
 					description = "The service will run within this group.";
 				};
 				socket = lib.mkOption {
-					type = lib.types.nullOr lib.types.path;
+					type = lib.types.nullOr (lib.types.either
+						lib.types.path
+						(lib.types.strMatching "(tcp|udp)?(4|6)?://[a-z0-9*-]+:[a-z0-9-]+")
+					);
 					default = null;
 					description = "Demand-launch the service when this socket is accessed.";
+				};
+				socketName = lib.mkOption {
+					type = lib.types.nullOr lib.types.singleLineStr;
+					default = null;
+					description = "Socket identifier by which the service obtains the socket from launchd on Darwin.";
+				};
+				socketCompatibility = lib.mkOption {
+					type = lib.types.nullOr (lib.types.enum [ "inetd-sequential" "inetd-parallel" ]);
+					default = null;
+					description = "Configure inetd compatibility for the service socket.";
 				};
 				waitForPath = lib.mkOption {
 					type = lib.types.nullOr lib.types.path;
@@ -67,23 +89,25 @@
 
 	in {
 
-		assertions = (map (service: {
+		assertions = lib.concatMap (service: [{
 			assertion = lib.hasSuffix service.name service.value.label;
 			message = "The last component of label ${service.value.label} must match the service name ${service.name}";
-		}) servicesToCreate)
-		++ lib.optionals pkgs.stdenv.isDarwin (map (service: {
-			assertion = service.value.socket == null;
-			message = "Socket-activated services are currently not implemented on Darwin";
-		}) servicesToCreate);
+		} {
+			assertion = service.value.socketName != null -> service.value.socket != null;
+			message = "Setting a socket name requires configuring a socket on service ${service.name}";
+		} {
+			assertion = service.value.socketCompatibility != null -> service.value.socket != null;
+			message = "Setting socket compatibility requires configuring a socket on service ${service.name}";
+		}]) servicesToCreate;
 
-		warnings = lib.pipe config.environment.services [
+		warnings = lib.concatMap (entry: lib.pipe config.environment.services [
 			lib.attrValues
-			(lib.catAttrs "group")
-			(lib.filter (group: group != null))
-			(lib.subtractLists (lib.attrNames config.users.groups))
+			(lib.catAttrs entry)
+			(lib.filter (x: x != null))
+			(lib.subtractLists (lib.attrNames config.users."${entry}s"))
 			(lib.subtractLists [ "" ])
-			(map (group: "Group ${group} referenced by a service is not known to exist"))
-		];
+			(map (x: "The ${entry} ${x} referenced by a service is not known to exist"))
+		]) [ "user" "group" ];
 
 		system.activationScripts.services = lib.stringAfter [ "users" "groups" ] ''
 			storeHeading 'Installing system services'

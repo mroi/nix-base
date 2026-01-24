@@ -2,7 +2,7 @@
 { lib, fetchzip }:
 
 let
-	version = "8.0.2";
+	version = "8.1.1";
 	major = lib.head (lib.splitVersion version);
 	url = "https://kapeli.com/downloads/v${major}/Dash.zip";
 
@@ -11,7 +11,7 @@ in fetchzip rec {
 
 	pname = "dash";
 
-	hash  = "sha256-xgqUY3U+jVkaWC3+SjcIgUqX4mmFZ3z6mvfdYWe1h94=";
+	hash  = "sha256-M7wnUHgaG2maJCcplGJKnwQWchDTUhKOdBc73nzY1aQ=";
 	stripRoot = false;
 
 	postFetch = ''

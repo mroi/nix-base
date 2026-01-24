@@ -53,6 +53,11 @@
 					default = null;
 					description = "Socket identifier by which the service obtains the socket from launchd on Darwin.";
 				};
+				socketCompatibility = lib.mkOption {
+					type = lib.types.nullOr (lib.types.enum [ "inetd-sequential" "inetd-parallel" ]);
+					default = null;
+					description = "Configure inetd compatibility for the service socket.";
+				};
 				waitForPath = lib.mkOption {
 					type = lib.types.nullOr lib.types.path;
 					default = null;
@@ -90,6 +95,9 @@
 		} {
 			assertion = service.value.socketName != null -> service.value.socket != null;
 			message = "Setting a socket name requires configuring a socket on service ${service.name}";
+		} {
+			assertion = service.value.socketCompatibility != null -> service.value.socket != null;
+			message = "Setting socket compatibility requires configuring a socket on service ${service.name}";
 		}]) servicesToCreate;
 
 		warnings = lib.concatMap (entry: lib.pipe config.environment.services [

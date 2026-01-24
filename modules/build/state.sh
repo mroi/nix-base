@@ -513,7 +513,7 @@ deleteGroup() {
 # service management
 
 makeService() {
-	name= ; label= ; description= ; dependencies= ; lifecycle= ; command= ; environment= ; user= ; group= ; socket= ; socketName= ; waitForPath=
+	name= ; label= ; description= ; dependencies= ; lifecycle= ; command= ; environment= ; user= ; group= ; socket= ; socketName= ; socketCompatibility= ; waitForPath=
 	# shellcheck disable=SC1091
 	. /dev/stdin  # read named parameters
 	if $isLinux ; then
@@ -578,6 +578,10 @@ makeService() {
 					_socketEntry="$_socketEntry${socket#*:}$newline"
 				fi
 			fi
+			case "$socketCompatibility" in
+				inetd-sequential) _socketEntry="${_socketEntry}Accept=no$newline" ;;
+				inetd-parallel) _socketEntry="${_socketEntry}Accept=yes$newline" ;;
+			esac
 			cat > "$name.socket" <<- EOF
 				[Unit]
 				Description=$description Socket
@@ -671,6 +675,10 @@ makeService() {
 				_socketEntry="$_socketEntry\"SockServiceName\":\"${socket#*:}\","
 			fi
 			_socketEntry="$_socketEntry}},"
+			case "$socketCompatibility" in
+				inetd-sequential) _socketEntry="$_socketEntry\"inetdCompatibility\": { \"Wait\":true }," ;;
+				inetd-parallel) _socketEntry="$_socketEntry\"inetdCompatibility\": { \"Wait\":false }," ;;
+			esac
 		else
 			_socketEntry=
 		fi
@@ -695,7 +703,7 @@ makeService() {
 			restartService "$name"
 		fi
 	fi
-	unset name label description dependencies lifecycle command environment user group socket socketName waitForPath
+	unset name label description dependencies lifecycle command environment user group socket socketName socketCompatibility waitForPath
 }
 
 deleteService() {

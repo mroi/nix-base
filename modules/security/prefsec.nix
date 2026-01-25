@@ -32,7 +32,7 @@
 				fatalError 'Unknown which preference flags to update'
 			'';
 			false = ''
-				trace sudo sqlite3 /private/var/db/auth.db "UPDATE rules SET flags = 10 WHERE name LIKE 'system.preferences%' AND flags = 11"
+				trace sudo sqlite3 /var/db/auth.db "UPDATE rules SET flags = 10 WHERE name LIKE 'system.preferences%' AND flags = 11"
 			'';
 		} + ''
 			fi

@@ -17,7 +17,7 @@
 				group = "_ollama";
 				home = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 					Linux = "/var/lib/ollama";
-					Darwin = "/private/var/db/ollama";
+					Darwin = "/var/db/ollama";
 				};
 				description = "Ollama AI Server";
 			};

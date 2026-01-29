@@ -66,7 +66,7 @@
 
 			for file in ${lib.escapeShellArgs config.users.root.deletions} ; do
 				test -e "${config.users.root.stagingDirectory}/$file" || continue
-				sudo rm -rf ~root/"$file"
+				trace sudo rm -rf ~root/"$file"
 				rm -rf "${config.users.root.stagingDirectory}/$file"
 			done
 		'';

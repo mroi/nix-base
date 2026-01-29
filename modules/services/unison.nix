@@ -50,7 +50,7 @@
 			(lib.optionalString cfg.intercept "LD_PRELOAD=~/${configDir}/libintercept.so " +
 				"exec ~/.nix/profile/bin/unison \"$@\"")
 		] ++ lib.optionals pkgs.stdenv.isDarwin [
-			"export HOME=/private/var/root"
+			"export HOME=${config.users.root.home}"
 			"cd $HOME/${binDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
 		]));
@@ -169,25 +169,25 @@
 		users.root.stagingDirectory = lib.mkIf cfg.syncRoot
 			"$HOME/${cfg.configDir}/root-${lib.toLower pkgs.stdenv.hostPlatform.uname.system}";
 		users.root.syncCommand = lib.mkIf cfg.syncRoot (toString (pkgs.writeScript "unison-root" (''#!/bin/sh -e
-			if ! test -x ~root/${binDir}/unison ; then
+			if ! test -x ${config.users.root.home}/${binDir}/unison ; then
 				echo 'Installing Unison executable for the root user' >&2
-				mkdir -p ~root/${binDir}
-				cp ${rootScript} ~root/${binDir}/unison
+				mkdir -p ${config.users.root.home}/${binDir}
+				cp ${rootScript} ${config.users.root.home}/${binDir}/unison
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
-				mkdir -p ~root/.nix/profile/bin
-				ln -s ${lib.getExe unison} ~root/.nix/profile/bin/
+				mkdir -p ${config.users.root.home}/.nix/profile/bin
+				ln -s ${lib.getExe unison} ${config.users.root.home}/.nix/profile/bin/
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
-				cp -R ${baseDir}/${serviceDir}/Unison.app ~root/${binDir}/
+				cp -R ${baseDir}/${serviceDir}/Unison.app ${config.users.root.home}/${binDir}/
 		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''
-				mkdir -p ~root/${configDir}
-				cp ${baseDir}/${configDir}/libintercept.so ~root/${configDir}/
+				mkdir -p ${config.users.root.home}/${configDir}
+				cp ${baseDir}/${configDir}/libintercept.so ${config.users.root.home}/${configDir}/
 		'' + ''
 			fi
-			if ! test -r ~root/${configDir}/default.prf ; then
+			if ! test -r ${config.users.root.home}/${configDir}/default.prf ; then
 				echo 'Installing default Unison profile for the root user' >&2
-				mkdir -p ~root/${configDir}
-				cat > ~root/${configDir}/default.prf <<- EOF
-					root = $(eval echo ~root/)
+				mkdir -p ${config.users.root.home}/${configDir}
+				cat > ${config.users.root.home}/${configDir}/default.prf <<- EOF
+					root = ${config.users.root.home}/
 					root = $(eval HOME=~"$SUDO_USER" ; eval echo ${stagingDir})
 					force = $(eval HOME=~"$SUDO_USER" ; eval echo ${stagingDir})
 					times = true
@@ -215,9 +215,9 @@
 			fi
 
 			if test -t 0 ; then
-				exec ~root/${binDir}/unison "$@" || true
+				exec ${config.users.root.home}/${binDir}/unison "$@" || true
 			else
-				exec ~root/${binDir}/unison "$@" -batch -terse
+				exec ${config.users.root.home}/${binDir}/unison "$@" -batch -terse
 			fi
 		'')));
 	};

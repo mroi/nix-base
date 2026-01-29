@@ -18,11 +18,11 @@
 					dscl . -create /Users/Guest NFSHomeDirectory ${config.users.users.Guest.home}
 					dscl . -create /Users/Guest UserShell ${config.users.users.Guest.shell}
 					dscl . -create /Users/Guest RealName ${config.users.users.Guest.description}
-					pwpolicy -getaccountpolicies | sed 1d > /var/root/globalpwpolicy.plist
+					pwpolicy -getaccountpolicies | sed 1d > ${config.users.root.home}/globalpwpolicy.plist
 					pwpolicy -clearaccountpolicies
 					dscl . -passwd /users/Guest ""
-					pwpolicy -setaccountpolicies /var/root/globalpwpolicy.plist
-					rm /var/root/globalpwpolicy.plist
+					pwpolicy -setaccountpolicies ${config.users.root.home}/globalpwpolicy.plist
+					rm ${config.users.root.home}/globalpwpolicy.plist
 				fi'' + "\n")
 		+ lib.optionalString (config.users.defaultScriptShell != null) (''
 				if ! test -L /var/select/sh -a "$(readlink /var/select/sh)" = ${lib.escapeShellArg config.users.defaultScriptShell} ; then

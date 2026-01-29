@@ -1,4 +1,4 @@
-{ config, lib, options, ... }: {
+{ config, lib, pkgs, options, ... }: {
 
 	options.users.root = {
 
@@ -7,10 +7,18 @@
 			default = "\${XDG_STATE_HOME:-$HOME/${config.users.stateDir}}/rebuild";
 			description = "Files for the root account are staged in this directory to check for changes that need to be copied into root’s home.";
 		};
+		home = lib.mkOption {
+			type = lib.types.path;
+			default = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = "/root";
+				Darwin = "/private/var/root";
+			};
+			description = "Absolute physical path of root’s home directory.";
+		};
 		syncCommand = lib.mkOption {
 			type = lib.types.str;
 			default = ''
-				rsync --verbose --recursive --links --perms --times "${toString config.users.root.stagingDirectory}/" ~root/
+				rsync --verbose --recursive --links --perms --times "${toString config.users.root.stagingDirectory}/" ${config.users.root.home}/
 			'';
 			description = "Command to transfer files from the staging directory to root’s home.";
 		};
@@ -66,7 +74,7 @@
 
 			for file in ${lib.escapeShellArgs config.users.root.deletions} ; do
 				test -e "${config.users.root.stagingDirectory}/$file" || continue
-				trace sudo rm -rf ~root/"$file"
+				trace sudo rm -rf ${config.users.root.home}/"$file"
 				rm -rf "${config.users.root.stagingDirectory}/$file"
 			done
 		'';

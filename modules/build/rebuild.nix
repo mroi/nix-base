@@ -99,8 +99,22 @@
 			${config.system.build.cleanup}
 		'';
 		checkPhase = ''
+			# check shell script syntax
 			${pkgs.stdenv.shellDryRun} "$out"
 			${lib.getExe pkgs.shellcheck} "$out"
+
+			# all sudo invocations should be traced so users know why they enter their password
+			grep -E '(^|[[:space:]])sudo[[:space:]]' "$out" | grep -Fv 'trace sudo' | {
+				# there are two known-good matches in utils.sh
+				read -r line ; if test "$line" != 'if test "$1" = sudo ; then' ; then echo "$line" ; false ; fi
+				read -r line ; if test "$line" != 'sudo "$@"' ; then echo "$line" ; false ; fi
+				if read -r line ; then
+					echo 'Found unexpected sudo without tracing:'
+					echo "$line"
+					cat
+					false
+				fi
+			}
 		'';
 	};
 

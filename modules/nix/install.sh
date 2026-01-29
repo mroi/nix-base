@@ -126,9 +126,7 @@ fi
 if ! test -L /nix/var/nix/gcroots/per-user/root/profile ; then
 	trace sudo mkdir -p -m 700 ~root/.nix
 	trace sudo mkdir -p -m 755 ~root/.nix/profile ~root/.nix/profile/bin
-	if ! sudo test -e ~root/.nix/profile/bin/nix ; then
-		trace sudo ln -s "$(find /nix/store/*-nix-*/bin/nix | head -n1)" ~root/.nix/profile/bin/
-	fi
+	trace sudo ln -si "$(find /nix/store/*-nix-*/bin/nix | head -n1)" ~root/.nix/profile/bin/
 fi
 # gcroot for root profile
 makeLink 755:root:nix /nix/var/nix/gcroots/per-user/root/profile ~root/.nix/profile

@@ -6,6 +6,12 @@
 			default = [];
 			description = "List of paths (globbing patterns are supported) of files known to be in use. These paths are used to identify unused files.";
 		};
+		connections = lib.mkOption {
+			type = lib.types.listOf lib.types.str;
+			default = [];
+			example = [ "(.*/\.git)/.*" ];
+			description = "List of regular expressions that convert an absolute file name into a so called stem. The expression must contain a single capture group that marks the stem. Files with the same stem are considered to be connected and will undergo usage checks atomically.";
+		};
 		unusedAge = lib.mkOption {
 			type = lib.types.int;
 			default = 380;
@@ -20,9 +26,25 @@
 
 		usedFiles = pkgs.writeText "files-used" (lib.concatLines config.system.files.used);
 
+		# a sed script to convert a list of paths into stems using the file connection patterns
+		processConnections = pkgs.writeText "files-connect" (lib.concatLines (map (pattern:
+			"s|^([0-9]+)[\\|]${pattern}$|\\1\\|\\2|"
+		) config.system.files.connections ++ [
+			"t sql"  # if any substitution has been made, issue the SQL command
+			"d"      # otherwise end the cycle
+			":sql"
+			"s/'/'''/g"
+			"s/^([0-9]+)[\\|](.*)$/UPDATE files SET stem = '\\2' WHERE rowid = \\1;/"
+		]));
+
 		age = toString config.system.files.unusedAge;
 
 	in {
+
+		assertions = [{
+			assertion = lib.all (lib.hasPrefix "(") config.system.files.connections;
+			message = "Regular expressions connecting files should start capturing at the start of the path";
+		}];
 
 		system.cleanupScripts.unused = lib.mkIf condition (lib.stringAfter [ "files" "unknown" ] ''
 			storeHeading 'Cleaning unused files'
@@ -114,6 +136,30 @@
 				echo '    )'
 				echo ';'
 			} | runSQL
+
+			printInfo 'Processing connections between files'
+
+			# process connections between files that should be treated as atomically used/unused
+			echo 'SELECT rowid, path FROM files;' | runSQL > all-files
+			{
+				echo 'BEGIN IMMEDIATE TRANSACTION;'
+				# add a stem column, where connected files are marked with a common stem
+				echo 'ALTER TABLE files ADD COLUMN stem TEXT;'
+				echo 'UPDATE files SET stem = path;'
+				# process all files through a sed script that generates stem-updating SQL commands
+				sed -E -f ${processConnections} all-files
+				# create an index over stem column, because we will perform many queries next
+				echo 'CREATE INDEX stems ON files (stem);'
+				# use stem column to max-aggregate used column
+				echo 'UPDATE files AS outer SET used = ('
+				echo '    SELECT max(used) FROM files WHERE stem = outer.stem'
+				echo ');'
+				# cleanup
+				echo 'DROP INDEX stems;'
+				echo 'ALTER TABLE files DROP COLUMN stem;'
+				echo 'COMMIT TRANSACTION;'
+			} | runSQL
+			rm all-files
 
 			# delete unused unrestricted files interactively
 			echo 'SELECT path FROM files WHERE used IS FALSE AND restricted IS FALSE ORDER BY path;' | runSQL | \

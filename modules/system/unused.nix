@@ -35,6 +35,15 @@
 
 	in {
 
+		# files that are considered unused together
+		system.files.connections = [
+			# Git repositories
+			"(.*/\.git)/refs"
+			# SQLite database files
+			"(.*)-shm"
+			"(.*)-wal"
+		];
+
 		system.cleanupScripts.unused = lib.mkIf condition (lib.stringAfter [ "files" "unknown" ] ''
 			storeHeading 'Cleaning unused files'
 			requireCommands clean-files

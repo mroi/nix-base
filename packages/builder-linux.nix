@@ -37,9 +37,9 @@ let nixos = import "${path}/nixos" {
 		};
 
 		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] stdenvNoCC.hostPlatform.system;
-		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr stdenvNoCC.hostPlatform.system {
-			aarch64-linux = [ "x86_64-linux" ];
-			x86_64-linux = [ "aarch64-linux" ];
+		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr stdenvNoCC.hostPlatform.parsed.cpu.name {
+			aarch64 = [ "x86_64-linux" ];
+			x86_64 = [ "aarch64-linux" ];
 		} else [];
 	};
 

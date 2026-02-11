@@ -3,8 +3,8 @@
 
 ollama.overrideAttrs (attrs: {
 	patches = attrs.patches or [] ++ lib.optional stdenv.isDarwin (writeText "launchd-integration.patch" ''
-		--- a/cmd/cmd.go
-		+++ b/cmd/cmd.go
+		--- a/cmd/cmd.go	1970-01-01 01:00:01
+		+++ b/cmd/cmd.go	2026-02-11 10:58:55
 		@@ -25,6 +25,7 @@
 		 	"sync/atomic"
 		 	"syscall"
@@ -13,20 +13,20 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	"github.com/containerd/console"
 		 	"github.com/mattn/go-runewidth"
-		@@ -50,6 +51,12 @@
-		 	imagegenclient "github.com/ollama/ollama/x/imagegen/client"
+		@@ -52,6 +53,12 @@
+		 	xcreateclient "github.com/ollama/ollama/x/create/client"
+		 	"github.com/ollama/ollama/x/imagegen"
 		 )
-		 
+		+
 		+/*
 		+#include <stdlib.h>
 		+int launch_activate_socket(const char *name, int **fds, size_t *cnt);
 		+*/
 		+import "C"
-		+
-		 const ConnectInstructions = "To sign in, navigate to:\n    %s\n\n"
 		 
-		 // ensureThinkingSupport emits a warning if the model does not advertise thinking support
-		@@ -1598,12 +1605,18 @@
+		 const ConnectInstructions = "If your browser did not open, navigate to:\n    %s\n\n"
+		 
+		@@ -1689,12 +1696,18 @@
 		 	return nil
 		 }
 		 
@@ -47,10 +47,12 @@ ollama.overrideAttrs (attrs: {
 		 	if err != nil {
 		 		return err
 		 	}
-		@@ -1662,6 +1675,27 @@
+		@@ -1751,6 +1764,27 @@
+		 		fmt.Printf("Your new public key is: \n\n%s\n", publicKeyBytes)
+		 	}
 		 	return nil
-		 }
-		 
+		+}
+		+
 		+func getLaunchdSocket(name string) (net.Listener, error) {
 		+	cName := C.CString(name)
 		+	var fds *C.int
@@ -70,20 +72,18 @@ ollama.overrideAttrs (attrs: {
 		+
 		+	file := os.NewFile(fd, "")
 		+	return net.FileListener(file)
-		+}
-		+
+		 }
+		 
 		 func checkServerHeartbeat(cmd *cobra.Command, _ []string) error {
-		 	client, err := api.ClientFromEnvironment()
-		 	if err != nil {
-		@@ -1807,6 +1841,8 @@
-		 		Args:    cobra.ExactArgs(0),
+		@@ -1906,6 +1940,8 @@
 		 		RunE:    RunServer,
 		 	}
-		+
-		+	serveCmd.Flags().Bool("launchd", false, "Pass file descriptor from launchd")
 		 
+		+	serveCmd.Flags().Bool("launchd", false, "Pass file descriptor from launchd")
+		+
 		 	pullCmd := &cobra.Command{
 		 		Use:     "pull MODEL",
+		 		Short:   "Pull a model from a registry",
 	'') ++ lib.singleton (writeText "default-no-history.patch" ''
 		--- a/envconfig/config.go
 		+++ b/envconfig/config.go
@@ -125,4 +125,9 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC|os.O_APPEND, 0o600)
 	'');
+	postPatch = assert ollama.version == "0.15.6"; attrs.postPatch + ''
+		# FIXME: Nixpkgs should remove this test because it fails within the build sandbox
+		# https://github.com/NixOS/nixpkgs/pull/489430
+		rm model/models/qwen3next/checkpoints_test.go
+	'';
 })

@@ -115,7 +115,7 @@ didUpdate() {
 }
 
 updateVersion() {
-	_updateEntry version "$1" '[[:alnum:].+-]+' "$2"
+	_updateEntry version "$1" '[[:alnum:].+-]*[0-9][[:alnum:].+-]*' "$2"
 }
 updateUrl() {
 	_updateEntry url "$1" '(http|https)://[^"]+' "$2"

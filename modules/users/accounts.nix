@@ -79,5 +79,9 @@
 		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.isDarwin (map
 			(account: "/Users/${mkAccountName account}/Downloads")
 		accounts);
+
+		system.files.used = lib.mkIf pkgs.stdenv.isDarwin (lib.concatMap (account: [
+			"/Users/${mkAccountName account}/.Trash/*"
+		]) accounts);
 	};
 }

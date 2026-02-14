@@ -80,6 +80,14 @@
 		"com.apple.ui-services"."com.apple.sharing.ShareSheetUI" = true;
 	};
 
+	system.files.connections = [
+		# Git repositories
+		"(.*/\.git)/refs"
+		# SQLite database files
+		"(.*)-shm"
+		"(.*)-wal"
+	];
+
 	time = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) {
 		timeZone = "Europe/Berlin";
 	};

@@ -10,6 +10,10 @@
 				if test "$(dscl . -read /Users/_nix PrimaryGroupID 2> /dev/null)" != ${toString config.users.groups.nix.gid} ; then
 					dscl . -create /Users/_nix PrimaryGroupID ${toString config.users.groups.nix.gid}
 				fi'' + "\n")
+		+ lib.optionalString config.services.ollama.enable (''
+				if test "$(dscl . -read /Users/_ollama PrimaryGroupID 2> /dev/null)" != ${toString config.users.groups._ollama.gid} ; then
+					dscl . -create /Users/_ollama PrimaryGroupID ${toString config.users.groups._ollama.gid}
+				fi'' + "\n")
 		+ lib.optionalString config.users.guest.enable (''
 				if ! dscl . -read /Users/Guest > /dev/null 2>&1 ; then
 					dscl . -create /Users/Guest

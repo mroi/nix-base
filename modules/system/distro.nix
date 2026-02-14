@@ -180,6 +180,18 @@
 				"/private/var/spool/postfix/*"
 				"/private/var/vm/sleepimage"
 			];
+			system.files.used = [
+				"/Library/InstallerSandboxes/.metadata_never_index"
+				"/Library/Keychains/.fl043D1EDD"
+				"/Library/Keychains/.fl947E1BDB"
+				"/Library/Preferences/OpenDirectory/DynamicData"
+				"/Library/Preferences/com.apple.apsd.launchd"
+				"/System/Library/AssetsV2/PreinstalledAssetsV2/InstallWithOs/com_apple_MobileAsset_DictionaryServices_dictionaryOSX"
+				"/System/Library/AssetsV2/PreinstalledAssetsV2/InstallWithOs/com_apple_MobileAsset_Font7"
+				"/System/Library/AssetsV2/com_apple_MobileAsset_*/*.asset/META-INF"
+				"/System/Volumes/Data/.Spotlight-V100"
+				"/private/var/networkd/db"
+			];
 		})
 	];
 }

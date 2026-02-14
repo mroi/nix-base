@@ -33,6 +33,7 @@
 		indexOf = elem: lib.lists.findFirstIndex (x: x == elem) null accounts;
 		concatAccounts = f: lib.mergeAttrsList (map f accounts);
 		adminAccounts = lib.filter (x: x.isAdmin) accounts;
+		home = account: config.users.users."${mkAccountName account}".home;
 
 	in {
 
@@ -77,7 +78,18 @@
 		};
 
 		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.isDarwin (map
-			(account: "/Users/${mkAccountName account}/Downloads")
+			(account: "${home account}/Downloads")
 		accounts);
+
+		system.files.connections = lib.mkIf pkgs.stdenv.isDarwin (lib.concatMap (account: [
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Sounds"
+			"(${home account}/Library/Developer/CoreSimulator/Devices/[^/]*)/.*"
+			"(${home account}/Library/Developer/Xcode/DerivedData/[^/]*)/.*"
+		]) accounts);
+
+		system.files.used = lib.mkIf pkgs.stdenv.isDarwin (lib.concatMap (account: [
+			"${home account}/.Trash/*"
+			"${home account}/Library/Mobile Documents/*/Documents"
+		]) accounts);
 	};
 }

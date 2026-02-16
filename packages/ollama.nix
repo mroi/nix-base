@@ -125,9 +125,4 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC|os.O_APPEND, 0o600)
 	'');
-	postPatch = assert ollama.version == "0.15.6"; attrs.postPatch + ''
-		# FIXME: Nixpkgs should remove this test because it fails within the build sandbox
-		# https://github.com/NixOS/nixpkgs/pull/489430
-		rm model/models/qwen3next/checkpoints_test.go
-	'';
 })

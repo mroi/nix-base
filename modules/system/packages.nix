@@ -47,8 +47,10 @@
 			trace sudo apt-get clean
 		'';
 
-		system.cleanupScripts.packages = lib.stringAfter [ "volumes" ] (lib.optionalString pkgs.stdenv.isLinux ''
+		system.cleanupScripts.packages = lib.stringAfter [ "files" "volumes" ] (''
 			storeHeading 'Cleaning system-level packages'
+
+		'' + lib.optionalString pkgs.stdenv.isLinux ''
 			trace sudo apt-get --assume-yes autopurge
 			trace sudo apt-get clean
 			trace sudo apt-cache gencaches
@@ -67,6 +69,94 @@
 				interactiveCommands incomplete \
 					'These packages are in an incomplete installation state.' \
 					'They will be uninstalled unless lines are commented or removed.'
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			requireCommands clean-files
+
+			# print heading for potentially long running operation
+			flushHeading
+
+			# shellcheck disable=SC2043
+			for volume in / ; do
+				pkgutil --volume "$volume" --packages | while read -r package ; do
+					# check if any file is installed by this package
+					needed=$(echo "SELECT 'true' FROM files NATURAL JOIN sources WHERE system = 'pkg' AND name = '$package' LIMIT 1;" | runSQL)
+					if test "$needed" = true ; then continue ; fi
+					# check if this package is SIP protected
+					unset flags
+					for receipts in Library/Receipts var/db/receipts Library/Apple/System/Library/Receipts ; do
+						if test -f "$volume/$receipts/$package.plist" ; then
+							flags=$(stat -f %Sf "$volume/$receipts/$package.plist")
+						fi
+					done
+					if test "$flags" = restricted ; then
+						quote() { echo "$1" | sed "/ /s/.*/'&'/" ; }
+						receipts=''${receipts%Library/Receipts}
+						receipts=''${receipts%/}
+						echo "pkgutil --volume $(quote "$receipts") --forget $(quote "$package")"
+					else
+						trace sudo pkgutil --volume "$volume" --forget "$package" > /dev/null
+					fi
+				done
+			done | recoveryCommands
+		'');
+
+		system.cleanupScripts.files.text = lib.mkOrder 2000 (''
+			# system-level package information should overwrite any other file source,
+			# so this script must be last of all file-info collection fragments
+			{
+				echo 'BEGIN IMMEDIATE TRANSACTION;'
+				printInfo 'Collecting installed files: system-level packages'
+
+		'' + lib.optionalString pkgs.stdenv.isLinux ''
+
+				find /var/lib/dpkg/info -maxdepth 1 -name '*.list' | while read -r list ; do
+					name=''${list##*/}
+					name=''${name%.list}
+					{
+						# files from the package’s file list, merged to /usr
+						sed '
+							s|^/bin/|/usr/bin/|
+							s|^/lib/|/usr/lib/|
+							s|^/lib64/|/usr/lib64/|
+							s|^/sbin/|/usr/sbin/|
+						' "$list"
+						# file diversions installed by the package
+						sed -n "/^''${name%%:*}\$/ { x ; p ; } ; h" /var/lib/dpkg/diversions
+					} | addSource dpkg "$name" "WHERE path = '&'"
+				done
+
+				# dpkg alternatives
+				find /var/lib/dpkg/alternatives -mindepth 1 -maxdepth 1 | while read -r file ; do
+					sed -n '1,/^$/ { /^\//p ; }' "$file"
+				done | sed '
+					s|^/bin/|/usr/bin/|
+					s|^/lib/|/usr/lib/|
+					s|^/lib64/|/usr/lib64/|
+					s|^/sbin/|/usr/sbin/|
+				' | addSource dpkg alternatives "WHERE path = '&'"
+
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+
+				# shellcheck disable=SC2043
+				for volume in / ; do
+					# sort packages by install time so later packages overwrite earlier ones in the database
+					pkgutil --volume "$volume" --packages | while read -r package ; do
+						pkgutil --volume "$volume" --pkg-info "$package" | \
+							awk "BEGIN { FS = \": *\" ; } /^install-time:/ { print \$2 \"\t\" \"$package\" }"
+					done | sort -n | cut -f2- | while read -r package ; do
+						basepath=$(pkgutil --volume "$volume" --pkg-info "$package" | sed -n '/^location:/ { s/^.*: *// ; p ; }')
+						basepath=$(cd "$volume$basepath" && pwd -P || echo "$volume$basepath")
+						if test "$basepath" = "''${basepath%/}" ; then basepath=$basepath/ ; fi
+						pkgutil --volume "$volume" --files "$package" | awk "{ print \"$basepath\" \$0 }" | \
+							addSource pkg "$package" "WHERE path = '&'"
+					done
+				done
+
+		'' + ''
+
+				echo 'COMMIT TRANSACTION;'
+			} | runSQL
 		'');
 	};
 }

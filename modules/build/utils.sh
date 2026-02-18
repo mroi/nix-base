@@ -196,10 +196,37 @@ cdTemporaryDirectory() {
 	fi
 	_tmpdir=$(mktemp --directory --tmpdir="$_tmpdir" -t "rebuild$($isDarwin || echo .XXXXXXXX)")
 	# shellcheck disable=SC2064
-	trap "rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
+	trap "test ! -e .pids || xargs kill < .pids ; rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
 	# shellcheck disable=SC2064
-	trap "rm -rf \"$_tmpdir\" ; exit 75  # EX_TEMPFAIL" INT
+	trap "test ! -e .pids || xargs kill < .pids ; rm -rf \"$_tmpdir\" ; exit 75  # EX_TEMPFAIL" INT
 	cd "$_tmpdir"
+}
+
+# run an in-memory SQLite database
+
+runSQL() {
+	if ! test -d .sqlite ; then
+		# database not started yet
+		mkdir .sqlite
+		mkfifo .sqlite/in
+		exec 3<> .sqlite/in
+		sqlite3 :memory: < .sqlite/in 2> .sqlite/out 1>&2 &
+		echo $! > .pids
+	fi
+	# remember current output size to skip for query output
+	_sqlOutSize=$(
+		if $isLinux ; then stat -c %s .sqlite/out ; fi
+		if $isDarwin ; then stat -f %z .sqlite/out ; fi
+	)
+	# run commands from stdin against the database
+	cat > .sqlite/in
+	# wait until the database has finished processing
+	echo '.once .sqlite/done' > .sqlite/in
+	echo "SELECT '';" > .sqlite/in
+	while ! test -f .sqlite/done ; do sleep 1 ; done
+	rm .sqlite/done
+	# pass database output as stdout, skip previous output
+	tail --bytes=+$((_sqlOutSize + 1)) .sqlite/out
 }
 
 # code signature check

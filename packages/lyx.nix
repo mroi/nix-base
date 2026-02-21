@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "lyx";
-	version = "2.4.4";
+	version = "2.5.0";
 
 	src = fetchurl {
-		url = "https://lyx.mirror.garr.it/bin/${version}/LyX-${version}+qt5-x86_64-arm64-cocoa.dmg";
-		hash  = "sha256-j5K+/g352m8lGloEqO9TagOjVM+7Tm+H3YDnb6koccA=";
+		url = "https://lyx.mirror.garr.it/bin/${version}/LyX-${version}+qt6-x86_64-arm64-cocoa.dmg";
+		hash  = "sha256-YhSUGM2xSy89vrvsE+IMUlLz4s4bsK2JFKTnW4akGRc=";
 	};
 
 	__noChroot = true;
@@ -31,7 +31,7 @@ stdenvNoCC.mkDerivation rec {
 		version=''${dir%/}
 		updateVersion version "$version"
 		if didUpdate ; then
-			hash=$(curl --silent "https://lyx.mirror.garr.it/bin/$version/LyX-$version+qt5-x86_64-arm64-cocoa.dmg" | nix hash file /dev/stdin)
+			hash=$(curl --silent "https://lyx.mirror.garr.it/bin/$version/LyX-$version+qt6-x86_64-arm64-cocoa.dmg" | nix hash file /dev/stdin)
 			updateHash hash "$hash"
 		fi
 	'';

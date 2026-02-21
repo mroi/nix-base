@@ -11,7 +11,7 @@ stdenvNoCC.mkDerivation rec {
 		rev = "d3f2dd3847a0b982fe64b5ffea105b286d7a53cb";
 		deepClone = true;
 		fetchSubmodules = true;
-		hash = "sha256-qSDQv5qK3hfBc+xyWZAcI3cu+mVL9FjnRf1yVHFvGbI=";
+		hash = "sha256-DY4mlnQ8FTPEX8S9F/L5WU/jFMb1YgR+PDv+TLalRpY=";
 	};
 	postUnpack = let
 		openssl = fetchzip {

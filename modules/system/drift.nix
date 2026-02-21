@@ -5,7 +5,7 @@
 			# repair configuration drift after macOS updates
 			os_version=$(sw_vers -productVersion)
 			case "$os_version" in
-			15.*|26.*)'' + "\n"
+			14.*|15.*|26.*)'' + "\n"
 		+ lib.optionalString config.nix.enable (''
 				if test "$(dscl . -read /Users/_nix PrimaryGroupID 2> /dev/null)" != ${toString config.users.groups.nix.gid} ; then
 					dscl . -create /Users/_nix PrimaryGroupID ${toString config.users.groups.nix.gid}

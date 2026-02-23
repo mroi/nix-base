@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation {
 	pname = "inkscape";
-	version = "1.4.0";
+	version = "1.4.3";
 
 	src = fetchurl {
-		url = "https://inkscape.org/gallery/item/53700/Inkscape-1.4.028868_arm64.dmg";
-		hash  = "sha256-wtiYCa2NhQIed4TnLiiu4iMbC4Z17D7ePm+58f/ttLM=";
+		url = "https://inkscape.org/gallery/item/58922/Inkscape-1.4.3_arm64.dmg";
+		hash  = "sha256-9Kqcmy4G20Msb4GklK2apZuHy32VOc1+b2AAACy57f8=";
 	};
 
 	nativeBuildInputs = [ undmg ];

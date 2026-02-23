@@ -20,8 +20,9 @@ stdenvNoCC.mkDerivation {
 	dontFixup = true;
 
 	passthru.updateScript = ''
-		release=$(curl --silent https://gitlab.com/api/v4/projects/3472737/releases | jq --raw-output '.[0].name')
-		version=''${release#Inkscape }
+		redirect=$(curl --silent --request HEAD --write-out '%header{location}' https://inkscape.org/release/)
+		version=''${redirect#/release/inkscape-}
+		version=''${version%/}
 		if test "$(echo "$version" | fgrep -o . | wc -l)" -eq 1 ; then version=$version.0 ; fi
 		updateVersion version "$version"
 		if didUpdate ; then

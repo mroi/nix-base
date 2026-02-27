@@ -12,7 +12,6 @@
 			flushHeading
 
 			{
-				echo 'BEGIN IMMEDIATE TRANSACTION;'
 				echo 'CREATE TABLE sources ('
 				echo '    source INTEGER PRIMARY KEY,'
 				echo '    system TEXT,'
@@ -70,8 +69,6 @@
 						Darwin = "-f %N";
 					}}
 				} | sed "s/'/'''/g ; s/.*/INSERT OR IGNORE INTO files (path) VALUES ('&');/"
-
-				echo 'COMMIT TRANSACTION;'
 
 			} | runSQL
 

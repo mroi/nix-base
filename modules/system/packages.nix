@@ -105,7 +105,6 @@
 			# system-level package information should overwrite any other file source,
 			# so this script must be last of all file-info collection fragments
 			{
-				echo 'BEGIN IMMEDIATE TRANSACTION;'
 				printInfo 'Collecting installed files: system-level packages'
 
 		'' + lib.optionalString pkgs.stdenv.isLinux ''
@@ -154,8 +153,6 @@
 				done
 
 		'' + ''
-
-				echo 'COMMIT TRANSACTION;'
 			} | runSQL
 		'');
 	};

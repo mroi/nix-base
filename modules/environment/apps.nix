@@ -117,7 +117,6 @@
 
 			text = lib.mkAfter (''
 				{
-					echo 'BEGIN IMMEDIATE TRANSACTION;'
 			'' + lib.optionalString pkgs.stdenv.isDarwin ''
 					printInfo 'Collecting installed files: Mac App Store'
 					mdfind 'kMDItemAppStoreAdamID > 0' | while read -r app ; do
@@ -136,7 +135,6 @@
 							"WHERE path = '&'"
 					done
 			'' + ''
-					echo 'COMMIT TRANSACTION;'
 				} | runSQL
 			'');
 		};

@@ -47,7 +47,6 @@
 			flushHeading
 
 			{
-				echo 'BEGIN IMMEDIATE TRANSACTION;'
 				echo 'CREATE TABLE depends ('
 				echo '    package TEXT,'
 				echo '    type TEXT,'
@@ -86,8 +85,6 @@
 						}
 					}
 				'
-
-				echo 'COMMIT TRANSACTION;'
 			} | runSQL
 
 			# mark packages as used starting from configured packages as roots

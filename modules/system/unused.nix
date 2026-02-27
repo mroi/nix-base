@@ -171,6 +171,52 @@
 			} | runSQL
 			rm all-files
 
+			printInfo 'Processing recursively unused directories'
+
+			# iteratively mark non-empty directories containing no used files as unused
+			{
+				# add a parent directory column so we can easily traverse directory hierarchy
+				echo 'ALTER TABLE files ADD COLUMN parent TEXT;'
+				echo "UPDATE files SET parent = rtrim(rtrim(path, replace(path, '/', ''')), '/');";
+				# create an index over parent column, because we will perform many queries next
+				echo 'CREATE INDEX parents ON files (parent);'
+			} | runSQL
+			changes=1
+			while test "$changes" -gt 0 ; do
+				changes=$({
+					echo 'UPDATE files AS outer SET used = FALSE'
+					echo '    WHERE used IS TRUE'
+					echo '    AND type = 4'  # directory type code
+					echo '    AND links > 2'  # empty directories have link count 2 (. and ..)
+					echo "    AND mtime <= $now - ${age} * 24 * 60 * 60"
+					echo '    AND EXISTS ('
+					echo '        SELECT * FROM files'
+					echo '            WHERE parent = outer.path'
+					echo '    )'  # ensure directory content is known (some directories cannot be enumerated)
+					echo '    AND NOT EXISTS ('
+					echo '        SELECT * FROM files'
+					echo '            WHERE parent = outer.path'
+					echo '            AND used IS TRUE'
+					echo '    )'  # ensure nothing in the directory is used
+					echo ';'
+					echo 'SELECT changes();'  # output the number of changed rows
+				} | runSQL)
+			done
+			{
+				echo 'DROP INDEX parents;'
+				echo 'ALTER TABLE files DROP COLUMN parent;'
+			} | runSQL
+
+			# file system mountpoints are always used, even though the previous check may mark them unused
+			mount | sed -En "/^\// {
+				# extract mountpoint
+				s/^.* on (.*) ${lib.optionalString pkgs.stdenv.isLinux "type [^ ]* "}\(.*\)$/\1/
+				# form SQL command
+				s/'/'''/g
+				s/.*/UPDATE files SET used = TRUE WHERE path = '&';/
+				p
+			}" | runSQL
+
 			# delete unused unprotected files interactively
 			echo 'SELECT path FROM files WHERE used IS FALSE AND protected IS FALSE ORDER BY path;' | runSQL | \
 				interactiveDeletes unused 'These files appear to be unused.'

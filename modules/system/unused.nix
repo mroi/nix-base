@@ -18,6 +18,7 @@
 		# inherit the config conditions of clean-files
 		condition = (import ./files.nix { inherit config lib pkgs; }).config.condition;
 
+		knownFiles = pkgs.writeText "files-known" (lib.concatLines config.system.files.known);
 		usedFiles = pkgs.writeText "files-used" (lib.concatLines config.system.files.used);
 
 		age = toString config.system.files.unusedAge;
@@ -31,8 +32,21 @@
 
 			# mark files as used
 			{
-				echo 'ALTER TABLE files ADD COLUMN used INTEGER DEFAULT FALSE;'
-				sed "s/'/'''/g ; s/.*/UPDATE files SET used = TRUE WHERE path GLOB '&';/" ${usedFiles}
+				echo 'ALTER TABLE files ADD COLUMN used INTEGER DEFAULT TRUE;'
+				# unknown files are handled by the ‘clean-unknown’ command, so only look at known files
+				sed "s/'/'''/g ; s/.*/UPDATE files SET used = FALSE WHERE path GLOB '&';/" ${knownFiles}
+				# for config entries covering entire subtrees (ending in *) only mark regular files as used
+				sed -n "/\\*\$/ {
+					s/'/'''/g
+					s/.*/UPDATE files SET used = TRUE WHERE type = 8 AND path GLOB '&';/
+					p
+				}" ${usedFiles}
+				# for config entries covering individual files mark the file as used
+				sed -n "/\\*\$/ ! {
+					s/'/'''/g
+					s/.*/UPDATE files SET used = TRUE WHERE path GLOB '&';/
+					p
+				}" ${usedFiles}
 				echo 'UPDATE files SET used = TRUE WHERE source IS NOT NULL;'
 			} | runSQL
 

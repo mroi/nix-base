@@ -5,14 +5,14 @@
 	config = let
 
 		vmware-fusion-installer = let
-			marketingVersion = "25H2";
+			marketingVersion = "25H2u1";
 		in pkgs.requireFile {
-			name = "VMware-Fusion-${marketingVersion}-24995814_universal.dmg";
+			name = "VMware-Fusion-${marketingVersion}-25219963_universal.dmg";
 			url = "https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion&freeDownloads=true";
 			# nix hash convert --from base16 --hash-algo sha256 <hash in hex from website>
-			hash = "sha256-qZXr1v3tQbPy2ofv/2uGdNZon0yZd3KBDqGlwuvijA4=";
+			hash = "sha256-v+iP4WU+UKr8rz/OXqy0xJHUCuXUOlGZyZHK67BLmNA=";
 		} // {
-			version = "25.0.0";
+			version = "25.0.1";
 			passthru.updateScript = ''
 				fusion=$(curl --silent https://techdocs.broadcom.com/us/en/vmware-cis/desktop-hypervisors.html | \
 					xmllint --html --xpath 'string(//*[text()="VMware Fusion Pro"]/following::a[1]/@href)' - 2> /dev/null)

@@ -83,14 +83,12 @@
 
 		in lib.mkAfter ''
 			{
-				echo 'BEGIN IMMEDIATE TRANSACTION;'
 				printInfo 'Collecting installed files: side-loaded software'
 				${lib.pipe config.environment.bundles [
 					lib.attrsToList
 					(map collectBundle)
 					lib.concatLines
 				]}
-				echo 'COMMIT TRANSACTION;'
 			} | runSQL
 		'';
 	};

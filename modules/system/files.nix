@@ -5,6 +5,22 @@
 		enable = config.system.packages != null || config.environment.bundles != {} ||
 			(config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.isDarwin));
 
+		# files implicitly (i.e. not by file flags) protected from being modified
+		sipProtectedFiles = pkgs.writeText "files-protected" (lib.concatLines [
+			"/Library/SystemExtensions/.staging"
+			"/Library/SystemMigration/History/*"
+		]);
+
+		# files in file lists, where it is OK if they do not exist
+		notExistOk = pkgs.writeText "files-notexist" (lib.concatLines (lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+			Linux = [];
+			Darwin = [
+				"/Users/Guest"
+				"/Users/Guest/*"
+				"/private/var/vm/sleepimage"
+			];
+		}));
+
 	in lib.mkIf enable {
 
 		system.cleanupScripts.files = lib.stringAfter [ "volumes" ] (''
@@ -12,7 +28,6 @@
 			flushHeading
 
 			{
-				echo 'BEGIN IMMEDIATE TRANSACTION;'
 				echo 'CREATE TABLE sources ('
 				echo '    source INTEGER PRIMARY KEY,'
 				echo '    system TEXT,'
@@ -20,6 +35,12 @@
 				echo ');'
 				echo 'CREATE TABLE files ('
 				echo '    path TEXT PRIMARY KEY,'
+				echo '    type INTEGER,'
+				echo '    links INTEGER,'
+				echo '    atime INTEGER,'
+				echo '    mtime INTEGER,'
+				echo '    ctime INTEGER,'
+				echo '    protected INTEGER,'
 				echo '    source INTEGER,'
 				echo '    FOREIGN KEY (source) REFERENCES sources (id)'
 				echo ');'
@@ -66,12 +87,35 @@
 					# override checkArgs in subshell so interactive runs won’t prompt twice within this pipe
 					checkArgs() { return 1 ; }
 					trace sudo xargs -0 stat ${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-						Linux = "-c %n";
-						Darwin = "-f %N";
+						Linux = "-c '%f %h %X %Y %Z - %n'";
+						Darwin = "-f '%DHp %l %a %m %c %Sf %N'";
 					}}
-				} | sed "s/'/'''/g ; s/.*/INSERT OR IGNORE INTO files (path) VALUES ('&');/"
+				} | awk '{
+					# extract metadata columns
+					${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+						Linux = "type = index(\"123456789abcdef\", substr(0,1,$1))";  # first digit from hex
+						Darwin = "type = $1;";
+					}}
+					links = $2;
+					atime = $3;
+					mtime = $4;
+					ctime = $5;
+					flags = $6;
+					if (flags ~ /restricted/ || flags ~ /sunlnk/) protected = "TRUE"; else protected = "FALSE";
+					# remove extracted leading columns
+					sub(/^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ /, "");
+					# SQL-escape single quotation marks
+					quote = "\047";
+					gsub(quote, quote quote);
+					path = $0;
+					# print SQL statement
+					print "INSERT OR IGNORE INTO files (path, type, links, atime, mtime, ctime, protected) " \
+						"VALUES (" quote path quote ", " type ", " links ", " atime ", " mtime ", " ctime ", " protected ");";
+				}'
 
-				echo 'COMMIT TRANSACTION;'
+		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+				sed "s/'/'''/g ; s/.*/UPDATE files SET protected = TRUE WHERE path GLOB '&';/" ${sipProtectedFiles}
+		'' + ''
 
 			} | runSQL
 
@@ -80,6 +124,24 @@
 			addSource() {
 				echo "INSERT OR IGNORE INTO sources (system, name) VALUES ('$1', '$2');"
 				sed "s/'/'''/g ; s|.*|UPDATE files SET source = (SELECT source FROM sources WHERE system = '$1' AND name = '$2') $3;|"
+			}
+
+			# other NixOS modules will evaluate lists of known/used files which we want to check
+			# usage: sanitizeFileList <list type> <list file>
+			sanitizeFileList() {
+				# warn about files being listed multiple times
+				cat "$2" | sort | uniq -d | if read -r first ; then
+					printWarning "Files listed as $1 multiple times:"
+					echo "$first" >&2
+					cat >&2
+				fi
+				# warn about files being listed that do not exist
+				cat "$2" | sort | sed "s/'/'''/g ; s/.*/SELECT '&' WHERE NOT EXISTS (SELECT * FROM files WHERE path GLOB '&');/" | \
+					runSQL | grep -Fvx --file=${notExistOk} | if read -r first ; then
+						printWarning "Files listed as $1 do not exist:"
+						echo "$first" >&2
+						cat >&2
+					fi
 			}
 		'');
 	};

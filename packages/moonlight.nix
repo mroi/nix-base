@@ -11,7 +11,12 @@ stdenvNoCC.mkDerivation rec {
 		rev = "d3f2dd3847a0b982fe64b5ffea105b286d7a53cb";
 		deepClone = true;
 		fetchSubmodules = true;
-		hash = "sha256-DY4mlnQ8FTPEX8S9F/L5WU/jFMb1YgR+PDv+TLalRpY=";
+		postFetch = ''
+			# extract build number (see Limelight/build-number.sh)
+			echo "BUILD_NUMBER = $(git -C $out rev-list --count HEAD)" > $out/Limelight/Version.xcconfig
+			rm -rf $out/.git
+		'';
+		hash = "sha256-KJHKmYnc3d+BFxVxrvuLOTpznP+nqzasbOVFY/jFPYQ=";
 	};
 	postUnpack = let
 		openssl = fetchzip {
@@ -41,8 +46,9 @@ stdenvNoCC.mkDerivation rec {
 	__noChroot = true;
 	nativeBuildInputs = [ (xcodeenv.composeXcodeWrapper {}) which git ];
 	buildPhase = ''
-		# generate build number from git history
-		SRCROOT=. PROJECT_DIR=. source Limelight/build-number.sh
+		# prevent build number extracted during fetchgit from being overwritten
+		test "$(md5sum - < Limelight/build-number.sh)" = 'a8c6b152264ed7a7fc0d0410815ae43a  -'
+		truncate --size=0 Limelight/build-number.sh
 
 		xcodebuild \
 			-scheme 'Moonlight for macOS' \

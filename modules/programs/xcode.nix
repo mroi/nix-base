@@ -54,5 +54,20 @@
 		# some non-sandboxed Nix builds may want to use the native Xcode toolchain
 		system.activationScripts.bundles.deps = [ "xcode" ];
 		system.activationScripts.profile.deps = [ "xcode" ];
+
+		system.files.known = [
+			"/Library/Apple/System/Library/Extensions/RemoteVirtualInterface.kext"
+			"/Library/Apple/System/Library/Extensions/RemoteVirtualInterface.kext/*"
+			"/Library/Apple/System/Library/LaunchDaemons/com.apple.rpmuxd.plist"
+			"/Library/Apple/usr"
+			"/Library/Apple/usr/bin"
+			"/Library/Apple/usr/bin/rvictl"
+			"/Library/Apple/usr/libexec"
+			"/Library/Apple/usr/libexec/rpmuxd"
+			"/Library/Developer/CoreSimulator/*"
+			"/Library/Developer/DeveloperDiskImages"
+			"/Library/Developer/DeveloperDiskImages/*"
+			"/private/etc/paths.d/100-rvictl"
+		];
 	};
 }

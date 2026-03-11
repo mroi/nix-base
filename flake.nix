@@ -12,8 +12,7 @@
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "doom" "doom3"
 				"fish" "gitup" "hires" "imageoptim" "lyx" "moonlight" "nix" "ollama"
-				"outlookmsg" "quake" "quake2" "run-linux" "texlive" "unison" "veusz"
-				"vmware-vmx"
+				"outlookmsg" "quake" "quake2" "texlive" "unison" "veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
 				"bitwarden-decrypt" "fish" "nix" "ollama" "outlookmsg" "texlive" "unison"

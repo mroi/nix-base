@@ -6,6 +6,14 @@ assert ! python3.pkgs ? compoundfiles;
 assert ! python3.pkgs ? rtfparse;
 
 let
+	python3' = python3.override {
+		packageOverrides = final: prev: {
+			# disable oletools tests: they fail due to deprecation warnings
+			oletools = assert prev.oletools.version == "0.60.2";
+				prev.oletools.overridePythonAttrs { doCheck = false; };
+		};
+	};
+
 	compoundfiles = python3.pkgs.buildPythonPackage {
 		pname = "compoundfiles";
 		version = "0.3";
@@ -25,11 +33,12 @@ let
 			hash = "sha256-5oPlYuV66Q4lnCn83q3JZEcmcGoPJOUGdWzd+yPzLmk";
 		};
 		format = "wheel";
+		dontCheckRuntimeDeps = true;
 		doCheck = false;
-		propagatedBuildInputs = with python3.pkgs; [ argcomplete compressed-rtf extract-msg ];
+		propagatedBuildInputs = with python3'.pkgs; [ argcomplete compressed-rtf extract-msg ];
 	};
 
-	python = python3.withPackages (pkgs: [
+	python = python3'.withPackages (pkgs: [
 		compoundfiles rtfparse pkgs.compressed-rtf pkgs.html2text
 	]);
 

@@ -3,7 +3,7 @@
 { lib, path, stdenv, rustPlatform,
 	cargo, cmake, coreutils, darwin, fetchFromGitHub, fishPlugins, gawk, getent, gettext,
 	glibcLocales, gnugrep, gnused, libiconv, man-db, ncurses, ninja, nixosTests,
-	nix-update-script, pcre2, pkg-config, procps, python3, runCommand, rustc, sphinx,
+	nix-update-script, pcre2, pkg-config, procps, python3, runCommand, rustc,
 	versionCheckHook, writableTmpDirAsHomeHook, writeText
 }:
 
@@ -12,7 +12,7 @@ let
 		# will cause errors if derivation inputs change
 		inherit cargo cmake coreutils darwin fishPlugins gawk getent gettext
 			glibcLocales gnugrep gnused lib libiconv man-db ncurses ninja nixosTests
-			nix-update-script pcre2 pkg-config procps python3 runCommand rustc sphinx
+			nix-update-script pcre2 pkg-config procps python3 runCommand rustc
 			versionCheckHook writableTmpDirAsHomeHook writeText;
 		# passthrough functions for argument inspection
 		stdenv = stdenv // { mkDerivation = x: lib.fix x; };
@@ -41,7 +41,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-vUNmlEVQ5nxXSDfpgQ3l/+dzYW/MllhcfJhmFx4kY/A=";
+			expected = "sha256-9EhvCStAeL+ADkLy9b4gXPx+JrVzUZ5Fdkf+imY3Vw0=";
 			actual = fish.src.hash;
 			message = "source sha256 changed";
 			fixup = ''
@@ -55,7 +55,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-9Wi9KlMzTrecEkHyfW/H9WPHpQDEMpdGB8snFs7zFb4=";
+			expected = "sha256-RVg6Zciy9mqZQwM5P3ngJi2NjC0qwFH7XgVEanaKnsg=";
 			actual = fish.cargoDeps.hash;
 			message = "cargo deps hash changed";
 			fixup = ''
@@ -71,7 +71,7 @@ in stdenv.mkDerivation {
 	};
 
 	nativeBuildInputs = expect {
-		expected = [ cargo cmake gettext ninja pkg-config rustc rustPlatform.cargoSetupHook writableTmpDirAsHomeHook ];
+		expected = [ cargo cmake gettext ninja pkg-config rustc rustPlatform.cargoSetupHook (python3.withPackages (p: [ p.pexpect p.sphinx ])) writableTmpDirAsHomeHook ];
 		actual = fish.nativeBuildInputs;
 		message = "nativeBuildInputs changed";
 	};

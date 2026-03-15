@@ -4,7 +4,7 @@
 		enable = lib.mkEnableOption "Ollama local LLM server";
 		models = lib.mkOption {
 			type = lib.types.listOf lib.types.str;
-			example = [ "devstral" ];
+			example = [ "devstral:latest" ];
 			description = "Models to install within Ollama.";
 		};
 	};
@@ -31,7 +31,10 @@
 			label = "com.ollama.ollama-serve";
 			description = "Ollama AI Server";
 			command = "${config.users.users._ollama.home}/bin/ollama serve --launchd";
-			environment = [ "OLLAMA_MODELS=${config.users.users._ollama.home}" ];
+			environment = [
+				"OLLAMA_MODELS=${config.users.users._ollama.home}"
+				"OLLAMA_CONTEXT_LENGTH=1000000"
+			];
 			user = "_ollama";
 			lifecycle = "demand";
 			socket = "tcp4://localhost:11434";
@@ -57,7 +60,11 @@
 		'' + ''
 
 			target='${lib.concatLines config.services.ollama.models}'
-			current="$(cd ${datadir}/manifests/registry.ollama.ai/library 2> /dev/null || exit 0 ; ls -d -- *)"
+			current="$(cd ${datadir}/manifests/registry.ollama.ai/library 2> /dev/null || exit 0 ; \
+				find -- * -type f | while read -r model ; do
+					echo "''${model%/*}:''${model#*/}"
+				done
+			)"
 
 			# beautify ollama invocations: do not show store path
 			ollama() { ${ollama} "$@" ; }

@@ -31,7 +31,10 @@
 			label = "com.ollama.ollama-serve";
 			description = "Ollama AI Server";
 			command = "${config.users.users._ollama.home}/bin/ollama serve --launchd";
-			environment = [ "OLLAMA_MODELS=${config.users.users._ollama.home}" ];
+			environment = [
+				"OLLAMA_MODELS=${config.users.users._ollama.home}"
+				"OLLAMA_CONTEXT_LENGTH=1000000"
+			];
 			user = "_ollama";
 			lifecycle = "demand";
 			socket = "tcp4://localhost:11434";

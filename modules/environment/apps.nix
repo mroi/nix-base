@@ -103,10 +103,16 @@
 			storeHeading 'Cleaning applications'
 		'' + lib.getAttr config.environment.flatpak {
 			system = ''
+				for pin in $(flatpak --system pin) ; do
+					trace sudo flatpak --system pin --remove "$pin"
+				done
 				trace sudo flatpak --system uninstall --assumeyes --unused
 				trace sudo flatpak --system repair
 			'';
 			user = ''
+				for pin in $(flatpak --user pin) ; do
+					trace flatpak --user pin --remove "$pin"
+				done
 				trace flatpak --user uninstall --assumeyes --unused
 				trace flatpak --user repair
 			'';

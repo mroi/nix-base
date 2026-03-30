@@ -1,28 +1,24 @@
 # command line restore utility for the Arq backup tool
-{ lib, path, stdenv, fetchFromGitHub, xcbuildHook, darwin, zlib }:
+{ stdenv, fetchFromGitHub, fetchpatch, xcbuildHook, darwin, zlib }:
 
-let
-	openssl_1_1 = (import path {
-		config.permittedInsecurePackages = [ "openssl-1.1.1w" ];
-		inherit (stdenv.hostPlatform) system;
-	}).openssl_1_1;
-
-in stdenv.mkDerivation {
+stdenv.mkDerivation {
 	pname = "arq-restore";
-	version = "5.7-unstable-2020-12-14";
+	version = "5.7-unstable-2026-03-19";
 
 	src = fetchFromGitHub {
 		owner = "arqbackup";
 		repo = "arq_restore";
-		rev = "d4a3d0e14c51695fb0e38c78804859a856eca3bc";
-		hash = "sha256-IjxqQS/rIlQQG0hTjKIJhrdR3r0FbuF6UUrmFPMT5Fo=";
+		rev = "939b61f7960cdd3b4c85e751d077768c193562af";
+		hash = "sha256-L+rJ48AGb+tpJKAoID6bPThg/Gpq7dHlaO0vvuGsBBI=";
+	};
+	patches = fetchpatch {
+		url = "https://github.com/arqbackup/arq_restore/pull/52.diff";
+		hash = "sha256-kaJe1DS+Nuje9yqnsUD0B76KNAI02Y7G3M+SPY8+TVs=";
 	};
 
 	nativeBuildInputs = [ xcbuildHook ];
-	buildInputs = [ darwin.ICU openssl_1_1 zlib ];
+	buildInputs = [ darwin.ICU zlib ];
 	xcbuildFlags = "GCC_TREAT_WARNINGS_AS_ERRORS=NO";
-
-	patches = [ ./arq-restore-openssl.patch ];
 
 	installPhase = ''
 		mkdir -p $out/bin

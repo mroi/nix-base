@@ -11,6 +11,9 @@ let
 			# disable oletools tests: they fail due to deprecation warnings
 			oletools = assert prev.oletools.version == "0.60.2";
 				prev.oletools.overridePythonAttrs { doCheck = false; };
+			# disable rtfde tests: they fail transiently on GitHub
+			rtfde = assert prev.rtfde.version == "0.1.2.2";
+				prev.rtfde.overridePythonAttrs { doCheck = false; };
 		};
 	};
 

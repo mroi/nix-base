@@ -50,7 +50,7 @@
 		environment.services.nix-daemon = {
 			label = "org.nixos.nix-daemon";
 			description = "Nix Package Manager Daemon";
-			command = "${lib.optionalString pkgs.stdenv.isDarwin "/var"}/root/.nix/profile/bin/nix --extra-experimental-features nix-command daemon";
+			command = "${config.users.root.home}/.nix/profile/bin/nix --extra-experimental-features nix-command daemon";
 			environment = [
 				"NIX_CONF_DIR=/nix"
 				"NIX_SSHOPTS=-F /nix/var/ssh/config"
@@ -88,5 +88,37 @@
 		'');
 
 		system.activationScripts.services.deps = [ "nix" ];
+
+		# restart the Nix daemon when the symlink in root’s home changes
+		system.activationScripts.staging = lib.mkIf (config.users.root.stagingDirectory != null) (lib.mkAfter ''
+			nixSymlinkBefore=$(readlink "${config.users.root.stagingDirectory}/.nix/profile/bin/nix" || true)
+		'');
+		system.activationScripts.root.text = lib.mkIf (config.users.root.stagingDirectory != null) (lib.mkAfter ''
+			nixSymlinkAfter=$(readlink "${config.users.root.stagingDirectory}/.nix/profile/bin/nix" || true)
+			if test "$nixSymlinkBefore" -a "$nixSymlinkBefore" != "$nixSymlinkAfter" ; then
+				restartService nix-daemon
+			fi
+		'');
+
+		system.files.known = [
+			"/nix"
+			"/nix/nix.conf"
+			"/nix/var"
+			"/nix/var/nix"
+			"/nix/var/nix/*"
+			"/nix/var/ssh"
+			"/nix/var/ssh/config"
+			"/nix/var/ssh/known_hosts"
+			"/nix/var/tmp"
+		] ++ lib.optionals config.nix.ssh.keygen [
+			"/nix/var/ssh/id_ed25519"
+			"/nix/var/ssh/id_ed25519.pub"
+		] ++ lib.optionals pkgs.stdenv.isDarwin [
+			"/nix/.Trashes"
+			"/nix/.fseventsd"
+			"/nix/.fseventsd/no_log"
+			"/nix/.metadata_never_index"
+			"/private/etc/synthetic.conf"
+		];
 	};
 }

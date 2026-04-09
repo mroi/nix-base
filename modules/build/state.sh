@@ -100,6 +100,7 @@ makeLink() {
 
 	_link=$1
 	_target=$2
+	_update=none
 
 	if $isLinux ; then
 		_ln='ln -snf'
@@ -115,6 +116,11 @@ makeLink() {
 	fi
 
 	if ! test -L "$_link" -a "$(readlink "$_link")" = "$_target" ; then
+		if ! test -L "$_link" ; then
+			_update=created
+		else
+			_update=modified
+		fi
 		# shellcheck disable=SC2086
 		trace $_sudo $_ln "$_target" "$_link"
 	fi

@@ -53,6 +53,7 @@
 
 			makeDir 755:_ollama:_ollama ${datadir} ${datadir}/bin
 			makeLink 755:_ollama:_ollama ${datadir}/bin/ollama ${ollama}
+			if didModify ; then restartService ollama-serve ; fi
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''
 			if ! xattr -p com.apple.metadata:com_apple_backup_excludeItem ${datadir} > /dev/null 2> /dev/null ; then
 				trace sudo tmutil addexclusion ${datadir}

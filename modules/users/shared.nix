@@ -58,5 +58,10 @@
 				! -path '${config.users.shared.folder}/${config.users.stateDir}/nix/profiles/profile*' | \
 				while read -r file ; do trace chgrp -h ${config.users.shared.group} "$file" ; done
 		'';
+
+		system.files.known = [
+			"${config.users.shared.folder}"
+			"${config.users.shared.folder}/*"
+		];
 	};
 }

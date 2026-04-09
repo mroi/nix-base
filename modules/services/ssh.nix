@@ -40,5 +40,15 @@
 			patch = ./ssh-public-key-only.patch;
 			postCommand = "restartService sshd";
 		}];
+
+		system.files.known = let
+			prefix = if pkgs.stdenv.isDarwin then "/private" else "";
+		in [
+			"${prefix}/etc/ssh/ssh_host_ecdsa_key"
+			"${prefix}/etc/ssh/ssh_host_ed25519_key"
+			"${prefix}/etc/ssh/ssh_host_rsa_key"
+		] ++ lib.optionals config.services.openssh.harden [
+			"${prefix}/etc/ssh/sshd_config.d/100-public-key-only.conf"
+		];
 	};
 }

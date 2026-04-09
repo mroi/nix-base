@@ -60,5 +60,12 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf config.services.arq.enable [
+			"/Library/Application Support/ArqAgent"
+			"/Library/Application Support/ArqAgent/*"
+			"/Library/Application Support/ArqAgentAPFS.noindex"
+			"/Library/LaunchDaemons/com.haystacksoftware.arqagent.plist"
+		];
 	};
 }

@@ -13,8 +13,8 @@
 		in pkgs.fetchurl {
 			inherit url;
 			pname = "arq-installer";
-			version = "7.39";
-			hash = "sha256-nelnTs1nEI5193oLwXDgjlNwqr/Xpl7tNd0pfj0S1kU=";
+			version = "7.39.1";
+			hash = "sha256-4Mn+Z+FMcT4orzy/pcXIJ5aU9GQaJBt8yWwQva9+WkY=";
 			passthru.updateScript = ''
 				version=$(curl --silent ${releaseNotes} | \
 					xmllint --html --xpath '/html/body/h1[1]/text()' - 2> /dev/null | \

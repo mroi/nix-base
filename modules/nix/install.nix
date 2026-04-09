@@ -50,7 +50,7 @@
 		environment.services.nix-daemon = {
 			label = "org.nixos.nix-daemon";
 			description = "Nix Package Manager Daemon";
-			command = "${lib.optionalString pkgs.stdenv.isDarwin "/var"}/root/.nix/profile/bin/nix --extra-experimental-features nix-command daemon";
+			command = "${config.users.root.home}/.nix/profile/bin/nix --extra-experimental-features nix-command daemon";
 			environment = [
 				"NIX_CONF_DIR=/nix"
 				"NIX_SSHOPTS=-F /nix/var/ssh/config"

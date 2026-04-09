@@ -143,7 +143,7 @@ fi
 makeService << EOF
 	name=nix-daemon ; label=org.nixos.nix-daemon
 	description='Nix Package Manager Daemon'
-	command=~root/.nix/profile/bin/nix\ --extra-experimental-features\ nix-command\ daemon
+	command=$(readlink -f ~root)/.nix/profile/bin/nix\ --extra-experimental-features\ nix-command\ daemon
 	environment="\
 		NIX_CONF_DIR=/nix
 		NIX_SSHOPTS=-F /nix/var/ssh/config

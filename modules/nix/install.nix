@@ -88,5 +88,16 @@
 		'');
 
 		system.activationScripts.services.deps = [ "nix" ];
+
+		# restart the Nix daemon when the symlink in root’s home changes
+		system.activationScripts.staging = lib.mkIf (config.users.root.stagingDirectory != null) (lib.mkAfter ''
+			nixSymlinkBefore=$(readlink "${config.users.root.stagingDirectory}/.nix/profile/bin/nix" || true)
+		'');
+		system.activationScripts.root.text = lib.mkIf (config.users.root.stagingDirectory != null) (lib.mkAfter ''
+			nixSymlinkAfter=$(readlink "${config.users.root.stagingDirectory}/.nix/profile/bin/nix" || true)
+			if test "$nixSymlinkBefore" -a "$nixSymlinkBefore" != "$nixSymlinkAfter" ; then
+				restartService nix-daemon
+			fi
+		'');
 	};
 }

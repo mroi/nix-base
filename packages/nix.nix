@@ -63,7 +63,7 @@ stdenvNoCC.mkDerivation {
 							forAll = list: f: nixpkgs.lib.genAttrs list f;
 						in {
 							devShells = forAll systems (system: {
-								default = (import ./shell.nix { 
+								default = (import ./shell.nix {
 									inherit nixpkgs system;
 								}).overrideAttrs (attrs: {
 									shellHook = (attrs.shellHook or "") + '''

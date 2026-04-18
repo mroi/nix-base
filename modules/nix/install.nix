@@ -84,6 +84,7 @@
 			if ! test -f /nix/var/ssh/id_ed25519 ; then
 				trace sudo ssh-keygen -q -t ed25519 -N ''' -C ''' -f /nix/var/ssh/id_ed25519
 				makeFile 600:root:nix /nix/var/ssh/id_ed25519
+				${lib.optionalString pkgs.stdenv.isDarwin "trace sudo chmod +a 'group:staff allow read' /nix/var/ssh/id_ed25519"}
 			fi
 		'');
 

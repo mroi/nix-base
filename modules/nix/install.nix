@@ -43,6 +43,9 @@
 				members = [ "_nix" ];
 				description = "Nix Build Group";
 			};
+			groups.kvm = lib.mkIf pkgs.stdenv.isLinux {
+				members = [ "_nix" ];
+			};
 		};
 
 		environment.rootPaths = [ (lib.getExe pkgs.nix) ];

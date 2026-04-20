@@ -12,6 +12,7 @@ let nixos = import "${path}/nixos" {
 
 			darwin-builder = {
 				diskSize = 128 * 1024;
+				memorySize = 4 * 1024;
 				hostPort = 33022;
 			};
 

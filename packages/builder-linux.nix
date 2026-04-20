@@ -3,21 +3,26 @@
 
 let nixos = import "${path}/nixos" {
 
-	configuration = { lib, modulesPath, ... }: {
+	configuration = { config, lib, modulesPath, ... }: {
 
 		imports = [ "${modulesPath}/profiles/nix-builder-vm.nix" ];
 
 		virtualisation = let hostPkgs = import path { inherit (stdenvNoCC.hostPlatform) system; }; in {
 			host.pkgs = hostPkgs;
-			diskSize = lib.mkForce (128 * 1024);
 
-			# SSH access
+			darwin-builder = {
+				diskSize = 128 * 1024;
+				hostPort = 33022;
+			};
+
+			# SSH access only from localhost
 			forwardPorts = lib.mkForce [{
 				from = "host";
 				host.address = "127.0.0.1";
-				host.port = 33022;
+				host.port = config.virtualisation.darwin-builder.hostPort;
 				guest.port = 22;
 			}];
+
 			sharedDirectories.keys.source = lib.mkForce "/nix/var/ssh";
 
 			# exclude QEMU disk image from Time Machine backups
@@ -37,10 +42,10 @@ let nixos = import "${path}/nixos" {
 		};
 
 		nixpkgs.hostPlatform = builtins.replaceStrings [ "darwin" ] [ "linux" ] stdenvNoCC.hostPlatform.system;
-		boot.binfmt.emulatedSystems = if binfmt then builtins.getAttr stdenvNoCC.hostPlatform.parsed.cpu.name {
+		boot.binfmt.emulatedSystems = lib.mkIf binfmt (builtins.getAttr stdenvNoCC.hostPlatform.parsed.cpu.name {
 			aarch64 = [ "x86_64-linux" ];
 			x86_64 = [ "aarch64-linux" ];
-		} else [];
+		});
 	};
 
 	system = null;

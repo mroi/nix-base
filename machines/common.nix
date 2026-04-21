@@ -29,8 +29,6 @@
 	};
 
 	security.pki.certificateTrust.system = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {
-		# Apple Root Certificate Authority: maybe deprecated
-		"580F804792ABC63BBB80154D4DFDDD8B2EF2674E" = { basicX509 = true; ipsecServer = true; codeSigning = true; timeStamping = true; };
 		# DigiCert High Assurance EV Root CA: involved in geo services and commerce
 		"5FB7EE0633E259DBAD0C4C9AE6D38F1A61C7DC25" = { basicX509 = true; sslServer = true; timeStamping = true; };
 		# USERTrust RSA Certification Authority: basicX509 needed by GitHub action runner

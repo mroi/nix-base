@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "lyx";
-	version = "2.5.0";
+	version = "2.5.1";
 
 	src = fetchurl {
 		url = "https://lyx.mirror.garr.it/bin/${version}/LyX-${version}+qt6-x86_64-arm64-cocoa.dmg";
-		hash  = "sha256-YhSUGM2xSy89vrvsE+IMUlLz4s4bsK2JFKTnW4akGRc=";
+		hash  = "sha256-HDqMv3yB6dBrU+G6KREZNjiBs0dyKBbPU7a5ErNYk3A=";
 	};
 
 	__noChroot = true;

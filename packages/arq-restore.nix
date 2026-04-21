@@ -3,13 +3,13 @@
 
 stdenv.mkDerivation {
 	pname = "arq-restore";
-	version = "5.7-unstable-2026-03-19";
+	version = "5.7-unstable-2026-04-13";
 
 	src = fetchFromGitHub {
 		owner = "arqbackup";
 		repo = "arq_restore";
-		rev = "939b61f7960cdd3b4c85e751d077768c193562af";
-		hash = "sha256-L+rJ48AGb+tpJKAoID6bPThg/Gpq7dHlaO0vvuGsBBI=";
+		rev = "0911ce278a2311c3ee16746d2e3f6a5ab2be0d35";
+		hash = "sha256-Tw/iFXFLxa0D5dVBGst9jT9eZ3mN/Zz3xTPzusRGJUU=";
 	};
 	patches = fetchpatch {
 		url = "https://github.com/arqbackup/arq_restore/pull/52.diff";

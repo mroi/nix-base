@@ -12,6 +12,12 @@
 		nix.settings.builders = [
 			"ssh://builder@localhost:33022 aarch64-linux,x86_64-linux - - - big-parallel,kvm"
 		];
+		nix.ssh.config = lib.concatLines [
+			"Host builder-linux"
+			"Hostname localhost"
+			"Port 33022"
+			"User builder"
+		];
 		nix.ssh.knownHosts = lib.concatLines [
 			"[localhost]:33022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBWcxb/Blaqt1auOtE+F8QUWrUotiC5qBJ+UuEWdVCb"
 		];

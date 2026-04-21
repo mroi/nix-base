@@ -46,7 +46,7 @@ if checkArgs --help -h ; then
 			fi
 		done
 		# print commands ordered by their length to illustrate hierarchy
-		printf %s "$_toPrint" | awk 'BEGIN { OFS="\t" }; { print length(), $0 }' | sort -n | cut -f2
+		printf %s "$_toPrint" | awk 'BEGIN { OFS="\t" } { print length(), $0 }' | sort -n | cut -f2
 		_helpCommandsPrinted="$_helpCommandsPrinted$_toPrint$newline"
 		# return false from checkArgs to prevent actual command execution
 		return 1

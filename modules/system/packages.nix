@@ -142,7 +142,7 @@
 					# sort packages by install time so later packages overwrite earlier ones in the database
 					pkgutil --volume "$volume" --packages | while read -r package ; do
 						pkgutil --volume "$volume" --pkg-info "$package" | \
-							awk "BEGIN { FS = \": *\" ; } /^install-time:/ { print \$2 \"\t\" \"$package\" }"
+							awk "BEGIN { FS = \": *\" } /^install-time:/ { print \$2 \"\t\" \"$package\" }"
 					done | sort -n | cut -f2- | while read -r package ; do
 						basepath=$(pkgutil --volume "$volume" --pkg-info "$package" | sed -n '/^location:/ { s/^.*: *// ; p ; }')
 						basepath=$(cd "$volume$basepath" && pwd -P || echo "$volume$basepath")

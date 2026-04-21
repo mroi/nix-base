@@ -78,6 +78,14 @@
 		system.updateScripts.profile = lib.stringAfter [ "packages" ] ''
 			storeHeading -
 			trace nix profile upgrade --all
+
+			# print version changes made by the update
+			nix profile history | awk '
+				BEGIN { buf = "" }
+				/^Version/ { buf = "" ; next }
+				{ gsub(/^ */, "") ; buf = buf $0 ORS }
+				END { printf buf }
+			'
 		'';
 		system.cleanupScripts.profile = lib.stringAfter [ "packages" ] ''
 			storeHeading 'Cleaning the Nix profile'

@@ -35,6 +35,11 @@
 				echo ');'
 				echo 'CREATE TABLE files ('
 				echo '    path TEXT PRIMARY KEY,'
+				echo '    type INTEGER,'
+				echo '    links INTEGER,'
+				echo '    atime INTEGER,'
+				echo '    mtime INTEGER,'
+				echo '    ctime INTEGER,'
 				echo '    protected INTEGER,'
 				echo '    source INTEGER,'
 				echo '    FOREIGN KEY (source) REFERENCES sources (id)'
@@ -82,21 +87,30 @@
 					# override checkArgs in subshell so interactive runs won’t prompt twice within this pipe
 					checkArgs() { return 1 ; }
 					trace sudo xargs -0 stat ${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-						Linux = "-c '- %n'";
-						Darwin = "-f '%Sf %N'";
+						Linux = "-c '%f %h %X %Y %Z - %n'";
+						Darwin = "-f '%DHp %l %a %m %c %Sf %N'";
 					}}
 				} | awk '{
 					# extract metadata columns
-					flags = $1
+					${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+						Linux = "type = index(\"123456789abcdef\", substr(0,1,$1))";  # first digit from hex
+						Darwin = "type = $1";
+					}}
+					links = $2
+					atime = $3
+					mtime = $4
+					ctime = $5
+					flags = $6
 					if (flags ~ /restricted/ || flags ~ /sunlnk/) protected = "TRUE" ; else protected = "FALSE"
 					# remove extracted leading columns
-					sub(/^[^ ]+ /, "")
+					sub(/^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ /, "")
 					# SQL-escape single quotation marks
 					quote = "\047"
 					gsub(quote, quote quote)
 					path = $0
 					# print SQL statement
-					print "INSERT OR IGNORE INTO files (path, protected) VALUES (" quote path quote ", " protected ");"
+					print "INSERT OR IGNORE INTO files (path, type, links, atime, mtime, ctime, protected) " \
+						"VALUES (" quote path quote ", " type ", " links ", " atime ", " mtime ", " ctime ", " protected ");"
 				}'
 
 		'' + lib.optionalString pkgs.stdenv.isDarwin ''

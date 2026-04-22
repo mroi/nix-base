@@ -45,6 +45,7 @@ if test "$*" = '' -o "$*" = -i -o "$*" = --interactive ; then
 	else
 		set -- "$@" activate
 	fi
+	_argv=$*
 fi
 
 # self-update flake
@@ -56,6 +57,14 @@ fi
 if checkArgs update-versions update all ; then
 	. "$_self/modules/build/versions.sh"
 	runAllUpdates
+fi
+
+# noself options skip the above two steps
+if checkArgs update-noself ; then
+	set -- "$@" update
+fi
+if checkArgs all-noself ; then
+	set -- "$@" all
 fi
 
 # generate rebuild script for this machine

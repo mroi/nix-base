@@ -20,7 +20,7 @@
 			programs.sfSymbols.enable = lib.mkDefault true;
 			security.sandbox.enable = lib.mkDefault true;
 			services.ollama.enable = lib.mkDefault true;
-			services.ollama.models = [ "qwen3.5:9b" ];
+			services.ollama.models = [ "huihui_ai/qwen3.5-abliterated:9b" ];
 
 			environment.bundles."/Applications/GitUp.app" = {
 				pkg = pkgs.callPackage ../../packages/gitup.nix {};

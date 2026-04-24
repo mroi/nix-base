@@ -2,7 +2,11 @@
 
 	options.programs.develop.enable = lib.mkEnableOption "developer programs";
 
-	config = lib.mkIf config.programs.develop.enable (lib.mkMerge [
+	config = let
+
+		smallCodingModel = "huihui_ai/qwen3.5-abliterated:9b";
+
+	in lib.mkIf config.programs.develop.enable (lib.mkMerge [
 
 		(lib.mkIf pkgs.stdenv.isLinux {
 
@@ -20,7 +24,7 @@
 			programs.sfSymbols.enable = lib.mkDefault true;
 			security.sandbox.enable = lib.mkDefault true;
 			services.ollama.enable = lib.mkDefault true;
-			services.ollama.models = [ "qwen3.5:9b" ];
+			services.ollama.models = [ smallCodingModel ];
 
 			environment.bundles."/Applications/GitUp.app" = {
 				pkg = pkgs.callPackage ../../packages/gitup.nix {};

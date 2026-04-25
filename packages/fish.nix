@@ -149,7 +149,7 @@ in stdenv.mkDerivation {
 
 	passthru.updateScript = ''
 		while true ; do
-			output="$(nix eval --quiet --no-warn-dirty "''${self}#$UPDATE_NIX_ATTR_PATH" 2>&1)"
+			output="$(nix eval --quiet --no-warn-dirty "''${_self}#$UPDATE_NIX_ATTR_PATH" 2>&1)"
 			case "$output" in
 				*derivation*)
 					printInfo 'evaluation successful'

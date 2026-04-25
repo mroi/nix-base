@@ -1,8 +1,8 @@
 # update packages to current versions
 
 # shellcheck disable=SC2016,SC2154
-test "$self" || fatalError '$self is unset'
-test "$machine" || fatalError '$machine is unset'
+test "$_self" || fatalError '$_self is unset'
+test "$_machine" || fatalError '$_machine is unset'
 
 runAllUpdates() {
 	_system=$(nix eval --impure --raw --expr builtins.currentSystem)
@@ -24,10 +24,10 @@ runAllUpdates() {
 
 	_updatesExternal=$(nix eval --quiet --no-warn-dirty --raw \
 		--apply "$(_nixFunc "packages.${_system}")" \
-		"${self}#packages.${_system}" || true)
+		"${_self}#packages.${_system}" || true)
 	_updatesInternal=$(nix eval --quiet --no-warn-dirty --raw \
-		--apply "$(_nixFunc "baseConfigurations.${machine}.config.system.build.packages")" \
-		"${self}#baseConfigurations.${machine}.config.system.build.packages" || true)
+		--apply "$(_nixFunc "baseConfigurations.${_machine}.config.system.build.packages")" \
+		"${_self}#baseConfigurations.${_machine}.config.system.build.packages" || true)
 
 	storeHeading 'Updating package versions'
 	(
@@ -46,7 +46,7 @@ runAllUpdates() {
 				Linux = [ "nix-update" "curl" "jq" "libxml2" ];
 				Darwin = [ "nix-update" "jq" ];  # TODO: remove jq when we drop support for macOS <15
 			})' \
-			"${self}#baseConfigurations.${machine}.config.nixpkgs.pkgs"
+			"${_self}#baseConfigurations.${_machine}.config.nixpkgs.pkgs"
 		)"
 
 		# execute all passthru.updateScript entries
@@ -58,7 +58,7 @@ runAllUpdates() {
 
 nixUpdate() {
 	_pwd=$PWD
-	cd "$self" || exit
+	cd "$_self" || exit
 	NIX_CONF_DIR=/nix NIX_SSL_CERT_FILE=$_sslCertFile nix-update --flake "$@" | sed -n '
 		/^fetch /Ip
 		/^update /Ip
@@ -79,8 +79,8 @@ _updateEntry() {
 		_file=$(nix eval --quiet --no-warn-dirty --raw \
 			--apply 'x: with builtins;
 				substring (stringLength storeDir) (-1) (unsafeGetAttrPos "updateScript" x.passthru).file' \
-			"${self}#$UPDATE_NIX_ATTR_PATH")
-		_file=${self}/${_file#/*/}
+			"${_self}#$UPDATE_NIX_ATTR_PATH")
+		_file=${_self}/${_file#/*/}
 		# extract current value: first _match after the first line mentioning _trigger
 		_current=$(sed -n -E "/$_trigger/,\$ {
 			s!.*\"($_match)\".*!\1!

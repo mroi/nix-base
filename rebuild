@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # find directory enclosing the script
-self=$(
+_self=$(
 	test -d "$(dirname "$0")" && cd "$(dirname "$0")"
 	test "$(dirname "$0")" = . && cd "$(dirname "$(command -v "$0")")"
 	test -L "$(basename "$0")" && cd "$(dirname "$(readlink "$(basename "$0")")")"
@@ -9,7 +9,7 @@ self=$(
 )
 
 # determine machine identifier
-machine=$(
+_machine=$(
 	# shellcheck disable=SC3028
 	if test "$HOSTNAME" && env | grep -Fq HOSTNAME ; then
 		echo "$HOSTNAME"
@@ -19,26 +19,26 @@ machine=$(
 		hostname
 	fi | tr '[:upper:]' '[:lower:]'
 )
-machine=${machine%.local}
+_machine=${_machine%.local}
 
-. "$self/modules/build/utils.sh"
+. "$_self/modules/build/utils.sh"
 
 # check if a configuration exists
-if ! test -d "$self/machines/$machine" ; then
-	printError "No configuration for this machine: $machine"
+if ! test -d "$_self/machines/$_machine" ; then
+	printError "No configuration for this machine: $_machine"
 	exit 68  # EX_NOHOST
 fi
 
 # make sure Nix is installed
 if ! nix store info > /dev/null 2>&1 ; then
-	. "$self/modules/build/state.sh"
-	. "$self/modules/nix/install.sh"
+	. "$_self/modules/build/state.sh"
+	. "$_self/modules/nix/install.sh"
 fi
 
 # run default commands if there are no arguments
 if test "$*" = '' -o "$*" = -i -o "$*" = --interactive ; then
 	commands=$(nix eval --quiet --no-warn-dirty --apply toString --raw \
-		"${self}#baseConfigurations.${machine}.config.system.defaultCommands")
+		"${_self}#baseConfigurations.${_machine}.config.system.defaultCommands")
 	if test "$commands" ; then
 		# shellcheck disable=SC2086
 		set -- "$@" $commands
@@ -49,21 +49,21 @@ fi
 
 # self-update flake
 if checkArgs update-flake update all ; then
-	trace nix flake update --flake "$self"
+	trace nix flake update --flake "$_self"
 fi
 
 # update package versions
 if checkArgs update-versions update all ; then
-	. "$self/modules/build/versions.sh"
+	. "$_self/modules/build/versions.sh"
 	runAllUpdates
 fi
 
 # generate rebuild script for this machine
 script=$(
 	nix build --quiet --no-link --print-out-paths --no-warn-dirty \
-		"${self}#baseConfigurations.${machine}.config.system.build.rebuild"
+		"${_self}#baseConfigurations.${_machine}.config.system.build.rebuild"
 )
 
 # run rebuild script
-export self _helpCommandsPrinted
+export _self _helpCommandsPrinted
 exec "$script" "$@"

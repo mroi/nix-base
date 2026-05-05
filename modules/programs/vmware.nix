@@ -14,12 +14,13 @@
 		} // {
 			version = "25.0.1";
 			passthru.updateScript = ''
-				fusion=$(curl --silent https://techdocs.broadcom.com/us/en/vmware-cis/desktop-hypervisors.html | \
-					xmllint --html --xpath 'string(//*[text()="VMware Fusion Pro"]/following::a[1]/@href)' - 2> /dev/null)
-				relnotes=$(curl --silent "https://techdocs.broadcom.com$fusion" | \
-					xmllint --html --xpath 'string(//*[text()="Release Notes"]/following::span[1]/@href)' - 2> /dev/null)
-				version=$(curl --silent "https://techdocs.broadcom.com$relnotes" | \
-					xmllint --html --xpath 'substring-before(substring-after(//div[text()="Release Notes"]/following::a[1]//text(),"VMware Fusion ")," Release Notes")' - 2> /dev/null)
+				fusion=$(curl --silent https://techdocs.broadcom.com | grep -F 'data-divisions' | \
+					xmllint --recover --xpath 'string(//@data-divisions)' - 2> /dev/null | \
+					jq --raw-output '.. | objects | select(.title == "VMware Fusion Pro") | .versions[-1].link')
+				toc=$(curl --silent "https://techdocs.broadcom.com$fusion.html" | \
+					xmllint --html --xpath 'string(//meta[@name="toc"]/@content)' - 2> /dev/null)
+				version=$(curl --silent "https://techdocs.broadcom.com$toc" | \
+					jq --raw-output '.[] | select(.title == "Release Notes") | .children[0].title | sub("^VMware Fusion (?<version>.*) Release Notes$"; .version)')
 				updateVersion marketingVersion "$version"
 				if didUpdate ; then
 					updateHash hash ${lib.fakeHash}

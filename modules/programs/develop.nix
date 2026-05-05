@@ -5,6 +5,9 @@
 	config = lib.mkIf config.programs.develop.enable (lib.mkMerge [
 
 		(lib.mkIf pkgs.stdenv.isLinux {
+
+			security.sandbox.enable = lib.mkDefault true;
+
 			environment.profile = [
 				"nixpkgs#git"
 				"nixpkgs#swift"
@@ -15,6 +18,7 @@
 
 			programs.xcode.enable = lib.mkDefault true;
 			programs.sfSymbols.enable = lib.mkDefault true;
+			security.sandbox.enable = lib.mkDefault true;
 			services.ollama.enable = lib.mkDefault true;
 			services.ollama.models = [ "qwen3.5:9b" ];
 

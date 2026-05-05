@@ -79,6 +79,7 @@
 	"affinity" = ./programs/affinity.nix;
 	"develop" = ./programs/develop.nix;
 	"emulators" = ./programs/emulators.nix;
+	"opencode" = ./programs/opencode.nix;
 	"sfsymbols" = ./programs/sfsymbols.nix;
 	"utilities" = ./programs/utilities.nix;
 	"vmware" = ./programs/vmware.nix;

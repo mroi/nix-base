@@ -22,6 +22,9 @@
 
 			programs.xcode.enable = lib.mkDefault true;
 			programs.sfSymbols.enable = lib.mkDefault true;
+			programs.opencode.enable = lib.mkDefault true;
+			programs.opencode.settings.model = "ollama/${smallCodingModel}";
+			programs.opencode.settings.small_model = "ollama/${smallCodingModel}";
 			security.sandbox.enable = lib.mkDefault true;
 			services.ollama.enable = lib.mkDefault true;
 			services.ollama.models = [ smallCodingModel ];

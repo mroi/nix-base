@@ -856,7 +856,7 @@ recoveryCommands() {
 				echo '# This script needs to be executed from the macOS Recovery environment.'
 				echo '#'
 				echo '# To enter Recovery, shut down and restart with the power button held down.'
-				echo '# Within Recovery, launch Terminal (⌘T) and mount the data volume:'
+				echo '# Within Recovery, launch Terminal (⇧⌘T) and mount the data volume:'
 				echo '#'
 				echo '# diskutil apfs unlock Data'
 				echo '#'

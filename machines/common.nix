@@ -12,6 +12,8 @@
 		"nix-base#nix"
 		"nix-base#fish"
 		"nixpkgs#micro"
+	] ++ lib.optionals pkgs.stdenv.isDarwin [
+		"nix-base#extract-text"
 	];
 
 	networking.firewall = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {

@@ -1,19 +1,20 @@
 # custom derivation to reduce trust in Nixpkgs for my standard shell by enforcing oversight
 # in addition, use XDG_STATE_DIR for fish state files and generated completions
 { lib, path, stdenv, rustPlatform,
-	cargo, cmake, coreutils, darwin, fetchFromGitHub, fishPlugins, gawk, getent, gettext,
-	glibcLocales, gnugrep, gnused, libiconv, man-db, ncurses, ninja, nixosTests,
-	nix-update-script, pcre2, pkg-config, procps, python3, runCommand, rustc,
-	versionCheckHook, writableTmpDirAsHomeHook, writeText
+	buildPackages, cargo, cmake, coreutils, darwin, fetchFromGitHub, fish,
+	fishPlugins, gawk, getent, gettext, glibcLocales, gnugrep, gnused, libiconv,
+	man-db, ncurses, ninja, nixosTests, nix-update-script, pcre2, pkg-config,
+	procps, python3, runCommand, rustc, versionCheckHook, writableTmpDirAsHomeHook,
+	writeText
 }:
 
 let
 	fish = import "${path}/pkgs/by-name/fi/fish/package.nix" {
 		# will cause errors if derivation inputs change
-		inherit cargo cmake coreutils darwin fishPlugins gawk getent gettext
-			glibcLocales gnugrep gnused lib libiconv man-db ncurses ninja nixosTests
-			nix-update-script pcre2 pkg-config procps python3 runCommand rustc
-			versionCheckHook writableTmpDirAsHomeHook writeText;
+		inherit buildPackages cargo cmake coreutils darwin fish fishPlugins gawk
+			getent gettext glibcLocales gnugrep gnused lib libiconv man-db ncurses
+			ninja nixosTests nix-update-script pcre2 pkg-config procps python3
+			runCommand rustc versionCheckHook writableTmpDirAsHomeHook writeText;
 		# passthrough functions for argument inspection
 		stdenv = stdenv // { mkDerivation = x: lib.fix x; };
 		fetchFromGitHub = x: (fetchFromGitHub x) // x;
@@ -41,7 +42,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-lhixotjhD8+xb8Hw6Mu1uJPtCq0zlQsBAXpHRzT+moI=";
+			expected = "sha256-u0mBdWkxP4zI6NUhJ0LJrEDrbAAfTDi8IapsWWC9yWc=";
 			actual = fish.src.hash;
 			message = "source sha256 changed";
 			fixup = ''
@@ -55,7 +56,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-zua2O3eGi7dXh4w0IoUGL2RxvGIW0O3WpVg/tT8942Q=";
+			expected = "sha256-d4YA9fnDQyfyK675nP+tiTqJ1o2jqjwPHU1trXd8MCA=";
 			actual = fish.cargoDeps.hash;
 			message = "cargo deps hash changed";
 			fixup = ''

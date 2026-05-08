@@ -1,6 +1,7 @@
 # ollama patched for launchd integration and defaulting to no chat history
 { lib, stdenv, ollama, writeText }:
 
+# TODO: build ollama using the MLX backend
 ollama.overrideAttrs (attrs: {
 	patches = attrs.patches or [] ++ lib.optional stdenv.isDarwin (writeText "launchd-integration.patch" ''
 		--- a/cmd/cmd.go	1970-01-01 01:00:01

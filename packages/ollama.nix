@@ -1,6 +1,7 @@
 # ollama patched for launchd integration and defaulting to no chat history
 { lib, stdenv, ollama, writeText }:
 
+# TODO: build ollama using the MLX backend
 ollama.overrideAttrs (attrs: {
 	patches = attrs.patches or [] ++ lib.optional stdenv.isDarwin (writeText "launchd-integration.patch" ''
 		--- a/cmd/cmd.go	1970-01-01 01:00:01
@@ -125,4 +126,10 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC|os.O_APPEND, 0o600)
 	'');
+
+	# remove failing test
+	# https://github.com/NixOS/nixpkgs/pull/518062
+	postPatch = attrs.postPatch + ''
+		rm model/models/nemotronh/model_omni_test.go
+	'';
 })

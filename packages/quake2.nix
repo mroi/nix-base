@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "quake2";
-	version = "8.60";
+	version = "8.70";
 
 	src = fetchurl {
-		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/yquake2_8.60/yquake2-8.60.dmg";
-		hash = "sha256-NE03mAMeE+BTf56Ki8srFUj7lY/GrCB8LNgdzJ9fD8k=";
+		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/yquake2_8.70/yquake2-8.70.dmg";
+		hash = "sha256-UmoqXlN3sClYUtDJ8Mfi6nRD9/haGje6iOlR4Z+E4WY=";
 	};
 
 	nativeBuildInputs = [ undmg ];

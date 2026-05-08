@@ -5,14 +5,14 @@
 	config = let
 
 		vmware-fusion-installer = let
-			marketingVersion = "25H2u1";
+			marketingVersion = "26H1";
 		in pkgs.requireFile {
-			name = "VMware-Fusion-${marketingVersion}-25219963_universal.dmg";
+			name = "VMware-Fusion-${marketingVersion}-25388279_universal.dmg";
 			url = "https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion&freeDownloads=true";
 			# nix hash convert --from base16 --hash-algo sha256 <hash in hex from website>
-			hash = "sha256-v+iP4WU+UKr8rz/OXqy0xJHUCuXUOlGZyZHK67BLmNA=";
+			hash = "sha256-wdNzqiG+JWdOPsxRiBniVXhd6p1FbYdHvLCipZJEvfY=";
 		} // {
-			version = "25.0.1";
+			version = "26.0.0";
 			passthru.updateScript = ''
 				fusion=$(curl --silent https://techdocs.broadcom.com | grep -F 'data-divisions' | \
 					xmllint --recover --xpath 'string(//@data-divisions)' - 2> /dev/null | \
@@ -20,7 +20,7 @@
 				toc=$(curl --silent "https://techdocs.broadcom.com$fusion.html" | \
 					xmllint --html --xpath 'string(//meta[@name="toc"]/@content)' - 2> /dev/null)
 				version=$(curl --silent "https://techdocs.broadcom.com$toc" | \
-					jq --raw-output '.[] | select(.title == "Release Notes") | .children[0].title | sub("^VMware Fusion (?<version>.*) Release Notes$"; .version)')
+					jq --raw-output '.[] | select(.title == "Release Notes") | .children[0].title | sub("^VMware Fusion (?<version>.*) Release Notes$"; .version)')
 				updateVersion marketingVersion "$version"
 				if didUpdate ; then
 					updateHash hash ${lib.fakeHash}

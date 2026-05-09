@@ -13,8 +13,8 @@
 		in pkgs.fetchurl {
 			inherit url;
 			pname = "arq-installer";
-			version = "7.40.2";
-			hash = "sha256-S58kN22BbFq7d1abbm2Y0n9MY+Ak0s8dPfo9W64DytY=";
+			version = "7.41";
+			hash = "sha256-zOE/dpCehkJHGBwtZgwvUqDOEOqnqW60p8gKQ+LYlGM=";
 			passthru.updateScript = ''
 				version=$(curl --silent ${releaseNotes} | \
 					xmllint --html --xpath '/html/body/h1[1]/text()' - 2> /dev/null | \
@@ -60,5 +60,12 @@
 				'';
 			};
 		};
+
+		system.files.known = lib.mkIf config.services.arq.enable [
+			"/Library/Application Support/ArqAgent"
+			"/Library/Application Support/ArqAgent/*"
+			"/Library/Application Support/ArqAgentAPFS.noindex"
+			"/Library/LaunchDaemons/com.haystacksoftware.arqagent.plist"
+		];
 	};
 }

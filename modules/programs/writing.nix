@@ -38,6 +38,14 @@
 				fi
 				makeIcon /Applications/Research.localized graduationcap.fill
 			'';
+
+			system.files.known = [
+				"/Applications/Research.localized"
+				"/Applications/Research.localized/.localized"
+			];
+			system.files.used = [
+				"/Applications/Research.localized/.localized/*"
+			];
 		})
 	]);
 }

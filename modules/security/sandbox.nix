@@ -68,12 +68,43 @@
 				${dir-ro "XDG_STATE_HOME" "/nix"}
 			'' + config.security.sandbox.rules { inherit dir-ro dir-rw; };
 
+			# wrap dev tools whose behavior collides with the sandbox
+			wrappers = pkgs.runCommand "sandbox-wrappers" {} ''
+				mkdir -p $out/bin
+				# swift needs --disable-sandbox
+				cat <<- 'EOF' > $out/bin/swift
+					#!/bin/sh
+					if test "$#" -eq 0 -o "$1" != "''${1#-}" ; then
+						# invocation without subcommand
+						exec /usr/bin/swift "$@"
+					else
+						# invocation with subcommand
+						subcommand=$1 ; shift
+						exec /usr/bin/swift "$subcommand" --disable-sandbox "$@"
+					fi
+				EOF
+				cat <<- 'EOF' > $out/bin/xcodebuild
+					#!/bin/sh
+					scheme=$(ls *.xcodeproj/xcshareddata/xcschemes/*.xcscheme | head -n1)
+					scheme=$(basename "$scheme" .xcscheme)
+					exec /usr/bin/xcodebuild \
+						-scheme "$scheme" \
+						-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
+						OTHER_SWIFT_FLAGS=--disable-sandbox \
+						"$@"
+				EOF
+				chmod a+x $out/bin/*
+			'';
+
 		in pkgs.writeScriptBin "box" (''#!/bin/sh
 
 			${config.security.sandbox.init}
 
 			# run the user’s interactive shell if there is no other command
 			if test "$*" = "" ; then set -- "$SHELL" ; fi
+
+			# wrap some tools so they work inside the sandbox
+			PATH=${wrappers}/bin:$PATH
 
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 

@@ -12,8 +12,8 @@
 			x86_64-darwin = [
 				"arq-restore" "bitwarden-decrypt" "builder-linux" "dash" "doom" "doom3"
 				"extract-text" "fish" "gitup" "hires" "imageoptim" "lyx" "mcp-servers"
-				"moonlight" "nix" "ollama" "outlookmsg" "quake" "quake2" "run-linux"
-				"texlive" "unison" "veusz" "vmware-vmx"
+				"moonlight" "nix" "ollama" "outlookmsg" "quake" "quake2" "texlive" "unison"
+				"veusz" "vmware-vmx"
 			];
 			aarch64-linux = [
 				"bitwarden-decrypt" "fish" "mcp-servers" "nix" "ollama" "opencode"
@@ -58,6 +58,7 @@
 				program = "${self.packages.${system}.builder-linux}/bin/run-nixos-vm";
 				meta.description = "NixOS Linux VM as a builder for Linux derivations on Darwin";
 			};
+		}) // forAll [ "aarch64-darwin" ] (system: {
 			run-linux = {
 				type = "app";
 				program = "${self.packages.${system}.run-linux}";

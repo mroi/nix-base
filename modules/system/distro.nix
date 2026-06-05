@@ -60,6 +60,7 @@
 					"/usr/libexec/AirPlayXPCHelper"
 					"/usr/libexec/audioclocksyncd"
 					"/usr/libexec/rapportd"
+					"/usr/libexec/remoted"
 					"/usr/libexec/sharingd"
 				];
 			};

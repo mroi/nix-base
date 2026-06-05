@@ -16,20 +16,6 @@
 		"nix-base#extract-text"
 	];
 
-	networking.firewall = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {
-		allow = [
-			"/System/Library/CoreServices/UniversalControl.app/Contents/MacOS/UniversalControl"
-			"/System/Library/PrivateFrameworks/ChronoCore.framework/Support/chronod"
-			"/System/Library/PrivateFrameworks/IDS.framework/identityservicesd.app/Contents/MacOS/identityservicesd"
-			"/System/Library/PrivateFrameworks/ReplicatorCore.framework/Support/replicatord"
-			"/usr/libexec/AirPlayXPCHelper"
-			"/usr/libexec/audioclocksyncd"
-			"/usr/libexec/rapportd"
-			"/usr/libexec/sharingd"
-			"/usr/libexec/sshd-session"
-		];
-	};
-
 	security.pki.certificateTrust.system = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {
 		# DigiCert High Assurance EV Root CA: involved in geo services and commerce
 		"5FB7EE0633E259DBAD0C4C9AE6D38F1A61C7DC25" = { basicX509 = true; sslServer = true; timeStamping = true; };
@@ -55,29 +41,6 @@
 		"D69B561148F01C77C54578C10926DF5B856976AD" = { sslServer = true; };
 		# DigiCert Global Root G2
 		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { sslServer = true; };
-	};
-
-	environment.extensions = lib.mkIf pkgs.stdenv.isDarwin {
-		"com.apple.photo-editing"."com.apple.MarkupUI.MarkupPhotoExtension" = true;
-		"com.apple.quicklook.preview"."com.apple.tips.TipsQuicklook" = true;
-		"com.apple.share-services"."com.apple.CloudSharingUI.CopyLink" = true;
-		"com.apple.share-services"."com.apple.CloudSharingUI.invite" = true;
-		"com.apple.share-services"."com.apple.MailShareExtension" = true;
-		"com.apple.share-services"."com.apple.Notes.SharingExtension" = true;
-		"com.apple.share-services"."com.apple.freeform.sharingextension" = true;
-		"com.apple.share-services"."com.apple.messages.ReplyExtension" = true;
-		"com.apple.share-services"."com.apple.messages.ShareExtension" = true;
-		"com.apple.share-services"."com.apple.reminders.sharingextension" = true;
-		"com.apple.share-services"."com.apple.share.AirDrop.send" = true;
-		"com.apple.share-services"."com.apple.share.Mail.compose" = true;
-		"com.apple.share-services"."com.apple.share.Mail.compose-back-to-sender" = true;
-		"com.apple.share-services"."com.apple.share.Messages.window" = true;
-		"com.apple.share-services"."com.apple.share.System.add-to-iphoto" = true;
-		"com.apple.share-services"."com.apple.share.System.add-to-safari-reading-list" = true;
-		"com.apple.share-services"."com.apple.share.System.set-account-picture" = true;
-		"com.apple.share-services"."com.apple.share.System.set-desktop-image" = true;
-		"com.apple.ui-services"."com.apple.MarkupUI.Markup" = true;
-		"com.apple.ui-services"."com.apple.sharing.ShareSheetUI" = true;
 	};
 
 	time = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) {

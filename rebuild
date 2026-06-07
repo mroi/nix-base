@@ -74,5 +74,5 @@ script=$(
 )
 
 # run rebuild script
-export _self _helpCommandsPrinted
+export _self _machine _helpCommandsPrinted
 exec "$script" "$@"

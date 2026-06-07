@@ -34,6 +34,10 @@
 			environment = [
 				"OLLAMA_MODELS=${config.users.users._ollama.home}"
 				"OLLAMA_CONTEXT_LENGTH=1000000"
+				"OLLAMA_KEEP_ALIVE=15m"
+				# optimize settings for long-context models (reduce memory load)
+				"OLLAMA_FLASH_ATTENTION=1"
+				"OLLAMA_KV_CACHE_TYPE=q8_0"
 			];
 			user = "_ollama";
 			lifecycle = "demand";

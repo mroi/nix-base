@@ -40,7 +40,7 @@
 				fi
 			fi
 
-			current="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("[^.]*\\.[^.]*\\."; ""))"')"
+			current="$(nix profile list --json | ${jq} --raw-output '.elements | keys[] as $name | "\($name)=\(.[$name].originalUrl)#\(.[$name].attrPath | sub("(packages|legacyPackages)\\.[^.]*\\."; ""))"')"
 
 			# remove packages not in target profile
 			forCurrent() {

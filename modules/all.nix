@@ -55,12 +55,13 @@
 	"rootpaths" = ./environment/rootpaths.nix;
 	"services" = ./environment/services.nix;
 
-	# security settings
+	# security features
 	"checks" = ./security/checks.nix;
 	"gatekeeper" = ./security/gatekeeper.nix;
 	"password" = ./security/password.nix;
 	"pki" = ./security/pki.nix;
 	"prefsec" = ./security/prefsec.nix;
+	"sandbox" = ./security/sandbox.nix;
 	"sudo" = ./security/sudo.nix;
 	"xprotect" = ./security/xprotect.nix;
 
@@ -78,6 +79,7 @@
 	"affinity" = ./programs/affinity.nix;
 	"develop" = ./programs/develop.nix;
 	"emulators" = ./programs/emulators.nix;
+	"opencode" = ./programs/opencode.nix;
 	"sfsymbols" = ./programs/sfsymbols.nix;
 	"utilities" = ./programs/utilities.nix;
 	"vmware" = ./programs/vmware.nix;

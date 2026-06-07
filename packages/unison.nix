@@ -107,9 +107,9 @@ let
 		src = fetchFromGitHub {
 			owner = "mroi";
 			repo = "unison-intercept";
-			rev = "6247b870398b205de2ea16cb6649e3a5cf5a126c";
+			rev = "082ece6680834e565c2010d27bfa7a2d87bb3a5e";
 			fetchSubmodules = true;
-			hash = "sha256-lqXmIAkyV6o6Ov3tO3LNio8jBZvUy6pVKtkDiaky0AY=";
+			hash = "sha256-En9mYe1IvV+dzYbVRMFh/GzA2l7uR+HGS5/RFWilNcg=";
 		};
 		__noChroot = stdenv.isDarwin;
 		nativeBuildInputs = lib.getAttr stdenv.hostPlatform.uname.system {

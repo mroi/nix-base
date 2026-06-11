@@ -58,7 +58,6 @@
 					"/System/Library/PrivateFrameworks/IDS.framework/identityservicesd.app/Contents/MacOS/identityservicesd"
 					"/System/Library/PrivateFrameworks/ReplicatorCore.framework/Support/replicatord"
 					"/usr/libexec/AirPlayXPCHelper"
-					"/usr/libexec/audioclocksyncd"
 					"/usr/libexec/rapportd"
 					"/usr/libexec/remoted"
 					"/usr/libexec/sharingd"
@@ -73,8 +72,6 @@
 				"com.apple.share-services"."com.apple.MailShareExtension" = true;
 				"com.apple.share-services"."com.apple.Notes.SharingExtension" = true;
 				"com.apple.share-services"."com.apple.freeform.sharingextension" = true;
-				"com.apple.share-services"."com.apple.messages.ReplyExtension" = true;
-				"com.apple.share-services"."com.apple.messages.ShareExtension" = true;
 				"com.apple.share-services"."com.apple.reminders.sharingextension" = true;
 				"com.apple.share-services"."com.apple.share.AirDrop.send" = true;
 				"com.apple.share-services"."com.apple.share.Mail.compose" = true;

@@ -8,7 +8,7 @@
 			version = "7.2";
 			major = lib.head (lib.match "([0-9]+)\..*" version);
 			# product ID: 042-53422
-			catalog = "https://swscan.apple.com/content/catalogs/others/index-26-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
+			catalog = "https://swscan.apple.com/content/catalogs/others/index-27-26-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
 			macOS = lib.elemAt (lib.splitString "-" catalog) 1;
 		in pkgs.stdenvNoCC.mkDerivation {
 			inherit version;

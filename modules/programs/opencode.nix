@@ -38,6 +38,17 @@
 		};
 	};
 
+	# include MCP servers in the opencode config
+	mcpPackage = pkgs.callPackage ../../packages/mcp-servers.nix {};
+
+	mcpServers = {
+		mcp = lib.genAttrs mcpPackage.servers (server: {
+			type = "local";
+			command = [ "mcp-servers" server ];
+			enabled = true;
+		});
+	};
+
 in {
 
 	options.programs.opencode = {
@@ -56,7 +67,7 @@ in {
 		programs.opencode.settings = {
 			autoupdate = false;
 			default_agent = "plan";
-		} // ollamaProvider;
+		} // ollamaProvider // mcpServers;
 
 		system.activationScripts.opencode = lib.mkIf (config.programs.opencode.settings != {}) (
 			lib.stringAfter [ "shared" ] (''

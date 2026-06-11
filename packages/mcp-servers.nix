@@ -91,6 +91,9 @@ in (writeShellScriptBin "mcp-servers" ''
 
 '') // {
 
+	# include the list of MCP servers in the derivation to externally generate configuration files
+	servers = lib.attrNames servers;
+
 	passthru.updateScript = ''
 		updateNPM() {
 			version=$(curl --silent "https://registry.npmjs.org/$2/latest" | jq --raw-output .version)

@@ -1,5 +1,5 @@
 # set environment variables to consolidate state in ~/.local/state/opencode
-{ opencode, runCommand }:
+{ opencode, runCommand, callPackage, mcp-servers ? callPackage (import ./mcp-servers.nix) {} }:
 
 runCommand "opencode" { inherit (opencode) name; } ''
 	mkdir -p $out/bin
@@ -29,4 +29,7 @@ runCommand "opencode" { inherit (opencode) name; } ''
 		fi
 	EOF
 	chmod a+x $out/bin/opencode
+
+	mkdir -p $out/libexec
+	ln -s ${mcp-servers}/bin/mcp-servers $out/libexec/
 ''

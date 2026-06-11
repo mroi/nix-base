@@ -33,6 +33,7 @@
 		indexOf = elem: lib.lists.findFirstIndex (x: x == elem) null accounts;
 		concatAccounts = f: lib.mergeAttrsList (map f accounts);
 		adminAccounts = lib.filter (x: x.isAdmin) accounts;
+		home = account: config.users.users."${mkAccountName account}".home;
 
 	in {
 
@@ -77,7 +78,42 @@
 		};
 
 		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.isDarwin (map
-			(account: "/Users/${mkAccountName account}/Downloads")
+			(account: "${home account}/Downloads")
 		accounts);
+
+		system.files.connections = lib.mkIf pkgs.stdenv.isDarwin (lib.concatMap (account: [
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Application Support/SyncServices"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/ColorPickers"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/ColorSync"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Components"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Filters"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Images/People"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/KeyBindings"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Keyboard Layouts"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/PDF Services"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Preferences/com.apple.security.plist"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Preferences/com.apple.security_common.plist"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/QuickLook"
+			"(${home account}/Library/Containers/[^/]*)/Data/Library/Sounds"
+			"(${home account}/Library/Developer/CoreSimulator/Devices/[^/]*)/.*"
+			"(${home account}/Library/Developer/Xcode/DerivedData/[^/]*)/.*"
+		]) accounts);
+
+		system.files.used = lib.mkIf pkgs.stdenv.isDarwin (lib.concatMap (account: [
+			"${home account}/.Trash/*"
+			"${home account}/Desktop/.localized"
+			"${home account}/Documents/.localized"
+			"${home account}/Downloads/.localized"
+			"${home account}/Library/.localized"
+			"${home account}/Library/Compositions/.localized"
+			"${home account}/Library/Favorites/.localized"
+			"${home account}/Library/FontCollections/*.collection"
+			"${home account}/Library/Input Methods/.localized"
+			"${home account}/Movies/.localized"
+			"${home account}/Music/.localized"
+			"${home account}/Pictures/.localized"
+			"${home account}/Public/.localized"
+			"${home account}/Public/Drop Box/.localized"
+		]) accounts);
 	};
 }

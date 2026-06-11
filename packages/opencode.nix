@@ -1,7 +1,21 @@
 # set environment variables to consolidate state in ~/.local/state/opencode
-{ opencode, runCommand, callPackage, mcp-servers ? callPackage (import ./mcp-servers.nix) {} }:
+{ stdenv, opencode, runCommand, callPackage, mcp-servers ? callPackage (import ./mcp-servers.nix) {} }:
 
-runCommand "opencode" { inherit (opencode) name; } ''
+let
+	# bun creates an opencode binary with a broken signature, macOS ≥ 27 rejects this
+	opencode' = if stdenv.isDarwin then opencode.overrideAttrs (attrs: {
+		__noChroot = true;
+		# do not run smoke test, because the binary is still broken here
+		postPatch = attrs.postPatch + ''
+			substituteInPlace packages/opencode/script/build.ts --replace-fail \
+				'if (item.os === process.platform && item.arch === process.arch && !item.abi) {' \
+				'if (false) {'
+		'';
+		# fix the signature by resigning
+		postBuild = "/usr/bin/codesign -f -s - dist/opencode-darwin-arm64/bin/opencode";
+	}) else opencode;
+
+in runCommand "opencode" { inherit (opencode) name; } ''
 	mkdir -p $out/bin
 	cat <<- EOF > $out/bin/opencode
 		#!/bin/sh
@@ -22,10 +36,10 @@ runCommand "opencode" { inherit (opencode) name; } ''
 
 		# run opencode
 		if \$tui ; then
-			${opencode}/bin/opencode "\$@"
+			${opencode'}/bin/opencode "\$@"
 			clear
 		else
-			exec ${opencode}/bin/opencode "\$@"
+			exec ${opencode'}/bin/opencode "\$@"
 		fi
 	EOF
 	chmod a+x $out/bin/opencode

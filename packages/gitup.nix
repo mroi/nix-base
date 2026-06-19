@@ -3,10 +3,10 @@
 
 fetchzip rec {
 	pname = "gitup";
-	version = "1.4.3";
+	version = "1.5.0";
 
 	url = "https://github.com/git-up/GitUp/releases/download/v${version}/GitUp.zip";
-	hash = "sha256-aBS6X1pS8WuJa9ollYCV1Mp58gnJMYD/uBP0sBilEb0=";
+	hash = "sha256-Mx0MdFknkFd4GTjktipaZz2lPf3VnymvGeQ4cO/zrlU=";
 	stripRoot = false;
 
 	postFetch = ''
@@ -16,7 +16,7 @@ fetchzip rec {
 	'';
 
 	passthru.updateScript = ''
-		release=$(curl --silent https://api.github.com/repos/git-up/GitUp/releases/latest | jq --raw-output .name)
+		release=$(curl --silent https://api.github.com/repos/git-up/GitUp/releases/latest | jq --raw-output .tag_name)
 		version=''${release#v}
 		updateVersion version "$version"
 		if didUpdate ; then

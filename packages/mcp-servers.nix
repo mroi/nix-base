@@ -2,7 +2,7 @@
 { lib, stdenv, writeShellScriptBin, nodejs-slim, uv, mcp-nixos, fetchFromGitHub, swift, git, cacert }: let
 
 	versions = {
-		duckduckgo = "0.4.0";
+		duckduckgo = "0.5.0";
 		apple-docs = "1.0.1";
 	};
 

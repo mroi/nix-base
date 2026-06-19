@@ -47,13 +47,13 @@ let
 
 in stdenvNoCC.mkDerivation {
 	pname = "outlookmsg";
-	version = "0-unstable-2025-11-14";
+	version = "0-unstable-2026-07-13";
 
 	src = fetchFromGitHub {
 		owner = "JoshData";
 		repo = "convert-outlook-msg-file";
-		rev = "24bf2968c8e4758580887af896c1f37da804a0e2";
-		hash = "sha256-WZdfG/Ict694DngFCsCkRnIbA2TBXqP2aXoqfz10iBE=";
+		rev = "083e6f435ba71dcf9e8e0ed3f116778ec63eb268";
+		hash = "sha256-y8DgKqQMLvu+JNJealzkzCk9uGGFU3DuiK7EYx6ItMw=";
 	};
 
 	installPhase = ''

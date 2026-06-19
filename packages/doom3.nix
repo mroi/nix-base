@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "doom3";
-	version = "1.5.4";
+	version = "1.5.5";
 
 	src = fetchurl {
-		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/dhewm3_1.5.4_2025-07-12/dhewm3-1.5.4.dmg";
-		hash = "sha256-3NYe6+G4oRZfgeodrvNddR+PxAXppm73M6tVcNxnyV4=";
+		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/dhewm3_1.5.5/dhewm3-1.5.5.dmg";
+		hash = "sha256-uwRnOI3yarJASy947s4J2J2sV/arE3tkkl8vc2E7zWg=";
 	};
 
 	nativeBuildInputs = [ undmg ];

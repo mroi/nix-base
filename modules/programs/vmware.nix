@@ -11,6 +11,7 @@
 			url = "https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion&freeDownloads=true";
 			# nix hash convert --from base16 --hash-algo sha256 <hash in hex from website>
 			hash = "sha256-wdNzqiG+JWdOPsxRiBniVXhd6p1FbYdHvLCipZJEvfY=";
+			meta.license = [];
 		} // {
 			version = "26.0.0";
 			passthru.updateScript = ''

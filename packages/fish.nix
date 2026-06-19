@@ -42,7 +42,7 @@ in stdenv.mkDerivation {
 		};
 		tag = fish.version;
 		hash = expect {
-			expected = "sha256-u0mBdWkxP4zI6NUhJ0LJrEDrbAAfTDi8IapsWWC9yWc=";
+			expected = "sha256-i9Ng9RYqlMGRShu2sDSXCZ6KD7n7A0TKzLdyatXjBmY=";
 			actual = fish.src.hash;
 			message = "source sha256 changed";
 			fixup = ''
@@ -56,7 +56,7 @@ in stdenv.mkDerivation {
 	cargoDeps = rustPlatform.fetchCargoVendor {
 		inherit (fish) src;
 		hash = expect {
-			expected = "sha256-d4YA9fnDQyfyK675nP+tiTqJ1o2jqjwPHU1trXd8MCA=";
+			expected = "sha256-ikHv1WP38ClHGZy3StiyGS+lDHOjBT8ohJ/HdJwtYgw=";
 			actual = fish.cargoDeps.hash;
 			message = "cargo deps hash changed";
 			fixup = ''
@@ -88,18 +88,18 @@ in stdenv.mkDerivation {
 	};
 
 	patches = writeText "fish-fix-xdg.patch" ''
-		--- a/src/path.rs.orig	1970-01-01 01:00:01
-		+++ b/src/path.rs	2026-02-11 15:29:10
+		--- a/src/path.rs	2026-07-24 20:47:25
+		+++ b/src/path.rs	2026-07-24 20:52:09
 		@@ -70,7 +70,7 @@
+		             &*DATA_DIRECTORY,
 		             L!("data"),
 		             wgettext!("can not save history"),
-		             data.used_xdg,
 		-            L!("XDG_DATA_HOME"),
 		+            L!("XDG_STATE_HOME"),
-		             &data.path,
-		             error,
-		             vars,
-		@@ -702,10 +702,10 @@
+		         ),
+		         (
+		             &*CONFIG_DIRECTORY,
+		@@ -740,10 +740,10 @@
 		 }
 		 
 		 static DATA_DIRECTORY: LazyLock<BaseDirectory> =
@@ -110,11 +110,11 @@ in stdenv.mkDerivation {
 		-    LazyLock::new(|| make_base_directory(L!("XDG_CACHE_HOME"), L!("/.cache/fish")));
 		+    LazyLock::new(|| make_base_directory(L!("XDG_STATE_HOME"), L!("/.local/state/fish")));
 		 
-		 static CONFIG_DIRECTORY: LazyLock<BaseDirectory> =
-		     LazyLock::new(|| make_base_directory(L!("XDG_CONFIG_HOME"), L!("/.config/fish")));
-		--- a/share/tools/create_manpage_completions.py
-		+++ b/share/tools/create_manpage_completions.py
-		@@ -2207,11 +2207,11 @@
+		 static CONFIG_DIRECTORY: LazyLock<BaseDirectory> = LazyLock::new(|| {
+		     let config_dir = make_base_directory(L!("XDG_CONFIG_HOME"), L!("/.config/fish"));
+		--- a/share/tools/create_manpage_completions.py	2026-07-24 20:52:19
+		+++ b/share/tools/create_manpage_completions.py	2026-07-24 20:53:10
+		@@ -2225,11 +2225,11 @@
 		         sys.exit(0)
 		 
 		     if not args.stdout and not args.directory:
@@ -127,8 +127,8 @@ in stdenv.mkDerivation {
 		-            xdg_cache_home + "/fish/generated_completions/"
 		+            xdg_state_home + "/fish/generated_completions/"
 		         )
+		     if not args.stdout:
 		         try:
-		             os.makedirs(args.directory)
 	'';
 
 	preConfigure = expect {

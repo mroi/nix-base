@@ -66,7 +66,9 @@ in (writeShellScriptBin "mcp-servers" ''
 
 	# use temporary cache/data directory to isolate MCP server state from
 	# the user’s regular command line tools state
-	tmpdir=$TMPDIR/mcp-server-$USER
+	tmpdir=$TMPDIR/mcp-server-$USER-${depsTimestamp}
+	mkdir -p "$tmpdir"
+	for dir in "$TMPDIR/mcp-server-$USER"-* ; do test "$dir" = "$tmpdir" || rm -rf "$dir" ; done
 	export XDG_DATA_HOME=$tmpdir
 	export XDG_CACHE_HOME=$tmpdir
 	export NPM_CONFIG_CACHE=$tmpdir

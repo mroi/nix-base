@@ -1,16 +1,12 @@
 # tex wrapper package with useful environment variables and a fonts.conf file
-# pass a package set for a custom tex distribution, otherwise defaults apply
-{ lib, stdenv, texlive, makeFontsConf, ghostscript, texPkgs ? {} }:
+{ lib, stdenv, texliveSmall, makeFontsConf, ghostscript }:
 
-let tex = texlive.combine (
-	if texPkgs != {} then texPkgs else {
-		# default tex distribution
-		inherit (texlive) scheme-small;
-		inherit (texlive) collection-bibtexextra collection-latexextra collection-mathscience;
-		inherit (texlive) libertine inconsolata newtx tracklang;
-		inherit (texlive) preview;  # for inline preview in LyX
-	}
-);
+let tex = texliveSmall.withPackages (pkgs: with pkgs; [
+	# default tex distribution
+	collection-bibtexextra collection-latexextra collection-mathscience
+	libertine inconsolata newtx tracklang
+	preview  # for inline preview in LyX
+]);
 
 in stdenv.mkDerivation ({
 

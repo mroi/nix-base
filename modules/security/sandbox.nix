@@ -85,13 +85,24 @@
 				EOF
 				cat <<- 'EOF' > $out/bin/xcodebuild
 					#!/bin/sh
-					scheme=$(ls *.xcodeproj/xcshareddata/xcschemes/*.xcscheme | head -n1)
-					scheme=$(basename "$scheme" .xcscheme)
-					exec /usr/bin/xcodebuild \
-						-scheme "$scheme" \
-						-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
-						OTHER_SWIFT_FLAGS=--disable-sandbox \
-						"$@"
+					if test "''${*#*-scheme }" != "$*" ; then
+						# explicit scheme option given
+						SWIFTPM_DISABLE_SANDBOX=1 exec /usr/bin/xcodebuild \
+							-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
+							ENABLE_USER_SCRIPT_SANDBOXING=NO \
+							OTHER_SWIFT_FLAGS=--disable-sandbox \
+							"$@"
+					else
+						# use first available scheme
+						scheme=$(ls *.xcodeproj/xcshareddata/xcschemes/*.xcscheme | head -n1)
+						scheme=$(basename "$scheme" .xcscheme)
+						SWIFTPM_DISABLE_SANDBOX=1 exec /usr/bin/xcodebuild \
+							-scheme "$scheme" \
+							-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
+							ENABLE_USER_SCRIPT_SANDBOXING=NO \
+							OTHER_SWIFT_FLAGS=--disable-sandbox \
+							"$@"
+					fi
 				EOF
 				chmod a+x $out/bin/*
 			'';

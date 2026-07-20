@@ -27,7 +27,7 @@ in runCommand "opencode" { inherit (opencode) name; } ''
 	cat <<- EOF > $out/bin/opencode
 		#!/bin/sh
 
-		# consolidate all state files in XDG_DATA_HOME
+		# consolidate all state files in XDG_STATE_HOME
 		export PATH="\$PATH:$out/libexec"
 		export XDG_DATA_HOME="\''${XDG_STATE_HOME:-\$HOME/.local/state}/opencode"
 		export XDG_CACHE_HOME="\$XDG_DATA_HOME/cache"

@@ -26,6 +26,7 @@
 			programs.opencode.settings.model = "ollama/${smallCodingModel}";
 			programs.opencode.settings.small_model = "ollama/${smallCodingModel}";
 			security.sandbox.enable = lib.mkDefault true;
+			security.sandbox.rules = { ... }: "\${XCODE_SANDBOX_EXTRA_RULES}";
 			services.ollama.enable = lib.mkDefault true;
 			services.ollama.models = [ smallCodingModel ];
 

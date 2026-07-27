@@ -59,7 +59,7 @@ stdenvNoCC.mkDerivation {
 				cat <<- 'EOF' > "$tmp/flake.nix"
 					{
 						outputs = { self, nixpkgs }: let
-							systems = [ "aarch64-linux" "aarch64-darwin" "x86_64-linux" "x86_64-darwin" ];
+							systems = [ "aarch64-linux" "aarch64-darwin" "x86_64-linux" ];
 							forAll = list: f: nixpkgs.lib.genAttrs list f;
 						in {
 							devShells = forAll systems (system: {

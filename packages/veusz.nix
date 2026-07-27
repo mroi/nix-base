@@ -5,18 +5,9 @@ stdenvNoCC.mkDerivation rec {
 	pname = "veusz";
 	version = "4.2.1";
 
-	src = let
-		aarch64-hash = "sha256-/PMZPgpg82W6n4KrHcY0JX5Z7jx1jMOogubB62CGcwA=";
-		x86_64-hash = "sha256-pQh4HfM8+zagfNGHOyl/H6o8DLqIO4NnU/l05hu8Wuc=";
-	in builtins.getAttr stdenvNoCC.system {
-		aarch64-darwin = fetchurl {
-			url = "https://github.com/veusz/veusz/releases/download/veusz-${version}/veusz-${version}-AppleOSX-arm.dmg";
-			hash = aarch64-hash;
-		};
-		x86_64-darwin = fetchurl {
-			url = "https://github.com/veusz/veusz/releases/download/veusz-${version}/veusz-${version}-AppleOSX-x86_64.dmg";
-			hash = x86_64-hash;
-		};
+	src = fetchurl {
+		url = "https://github.com/veusz/veusz/releases/download/veusz-${version}/veusz-${version}-AppleOSX-arm.dmg";
+		hash = "sha256-/PMZPgpg82W6n4KrHcY0JX5Z7jx1jMOogubB62CGcwA=";
 	};
 
 	nativeBuildInputs = [ _7zz ];
@@ -38,9 +29,7 @@ stdenvNoCC.mkDerivation rec {
 		updateVersion version "$version"
 		if didUpdate ; then
 			curl --silent --location --output Veusz.dmg "https://github.com/veusz/veusz/releases/download/veusz-''${version}/veusz-''${version}-AppleOSX-arm.dmg"
-			updateHash aarch64-hash "$(nix hash file Veusz.dmg)"
-			curl --silent --location --output Veusz.dmg "https://github.com/veusz/veusz/releases/download/veusz-''${version}/veusz-''${version}-AppleOSX-x86_64.dmg"
-			updateHash x86_64-hash "$(nix hash file Veusz.dmg)"
+			updateHash hash "$(nix hash file Veusz.dmg)"
 			rm Veusz.dmg
 		fi
 	'';

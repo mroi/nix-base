@@ -20,6 +20,7 @@
 
 	servers = {
 
+		nixos = "exec ${mcp-nixos}/bin/mcp-nixos \"$@\"";
 		duckduckgo = "exec ${uvx} duckduckgo-mcp-server==${versions.duckduckgo} \"$@\"";
 		pdf-reader = "exec ${npx} @sylphx/pdf-reader-mcp@${versions.pdf-reader} \"$@\"";
 
@@ -27,9 +28,6 @@
 
 		apple-docs = "exec ${apple-docs}/bin/Apple-Docs-MCP \"$@\"";
 
-	} // lib.optionalAttrs (stdenv.system != "x86_64-darwin") {
-
-		nixos = "exec ${mcp-nixos}/bin/mcp-nixos \"$@\"";
 	};
 
 	apple-docs = stdenv.mkDerivation {

@@ -3,6 +3,7 @@
 
 	versions = {
 		duckduckgo = "0.5.0";
+		pdf-reader = "4.1.1";
 		apple-docs = "1.0.1";
 	};
 
@@ -20,6 +21,7 @@
 	servers = {
 
 		duckduckgo = "exec ${uvx} duckduckgo-mcp-server==${versions.duckduckgo} \"$@\"";
+		pdf-reader = "exec ${npx} @sylphx/pdf-reader-mcp@${versions.pdf-reader} \"$@\"";
 
 	} // lib.optionalAttrs stdenv.isDarwin {
 
@@ -107,6 +109,7 @@ in (writeShellScriptBin "mcp-servers" ''
 		}
 
 		updatePyPI duckduckgo duckduckgo-mcp-server
+		updateNPM pdf-reader @sylphx/pdf-reader-mcp
 
 		# apple-docs
 		release=$(curl --silent https://api.github.com/repos/justindal/Apple-Docs-MCP/releases/latest | jq --raw-output .name)

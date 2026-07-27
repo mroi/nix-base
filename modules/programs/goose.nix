@@ -9,6 +9,9 @@
 			message = "Goose AI is only available on Darwin";
 		}];
 
+		security.sandbox.enable = lib.mkDefault true;
+		security.sandbox.rules = { ... }: "\${GOOSE_SANDBOX_EXTRA_RULES}";
+
 		environment.bundles = lib.mkIf config.programs.goose.enable {
 			"/Applications/Goose.app" = {
 				pkg = pkgs.callPackage ../../packages/goose.nix {};

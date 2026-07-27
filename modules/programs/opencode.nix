@@ -7,12 +7,12 @@
 	} // config.programs.opencode.settings);
 
 	# model substrings that will be included in opencode config
-	codingModels = [ "gemma" "qwen" ];
+	codingModels = [ "gemma" "laguna" "qwen" ];
 
 	prettyModelName = name: lib.pipe name [
 		lib.toLower
 		# separate into user "/" name version specifier ":" size
-		(lib.match "([^/]*/)?([^0-9-]+)(-[^0-9]*)?([0-9.]+)([^:]*):([^-]*)(-.*)?")
+		(lib.match "([^/]*/)?([^0-9-]+)(-[^0-9]*)?([0-9.]+)([^:]*):([^_-]*)([_-].*)?")
 		# put together pretty name
 		(x: "${lib.elemAt x 1} ${lib.elemAt x 3}" + lib.optionalString ((lib.elemAt x 5) != "latest") " ${lib.elemAt x 5}")
 		# capitalize first letter

@@ -29,6 +29,9 @@
 						eval "$("''${SHELL:-/bin/zsh}" -c 'echo export XDG_CONFIG_HOME="''${XDG_CONFIG_HOME:-$HOME/.config}" ; echo export XDG_STATE_HOME="''${XDG_STATE_HOME:-$HOME/.local/state}"')"
 						# redirect XDG_DATA_HOME to consolidate all state files in XDG_STATE_HOME
 						export XDG_DATA_HOME="$XDG_STATE_HOME"
+						# include Nix tools in path
+						export PATH="$PATH:$XDG_STATE_HOME/nix/profile/bin:$XDG_STATE_HOME/nix/profile/libexec"
+						# launch original goose executable
 						exec "$(dirname "$(readlink -f "$0")")/.goose-wrapped" "$@"
 					EOF
 					trace chmod a+x $out/Contents/Resources/bin/goose

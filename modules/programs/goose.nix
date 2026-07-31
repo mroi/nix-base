@@ -2,7 +2,7 @@
 
 	options.programs.goose.enable = lib.mkEnableOption "Goose AI";
 
-	config = {
+	config = lib.mkIf config.programs.goose.enable {
 
 		assertions = [{
 			assertion = config.programs.goose.enable -> pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
@@ -15,7 +15,7 @@
 		security.sandbox.enable = lib.mkDefault true;
 		security.sandbox.rules = { ... }: "\${GOOSE_SANDBOX_EXTRA_RULES}";
 
-		environment.bundles = lib.mkIf config.programs.goose.enable {
+		environment.bundles = {
 			"/Applications/Goose.app" = {
 				pkg = pkgs.callPackage ../../packages/goose.nix {};
 				install = ''

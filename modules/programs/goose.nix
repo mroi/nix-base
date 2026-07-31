@@ -9,6 +9,9 @@
 			message = "Goose AI is only available on Darwin";
 		}];
 
+		# Goose itself can run unsandboxed due to its reasonable tool call permissions scheme.
+		# MCP services launced by Goose however should be invidivually sanboxed to mitigate
+		# supply chain attacks or rogue tool accesses by the LLM.
 		security.sandbox.enable = lib.mkDefault true;
 		security.sandbox.rules = { ... }: "\${GOOSE_SANDBOX_EXTRA_RULES}";
 

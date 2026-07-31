@@ -24,8 +24,11 @@
 
 		(lib.mkIf pkgs.stdenv.isDarwin {
 
+			# Apple developer tools
 			programs.xcode.enable = lib.mkDefault true;
 			programs.sfSymbols.enable = lib.mkDefault true;
+
+			# OpenCode with local coding model
 			programs.opencode.enable = lib.mkDefault true;
 			programs.opencode.settings.model = "ollama/${smallCodingModel.name}";
 			programs.opencode.settings.small_model = "ollama/${smallCodingModel.name}";
@@ -33,11 +36,14 @@
 				context = smallCodingModel.contextLength;
 				output = smallCodingModel.outputLimit;
 			};
-			security.sandbox.enable = lib.mkDefault true;
-			security.sandbox.rules = { ... }: "\${XCODE_SANDBOX_EXTRA_RULES}";
 			services.ollama.enable = lib.mkDefault true;
 			services.ollama.models = [ smallCodingModel.name ];
 
+			# OpenCode by default is not sandboxed, enable discretionary sandboxing
+			security.sandbox.enable = lib.mkDefault true;
+			security.sandbox.rules = { ... }: "\${XCODE_SANDBOX_EXTRA_RULES}";
+
+			# auxiliary developer tools
 			environment.bundles."/Applications/GitUp.app" = {
 				pkg = pkgs.callPackage ../../packages/gitup.nix {};
 				install = ''

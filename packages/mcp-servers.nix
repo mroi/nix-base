@@ -99,25 +99,29 @@ in (writeShellScriptBin "mcp-servers" ''
 	servers = lib.attrNames servers;
 
 	passthru.updateScript = ''
-		updateNPM() {
-			version=$(curl --silent "https://registry.npmjs.org/$2/latest" | jq --raw-output .version)
-			updateVersion "$1" "$version"
-		}
-		updatePyPI() {
-			version=$(curl --silent "https://pypi.org/pypi/$2/json" | jq --raw-output .info.version)
-			updateVersion "$1" "$version"
-		}
+		# dependency cutoff time
+		timestamp=$(jq .nodes.nixpkgs.locked.lastModified "$_self/flake.lock")
+		updateVersion depsTimestamp "$timestamp"
 
-		updatePyPI duckduckgo duckduckgo-mcp-server
-		updateNPM pdf-reader @sylphx/pdf-reader-mcp
+		# only update the NPM and PyPI packages if we updated the dependency cutoff
+		# otherwise unsatisfiable version combinations will be requested
+		if didUpdate ; then
+			updateNPM() {
+				version=$(curl --silent "https://registry.npmjs.org/$2/latest" | jq --raw-output .version)
+				updateVersion "$1" "$version"
+			}
+			updatePyPI() {
+				version=$(curl --silent "https://pypi.org/pypi/$2/json" | jq --raw-output .info.version)
+				updateVersion "$1" "$version"
+			}
+
+			updatePyPI duckduckgo duckduckgo-mcp-server
+			updateNPM pdf-reader @sylphx/pdf-reader-mcp
+		fi
 
 		# apple-docs
 		release=$(curl --silent https://api.github.com/repos/justindal/Apple-Docs-MCP/releases/latest | jq --raw-output .name)
 		version=''${release#v}
 		updateVersion apple-docs "$version"
-
-		# dependency cutoff time
-		timestamp=$(jq .nodes.nixpkgs.locked.lastModified "$_self/flake.lock")
-		updateVersion depsTimestamp "$timestamp"
 	'';
 }

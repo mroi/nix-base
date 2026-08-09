@@ -98,7 +98,15 @@
 						trace sudo pkgutil --volume "$volume" --forget "$package" > /dev/null
 					fi
 				done
-			done | recoveryCommands
+			done | {
+				# if there is any output, add a leading function to make pkgutil runnable
+				if read -r first ; then
+					echo 'pkgutil() { { set +x ; } 2> /dev/null ; /Volumes/Macintosh\ HD/usr/sbin/pkgutil "$@" ; set -x ; }'
+					echo
+					echo "$first"
+					cat
+				fi
+			} | recoveryCommands
 		'');
 
 		system.cleanupScripts.files.text = lib.mkOrder 2000 (''

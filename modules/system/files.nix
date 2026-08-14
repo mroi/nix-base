@@ -7,7 +7,7 @@
 
 	in lib.mkIf enable {
 
-		system.cleanupScripts.files = lib.stringAfter [ "volumes" ] (''
+		system.cleanupScripts.files = lib.stringAfter [ "volumes" "nix" ] (''
 			storeHeading Collecting file information
 			flushHeading
 

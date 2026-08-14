@@ -87,7 +87,7 @@
 				END { printf buf }
 			'
 		'';
-		system.cleanupScripts.profile = lib.stringAfter [ "packages" ] ''
+		system.cleanupScripts.profile = lib.stringAfter [ "volumes" ] ''
 			storeHeading 'Cleaning the Nix profile'
 			trace nix profile wipe-history
 		'';

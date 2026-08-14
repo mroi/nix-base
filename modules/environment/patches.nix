@@ -122,5 +122,8 @@
 		'';
 
 		system.activationScripts.root.deps = [ "patches" ];
+
+		system.files.used = [ "${config.users.root.home}/patches" ] ++
+			(map (x: "${config.users.root.home}/patches/${x.name}") patches);
 	};
 }

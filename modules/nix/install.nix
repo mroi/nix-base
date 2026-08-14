@@ -118,11 +118,16 @@
 			"/nix/var/ssh/id_ed25519"
 			"/nix/var/ssh/id_ed25519.pub"
 		] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
-			"/nix/.Trashes"
 			"/nix/.fseventsd"
+			"/private/etc/synthetic.conf"
+		];
+		system.files.used = [
+			"/nix/var/nix/profiles/per-user"
+			"/nix/var/nix/userpool/600"
+		] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+			"/nix/.Trashes"
 			"/nix/.fseventsd/no_log"
 			"/nix/.metadata_never_index"
-			"/private/etc/synthetic.conf"
 		];
 	};
 }

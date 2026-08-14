@@ -41,6 +41,19 @@
 		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { sslServer = true; };
 	};
 
+	system.files.connections = [
+		# Git repositories
+		"(.*/\.git)/description"
+		"(.*/\.git)/hooks/.*"
+		"(.*/\.git)/objects/.*"
+		"(.*/\.git)/refs"
+		# SQLite database files
+		"(.*)-shm"
+		"(.*)-wal"
+		# bundle-based documents
+		"(.*\.(key|numbers|pages))/.*"
+	];
+
 	time = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.system.systemwideSetup) {
 		timeZone = "Europe/Berlin";
 	};

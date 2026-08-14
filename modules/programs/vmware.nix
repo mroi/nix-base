@@ -65,5 +65,8 @@
 			"/private/var/log/vnetlib"
 			"/usr/libexec/cups/filter/thnucups"
 		];
+		system.files.used = lib.mkIf config.programs.vmware.enable [
+			"/Library/Application Support/VMware/VMware Fusion/AdminWritable"
+		];
 	};
 }

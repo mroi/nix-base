@@ -67,5 +67,8 @@
 			"/Library/Application Support/ArqAgentAPFS.noindex"
 			"/Library/LaunchDaemons/com.haystacksoftware.arqagent.plist"
 		];
+		system.files.connections = [
+			"(/Library/Application Support/ArqAgent/cache.noindex/backups/2/[^/]*)/.*"
+		];
 	};
 }

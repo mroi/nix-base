@@ -24,6 +24,8 @@
 			system.files.known = [
 				"/Applications/Games.localized"
 				"/Applications/Games.localized/.localized"
+			];
+			system.files.used = [
 				"/Applications/Games.localized/.localized/*"
 			];
 		})

@@ -56,18 +56,11 @@
 				"/boot/efi/EFI/*"
 			] ++ [
 				"/boot/grub"
-				"/boot/grub/*"
 				"/boot/initrd.img*"
-				"/boot/lost+found"
 				"/boot/vmlinuz*"
 				"/etc/*"
-				"/lost+found"
-				"/media"
-				"/mnt"
-				"/opt"
 				"/root/.cache"
 				"/root/.ssh"
-				"/srv"
 				"/tmp/*"
 				"/usr/*/__pycache__"
 				"/usr/*/__pycache__/*.pyc"
@@ -82,7 +75,6 @@
 				"/usr/lib/systemd/system/screen-cleanup.service"
 				"/usr/lib/udev/hwdb.bin"
 				"/usr/local"
-				"/usr/local/*"
 				"/usr/share/applications/mimeinfo.cache"
 				"/usr/share/fonts/X11/*/encodings.dir"
 				"/usr/share/fonts/X11/*/fonts.alias"
@@ -98,14 +90,37 @@
 				"/var/cache/*"
 				"/var/lib/*"
 				"/var/log/*"
-				"/var/mail"
-				"/var/opt"
 				"/var/spool/anacron/cron.daily"
 				"/var/spool/anacron/cron.monthly"
 				"/var/spool/anacron/cron.weekly"
 				"/var/spool/mail"
 				"/var/tmp/systemd-private-*"
 				"/var/tmp/systemd-private-*/tmp"
+			];
+			system.files.connections = [
+				"(.*/flatpak/repo)/.*"
+			];
+			system.files.used = [
+				"/boot/grub/*"
+				"/boot/lost+found"
+				"/etc/colord"
+				"/etc/hosts"
+				"/etc/opt"
+				"/lost+found"
+				"/media"
+				"/mnt"
+				"/opt"
+				"/srv"
+				"/usr/local/*"
+				"/var/cache/colord"
+				"/var/cache/cups-browsed"
+				"/var/cache/fwupdmgr"
+				"/var/lib/avahi-autoipd"
+				"/var/lib/bluetooth"
+				"/var/lib/openvpn/chroot"
+				"/var/lib/saned"
+				"/var/mail"
+				"/var/opt"
 			];
 		})
 
@@ -215,6 +230,23 @@
 				"/private/var/spool/cups/cache/*"
 				"/private/var/spool/postfix/*"
 				"/private/var/vm/sleepimage"
+			];
+			system.files.connections = [
+				"(.*/index\.spotlightV3)/.*"
+				"(/System/Library/AssetsV2/com_apple_MobileAsset_.*\.asset)/.*"
+			];
+			system.files.used = [
+				"/Library/InstallerSandboxes/.metadata_never_index"
+				"/Library/Keychains/.fl043D1EDD"
+				"/Library/Keychains/.fl947E1BDB"
+				"/Library/Preferences/OpenDirectory/DynamicData"
+				"/Library/Preferences/com.apple.apsd.launchd"
+				"/System/Library/AssetsV2/PreinstalledAssetsV2/InstallWithOs/com_apple_MobileAsset_DictionaryServices_dictionaryOSX"
+				"/System/Library/AssetsV2/PreinstalledAssetsV2/InstallWithOs/com_apple_MobileAsset_Font7"
+				"/System/Volumes/Data/.Spotlight-V100"
+				"/private/var/db/.AppleSetupDone"
+				"/private/var/db/ConfigurationProfiles/Settings/.cloudConfigNoActivationRecord"
+				"/private/var/networkd/db"
 			];
 		})
 	];

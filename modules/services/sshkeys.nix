@@ -20,7 +20,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.services.openssh.passwordlessKeys != [] -> pkgs.stdenv.isDarwin;
+			assertion = config.services.openssh.passwordlessKeys != [] -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Storing SSH key passwords is only supported on Darwin";
 		}];
 

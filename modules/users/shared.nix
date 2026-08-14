@@ -23,9 +23,9 @@
 
 		system.activationScripts.shared = ''
 			storeHeading -
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 			makeDir 3777:root:${config.users.shared.group} '${config.users.shared.folder}'
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			makeDir 1777:root:wheel '${config.users.shared.folder}'
 			makeIcon '${config.users.shared.folder}' person.3.fill
 		'' + lib.optionalString (config.environment.profile != null) ''
@@ -33,12 +33,12 @@
 			stateDir=''${XDG_STATE_HOME:-$HOME/.local/state}
 			if ! test -e "$stateDir/nix" ; then
 				# symlink the Nix profile to the shared folder
-				makeDir 755::${lib.optionalString pkgs.stdenv.isDarwin "admin"} \
+				makeDir 755::${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "admin"} \
 					'${config.users.shared.folder}/${config.users.stateDir}/nix'
 				makeDir 755 "$stateDir"
 				makeLink "$stateDir/nix" '${config.users.shared.folder}/${config.users.stateDir}/nix'
 			fi
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			storeHeading -
 			# prompt the user to delete relocated items
 			if ls -d "${config.users.shared.folder}/"*Relocated\ Items* > /dev/null 2>&1 ; then

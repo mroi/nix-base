@@ -25,7 +25,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.system.nvram != {} -> pkgs.stdenv.isDarwin;
+			assertion = config.system.nvram != {} -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "NVRAM variables are only supported on Darwin";
 		}];
 

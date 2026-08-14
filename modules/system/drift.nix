@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: {
 
 	config.environment.loginHook.drift = lib.mkIf config.system.systemwideSetup (
-		lib.optionalString (pkgs.stdenv.isDarwin && (config.nix.enable || config.users.guest.enable || config.users.defaultScriptShell != null)) (''
+		lib.optionalString (pkgs.stdenv.hostPlatform.isDarwin && (config.nix.enable || config.users.guest.enable || config.users.defaultScriptShell != null)) (''
 			# repair configuration drift after macOS updates
 			os_version=$(sw_vers -productVersion)
 			case "$os_version" in

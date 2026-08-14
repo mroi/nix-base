@@ -8,7 +8,7 @@ stdenvNoCC.mkDerivation {
 	src = null;
 	propagatedUserEnvPkgs = [ nix.out nix.man ];
 	phases = "installPhase fixupPhase";
-	installPhase = let tmpPattern = if stdenvNoCC.isDarwin then "nix" else "nix.XXXXXXXX"; in ''
+	installPhase = let tmpPattern = if stdenvNoCC.hostPlatform.isDarwin then "nix" else "nix.XXXXXXXX"; in ''
 		mkdir -p $out/bin
 		cat <<- 'EOFEOF' > $out/bin/nix
 			#!/bin/sh
@@ -36,14 +36,14 @@ stdenvNoCC.mkDerivation {
 
 			# environment variables
 			export NIX_CONF_DIR=/nix
-	'' + lib.optionalString stdenvNoCC.isDarwin ''
+	'' + lib.optionalString stdenvNoCC.hostPlatform.isDarwin ''
 			export NIX_SSL_CERT_FILE=/etc/ssl/cert.pem
 			# store cache files in temporary directory, configure shell
 			export XDG_CACHE_HOME=''${XDG_CACHE_HOME:-''${TMPDIR%/T/}/C}
 			export TMPDIR=/nix/var/tmp
 			export SHELL_SESSION_DID_INIT=1
 			export HISTFILE=/dev/null
-	'' + lib.optionalString stdenvNoCC.isLinux ''
+	'' + lib.optionalString stdenvNoCC.hostPlatform.isLinux ''
 			export NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 			# configure shell
 			export HISTFILE=/dev/null

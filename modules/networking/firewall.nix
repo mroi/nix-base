@@ -3,7 +3,7 @@
 	options.networking.firewall = {
 
 		enable = lib.mkEnableOption "macOS application firewall" // {
-			default = pkgs.stdenv.isDarwin;
+			default = pkgs.stdenv.hostPlatform.isDarwin;
 		};
 		blockAll = lib.mkEnableOption "blocking of listening sockets for all applications";
 		allowSystem = lib.mkEnableOption "listening sockets for system software";
@@ -49,7 +49,7 @@
 	in {
 
 		assertions = [{
-			assertion = cfg.enable -> pkgs.stdenv.isDarwin;
+			assertion = cfg.enable -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Application firwall is only available on Darwin";
 		} {
 			assertion = (cfg.blockAll || cfg.allowSystem || cfg.allowApps || cfg.stealth || cfg.allow != [] || cfg.block != []) -> cfg.enable;

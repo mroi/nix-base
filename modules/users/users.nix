@@ -18,12 +18,12 @@
 				};
 				home = lib.mkOption {
 					type = lib.types.passwdEntry lib.types.path;
-					default = if pkgs.stdenv.isDarwin then "/var/empty" else "/nonexistent";
+					default = if pkgs.stdenv.hostPlatform.isDarwin then "/var/empty" else "/nonexistent";
 					description = "The user’s home directory.";
 				};
 				shell = lib.mkOption {
 					type = lib.types.either lib.types.shellPackage (lib.types.passwdEntry lib.types.path);
-					default = if pkgs.stdenv.isDarwin then "/usr/bin/false" else "/usr/sbin/nologin";
+					default = if pkgs.stdenv.hostPlatform.isDarwin then "/usr/bin/false" else "/usr/sbin/nologin";
 					description = "The user’s login shell.";
 				};
 				description = lib.mkOption {

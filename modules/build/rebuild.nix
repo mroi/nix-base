@@ -75,7 +75,7 @@
 						printWarning 'Execution on NixOS installations is not recommended'
 					fi
 				fi
-			'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 				# error when running without full disk access
 				if test -d ~/Library/Application\ Support/com.apple.TCC -a ! -r ~/Library/Application\ Support/com.apple.TCC ; then
 					fatalError 'Rebuild requires full disk access'
@@ -85,10 +85,10 @@
 		in ''#!/bin/sh -e
 			# shellcheck disable=SC2317
 			export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-			isLinux=${lib.boolToString pkgs.stdenv.isLinux}
-			isDarwin=${lib.boolToString pkgs.stdenv.isDarwin}
-			isx86_64=${lib.boolToString pkgs.stdenv.isx86_64}
-			isAarch64=${lib.boolToString pkgs.stdenv.isAarch64}
+			isLinux=${lib.boolToString pkgs.stdenv.hostPlatform.isLinux}
+			isDarwin=${lib.boolToString pkgs.stdenv.hostPlatform.isDarwin}
+			isx86_64=${lib.boolToString pkgs.stdenv.hostPlatform.isx86_64}
+			isAarch64=${lib.boolToString pkgs.stdenv.hostPlatform.isAarch64}
 			${lib.fileContents ./state.sh}
 			${lib.fileContents ./utils.sh}
 			${assertions}

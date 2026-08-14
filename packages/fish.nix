@@ -82,7 +82,7 @@ in stdenv.mkDerivation {
 		message = "buildInputs changed";
 	};
 	propagatedBuildInputs = expect {
-		expected = [ coreutils gnugrep gnused gettext ] ++ lib.optional (!stdenv.isDarwin) man-db;
+		expected = [ coreutils gnugrep gnused gettext ] ++ lib.optional (!stdenv.hostPlatform.isDarwin) man-db;
 		actual = fish.propagatedBuildInputs;
 		message = "propagatedBuildInputs changed";
 	};
@@ -140,7 +140,7 @@ in stdenv.mkDerivation {
 		expected = [
 			"-DCMAKE_INSTALL_DOCDIR:STRING=${placeholder "doc"}/share/doc/fish"
 			"-DRust_CARGO_TARGET:STRING=${stdenv.hostPlatform.rust.rustcTarget}"
-		] ++ lib.optionals stdenv.isDarwin [ "-DMAC_CODESIGN_ID:BOOL=FALSE" ];
+		] ++ lib.optionals stdenv.hostPlatform.isDarwin [ "-DMAC_CODESIGN_ID:BOOL=FALSE" ];
 		actual = fish.cmakeFlags;
 		message = "cmakeFlags changed";
 	};

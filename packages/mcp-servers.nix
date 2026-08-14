@@ -24,7 +24,7 @@
 		duckduckgo = "exec ${uvx} duckduckgo-mcp-server==${versions.duckduckgo} \"$@\"";
 		pdf-reader = "exec ${npx} @sylphx/pdf-reader-mcp@${versions.pdf-reader} \"$@\"";
 
-	} // lib.optionalAttrs stdenv.isDarwin {
+	} // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
 
 		apple-docs = "exec ${apple-docs}/bin/Apple-Docs-MCP \"$@\"";
 

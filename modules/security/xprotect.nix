@@ -7,10 +7,10 @@
 
 	config = {
 
-		security.checks.XProtect = lib.mkDefault pkgs.stdenv.isDarwin;
+		security.checks.XProtect = lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin;
 
 		assertions = [{
-			assertion = config.security.checks.XProtect -> pkgs.stdenv.isDarwin;
+			assertion = config.security.checks.XProtect -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "security.checks.XProtect is only available on Darwin";
 		}];
 
@@ -23,7 +23,7 @@
 			fi
 		'';
 
-		system.updateScripts.xprotect = lib.mkIf pkgs.stdenv.isDarwin ''
+		system.updateScripts.xprotect = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin ''
 			storeHeading -
 			trace sudo xprotect update
 		'';

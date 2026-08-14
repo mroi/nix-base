@@ -3,7 +3,7 @@
 
 # TODO: build ollama using the MLX backend
 ollama.overrideAttrs (attrs: {
-	patches = attrs.patches or [] ++ lib.optional stdenv.isDarwin (writeText "launchd-integration.patch" ''
+	patches = attrs.patches or [] ++ lib.optional stdenv.hostPlatform.isDarwin (writeText "launchd-integration.patch" ''
 		--- a/cmd/cmd.go	1970-01-01 01:00:01
 		+++ b/cmd/cmd.go	2026-02-11 10:58:55
 		@@ -25,6 +25,7 @@

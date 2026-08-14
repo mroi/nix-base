@@ -23,7 +23,7 @@
 			sourceRoot = ".";
 			installPhase = "mv 'SF Symbols.pkg' $out";
 
-			passthru.updateScript = lib.optionalString pkgs.stdenv.isDarwin ''
+			passthru.updateScript = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 				if test "$(sw_vers -productVersion | cut -d. -f1)" -gt ${macOS} ; then
 					printWarning 'Update the software catalog URL for current macOS'
 				fi
@@ -43,7 +43,7 @@
 	in  {
 
 		assertions = [{
-			assertion = config.programs.sfSymbols.enable -> pkgs.stdenv.isDarwin;
+			assertion = config.programs.sfSymbols.enable -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "SF Symbols is only available on Darwin";
 		}];
 

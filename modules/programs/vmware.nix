@@ -33,7 +33,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.programs.vmware.enable -> pkgs.stdenv.isDarwin;
+			assertion = config.programs.vmware.enable -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "VMware Fusion is only available on Darwin";
 		}];
 

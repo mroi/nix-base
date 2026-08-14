@@ -12,7 +12,7 @@
 	config = lib.mkIf (config.security.preferences.passwordProtect != null) {
 
 		assertions = [{
-			assertion = pkgs.stdenv.isDarwin;
+			assertion = pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Password-protection for systemwide preferences can only be configured on Darwin";
 		} {
 			assertion = config.security.preferences.passwordProtect;

@@ -42,7 +42,7 @@
 
 	in lib.mkIf (config.system.packages != null) {
 
-		system.cleanupScripts.nodepend = lib.mkIf pkgs.stdenv.isLinux (lib.stringAfter [ "packages" ] ''
+		system.cleanupScripts.nodepend = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (lib.stringAfter [ "packages" ] ''
 			storeHeading 'Cleaning unused system-level packages'
 			flushHeading
 

@@ -4,7 +4,7 @@
 
 	config = lib.mkIf config.programs.emulators.enable (lib.mkMerge [
 
-		(lib.mkIf pkgs.stdenv.isDarwin {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 			environment.bundles."/Applications/Games.localized/VICE.app" = {
 				pkg = pkgs.callPackage ../../packages/vice.nix {};

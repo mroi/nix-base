@@ -18,7 +18,7 @@
 	config = lib.mkIf (config.system.packages != null) {
 
 		assertions = [{
-			assertion = (config.system.packages != null && config.system.packages != []) -> pkgs.stdenv.isLinux;
+			assertion = (config.system.packages != null && config.system.packages != []) -> pkgs.stdenv.hostPlatform.isLinux;
 			message = "System-level package installation is currently only supported on Linux";
 		}];
 
@@ -27,7 +27,7 @@
 			packages = map (x: if lib.isString x then
 				{ name = x; includeRecommends = false; } else x) config.system.packages;
 
-			installScript = package: lib.optionalString pkgs.stdenv.isLinux ''
+			installScript = package: lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 				if ! dpkg --status ${package.name} > /dev/null 2>&1 ; then
 					trace sudo apt-get install ${if package.includeRecommends then "" else "--no-install-recommends "}${package.name}
 				fi
@@ -39,7 +39,7 @@
 			${lib.concatLines (map installScript packages)}
 		'';
 
-		system.updateScripts.packages = lib.optionalString pkgs.stdenv.isLinux ''
+		system.updateScripts.packages = lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 			storeHeading -
 			trace sudo apt-get update --quiet
 			trace sudo apt-get dist-upgrade || true
@@ -50,7 +50,7 @@
 		system.cleanupScripts.packages = lib.stringAfter [ "files" "volumes" ] (''
 			storeHeading 'Cleaning system-level packages'
 
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 			trace sudo apt-get --assume-yes autopurge
 			trace sudo apt-get clean
 			trace sudo apt-cache gencaches
@@ -70,7 +70,7 @@
 					'These packages are in an incomplete installation state.' \
 					'They will be uninstalled unless lines are commented or removed.'
 
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			requireCommands clean-files
 
 			# print heading for potentially long running operation
@@ -107,7 +107,7 @@
 			{
 				printInfo 'Collecting installed files: system-level packages'
 
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 
 				find /var/lib/dpkg/info -maxdepth 1 -name '*.list' | while read -r list ; do
 					name=''${list##*/}
@@ -135,7 +135,7 @@
 					s|^/sbin/|/usr/sbin/|
 				' | addSource dpkg alternatives "WHERE path = '&'"
 
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 
 				# shellcheck disable=SC2043
 				for volume in / ; do

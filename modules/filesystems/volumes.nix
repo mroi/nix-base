@@ -74,7 +74,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.fileSystems != {} -> pkgs.stdenv.isDarwin;
+			assertion = config.fileSystems != {} -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Volume creation is currently only supported on Darwin";
 		}];
 
@@ -86,7 +86,7 @@
 		'');
 
 		environment.loginHook = lib.mkIf (config.fileSystems != {}) {
-			volumes = lib.optionalString pkgs.stdenv.isDarwin (
+			volumes = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin (
 				lib.concatLines (map mountVolumeScript (lib.filter (x: x.name != "/") volumesToCreate))
 			);
 		};
@@ -94,7 +94,7 @@
 			deps = [ "volumes" ];
 		};
 
-		system.cleanupScripts.volumes = lib.optionalString pkgs.stdenv.isDarwin ''
+		system.cleanupScripts.volumes = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			storeHeading 'Checking volume and file system integrity'
 
 			{

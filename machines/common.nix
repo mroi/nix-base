@@ -2,7 +2,7 @@
 
 	system.defaultCommands = [ "activate" ];
 
-	system.packages = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) [
+	system.packages = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.system.systemwideSetup) [
 		"patch"
 		"screen"
 		"sqlite3"
@@ -14,7 +14,7 @@
 		"nixpkgs#micro"
 	];
 
-	security.pki.certificateTrust.system = lib.mkIf (pkgs.stdenv.isDarwin && config.system.systemwideSetup) {
+	security.pki.certificateTrust.system = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && config.system.systemwideSetup) {
 		# DigiCert High Assurance EV Root CA: involved in geo services and commerce
 		"5FB7EE0633E259DBAD0C4C9AE6D38F1A61C7DC25" = { basicX509 = true; sslServer = true; timeStamping = true; };
 		# USERTrust RSA Certification Authority
@@ -41,7 +41,7 @@
 		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { sslServer = true; };
 	};
 
-	time = lib.mkIf (pkgs.stdenv.isLinux && config.system.systemwideSetup) {
+	time = lib.mkIf (pkgs.stdenv.hostPlatform.isLinux && config.system.systemwideSetup) {
 		timeZone = "Europe/Berlin";
 	};
 }

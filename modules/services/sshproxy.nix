@@ -26,16 +26,16 @@
 	in {
 
 		assertions = [{
-			assertion = config.services.sshProxy.enableServer -> pkgs.stdenv.isDarwin;
+			assertion = config.services.sshProxy.enableServer -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "The SSH proxy server is currently only supported on Darwin";
 		}];
 
 		system.build.packages = { inherit ssh-proxy; };
 
-		environment.profile = lib.mkIf (clientOrServer && pkgs.stdenv.isLinux) [
+		environment.profile = lib.mkIf (clientOrServer && pkgs.stdenv.hostPlatform.isLinux) [
 			"github:${flakeRepo}#${flakeAttr}"
 		];
-		environment.bundles = lib.mkIf (clientOrServer && pkgs.stdenv.isDarwin) {
+		environment.bundles = lib.mkIf (clientOrServer && pkgs.stdenv.hostPlatform.isDarwin) {
 			"${config.users.shared.folder}/${config.users.serviceDir}/SSHProxy.bundle" = {
 				pkg = ssh-proxy;
 				install = ''

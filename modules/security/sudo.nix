@@ -5,7 +5,7 @@
 			default = true;
 		};
 		touchId = lib.mkEnableOption "`sudo` authentication with Touch ID" // {
-			default = pkgs.stdenv.isDarwin;
+			default = pkgs.stdenv.hostPlatform.isDarwin;
 		};
 		adminFlagFile = lib.mkEnableOption "flag file `.sudo_as_admin_successful`";
 	};
@@ -13,10 +13,10 @@
 	config = {
 
 		assertions = [{
-			assertion = config.security.sudo.touchId -> pkgs.stdenv.isDarwin;
+			assertion = config.security.sudo.touchId -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "security.sudo.touchId is only available on Darwin";
 		} {
-			assertion = config.security.sudo.adminFlagFile -> pkgs.stdenv.isLinux;
+			assertion = config.security.sudo.adminFlagFile -> pkgs.stdenv.hostPlatform.isLinux;
 			message = "security.sudo.adminFlagFile is only available on Linux";
 		}];
 
@@ -24,7 +24,7 @@
 			./sudo-group-wheel.patch
 		] ++ lib.optionals config.security.sudo.touchId [
 			./sudo-touch-id.patch
-		] ++ lib.optionals (pkgs.stdenv.isLinux && ! config.security.sudo.adminFlagFile) [{
+		] ++ lib.optionals (pkgs.stdenv.hostPlatform.isLinux && ! config.security.sudo.adminFlagFile) [{
 			patch = ./sudo-no-admin-flag.patch;
 			doCheck = false;
 		}];

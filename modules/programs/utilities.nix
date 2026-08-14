@@ -6,7 +6,7 @@
 
 		{ environment.profile = [ "nixpkgs#smartmontools" ]; }
 
-		(lib.mkIf pkgs.stdenv.isDarwin {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 			environment.bundles."/Applications/ImageOptim.app" = {
 				pkg = pkgs.callPackage ../../packages/imageoptim.nix {};

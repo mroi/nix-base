@@ -32,24 +32,24 @@
 
 		userScript = pkgs.writeScript "unison" (lib.concatLines ([
 			"#!/bin/sh"
-		] ++ lib.optionals pkgs.stdenv.isLinux [
+		] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
 			(lib.optionalString cfg.intercept "LD_PRELOAD=${baseDir}/${configDir}/libintercept.so " + (
 				if baseDir == shared then
 					"exec ${shared}/${stateDir}/nix/profile/bin/unison \"$@\""
 				else
 					"exec \"\${XDG_STATE_HOME:-$HOME/.local/state}/nix/profile/bin/unison\" \"$@\""
 			))
-		] ++ lib.optionals pkgs.stdenv.isDarwin [
+		] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
 			"cd ${baseDir}/${serviceDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
 		]));
 
 		rootScript = pkgs.writeScript "unison" (lib.concatLines ([
 			"#!/bin/sh"
-		] ++ lib.optionals pkgs.stdenv.isLinux [
+		] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
 			(lib.optionalString cfg.intercept "LD_PRELOAD=~/${configDir}/libintercept.so " +
 				"exec ~/.nix/profile/bin/unison \"$@\"")
-		] ++ lib.optionals pkgs.stdenv.isDarwin [
+		] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
 			"export HOME=${config.users.root.home}"
 			"cd $HOME/${binDir}/Unison.app/ || exit"
 			"exec Contents/MacOS/Unison -ui text \"$@\""
@@ -79,9 +79,9 @@
 		system.build.packages = { inherit unison-intercept; };
 
 		# install Unison
-		environment.profile = lib.mkIf pkgs.stdenv.isLinux [ "nix-base#unison" ];
-		environment.rootPaths = lib.mkIf pkgs.stdenv.isLinux [ (lib.getExe unison) ];
-		environment.bundles = lib.mkIf (pkgs.stdenv.isDarwin && baseDir == shared) {
+		environment.profile = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [ "nix-base#unison" ];
+		environment.rootPaths = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [ (lib.getExe unison) ];
+		environment.bundles = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin && baseDir == shared) {
 			"${shared}/${serviceDir}/Unison.app" = {
 				pkg = if cfg.intercept then unison-intercept else unison;
 				install = ''
@@ -95,7 +95,7 @@
 			storeHeading 'Installing Unison'
 			${makeHomeDir baseDir binDir}
 			makeFile 755 ${baseDir}/${binDir}/unison ${userScript}
-		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''
+		'' + lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.intercept) ''
 			if ! test -x ${baseDir}/${configDir}/libintercept.so ; then
 				${makeHomeDir baseDir configDir}
 				makeFile 755 ${baseDir}/${configDir}/libintercept.so "${pkgs.lazyCallPackage ../../packages/unison.nix { intercept = true; }}/lib/libintercept.so"
@@ -120,11 +120,11 @@
 		environment.loginHook.unison = lib.mkIf (cfg.userAccountProfile != null) (''
 			# setup user at login
 			eval export HOME=~"$USER"
-			if test -d "$HOME" -a -d ${baseDir}/${configDir} -a -x ${baseDir}/${binDir}/unison ${lib.optionalString pkgs.stdenv.isLinux "-a ! -e \"$HOME/.ecryptfs\" "}; then
+			if test -d "$HOME" -a -d ${baseDir}/${configDir} -a -x ${baseDir}/${binDir}/unison ${lib.optionalString pkgs.stdenv.hostPlatform.isLinux "-a ! -e \"$HOME/.ecryptfs\" "}; then
 				cd "$HOME"
 				su -m "$USER" <<- 'EOF'
 					umask 0022'' + "\n"
-		+ lib.optionalString pkgs.stdenv.isLinux (''
+		+ lib.optionalString pkgs.stdenv.hostPlatform.isLinux (''
 					# remove the system default files
 					for file in .bash_logout .bashrc .inputrc .profile ; do
 						size=$(stat -c %s /etc/skel/$file)
@@ -177,12 +177,12 @@
 				echo 'Installing Unison executable for the root user' >&2
 				mkdir -p ${config.users.root.home}/${binDir}
 				cp ${rootScript} ${config.users.root.home}/${binDir}/unison
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 				mkdir -p ${config.users.root.home}/.nix/profile/bin
 				ln -s ${lib.getExe unison} ${config.users.root.home}/.nix/profile/bin/
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 				cp -R ${baseDir}/${serviceDir}/Unison.app ${config.users.root.home}/${binDir}/
-		'' + lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) ''
+		'' + lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.intercept) ''
 				mkdir -p ${config.users.root.home}/${configDir}
 				cp ${baseDir}/${configDir}/libintercept.so ${config.users.root.home}/${configDir}/
 		'' + ''
@@ -197,8 +197,8 @@
 					times = true
 					log = false
 					${
-						lib.optionalString pkgs.stdenv.isDarwin "\nfollow    = Name Unison.app" +
-						lib.optionalString (pkgs.stdenv.isLinux && cfg.intercept) "\nfollow    = Name libintercept.so"
+						lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "\nfollow    = Name Unison.app" +
+						lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && cfg.intercept) "\nfollow    = Name libintercept.so"
 					}
 					ignore    = Path .*
 					ignorenot = Path .nix
@@ -207,7 +207,7 @@
 					ignore    = Path ${configDir}/fp*
 					ignore    = Path ${configDir}/lk*
 					ignorenot = Path ${lib.head (lib.splitString "/" binDir)}'' + "\n"
-		+ lib.optionalString pkgs.stdenv.isDarwin ''
+		+ lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 					ignore    = Path Library/*
 					ignore    = Path Library/.*
 					ignorenot = Path Library/Preferences

@@ -14,7 +14,7 @@
 		};
 	};
 
-	config = lib.mkIf pkgs.stdenv.isDarwin {
+	config = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 		system.activationScripts.directory = let
 

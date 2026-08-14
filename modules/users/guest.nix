@@ -4,7 +4,7 @@
 
 	config = lib.mkIf config.users.guest.enable (lib.mkMerge [
 
-		(lib.mkIf pkgs.stdenv.isLinux {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
 
 			environment.patches = [
 				./guest-lightdm-enable.patch
@@ -12,7 +12,7 @@
 			];
 		})
 
-		(lib.mkIf pkgs.stdenv.isDarwin {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 			# guest account not officially supported with FileVault, create our own
 			users.users.Guest = {

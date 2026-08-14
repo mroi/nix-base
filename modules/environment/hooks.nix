@@ -41,7 +41,7 @@
 				"#!/bin/sh -e"
 				""
 				"PATH=/bin:/sbin:/usr/bin:/usr/sbin"
-			] ++ lib.optionals pkgs.stdenv.isDarwin [
+			] ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
 				"USER=$1"
 			]) + lib.pipe fragments [
 				(map (f: config.environment."${type}Hook"."${f}" or ""))
@@ -85,7 +85,7 @@
 			makeFile 700 "${config.users.root.stagingDirectory}/login-hook.sh" login-hook.sh
 			makeFile 700 "${config.users.root.stagingDirectory}/logout-hook.sh" logout-hook.sh
 
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 
 			makeDir 700 "${config.users.root.stagingDirectory}/Library/Preferences"
 			makeFile 644 "${config.users.root.stagingDirectory}/Library/Preferences/com.apple.loginwindow.plist" ${./hooks-loginwindow.plist}
@@ -93,7 +93,7 @@
 
 		system.activationScripts.root.deps = [ "hooks" ];
 
-		environment.patches = lib.mkIf pkgs.stdenv.isLinux [
+		environment.patches = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [
 			./hooks-lightdm.patch
 		];
 	};

@@ -11,9 +11,9 @@
 
 	config = lib.mkIf (config.services.openssh.enable != null) {
 
-		system.packages = lib.mkIf pkgs.stdenv.isLinux [ "openssh-server" ];
+		system.packages = lib.mkIf pkgs.stdenv.hostPlatform.isLinux [ "openssh-server" ];
 
-		networking.firewall.allow = lib.mkIf pkgs.stdenv.isDarwin [ "/usr/libexec/sshd-session" ];
+		networking.firewall.allow = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ "/usr/libexec/sshd-session" ];
 
 		system.activationScripts.ssh = lib.stringAfter [ "packages" ] (''
 			storeHeading 'SSH server setup'

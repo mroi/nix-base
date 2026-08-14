@@ -4,8 +4,8 @@
 
 assert intercept -> ! backDeploy;
 assert intercept -> ! static;
-assert backDeploy -> stdenv.isDarwin;
-assert static -> stdenv.isLinux;
+assert backDeploy -> stdenv.hostPlatform.isDarwin;
+assert static -> stdenv.hostPlatform.isLinux;
 
 let
 
@@ -111,7 +111,7 @@ let
 			fetchSubmodules = true;
 			hash = "sha256-En9mYe1IvV+dzYbVRMFh/GzA2l7uR+HGS5/RFWilNcg=";
 		};
-		__noChroot = stdenv.isDarwin;
+		__noChroot = stdenv.hostPlatform.isDarwin;
 		nativeBuildInputs = lib.getAttr stdenv.hostPlatform.uname.system {
 			Darwin = [ xcode ];
 			Linux = [ stdenv.cc ];
@@ -120,7 +120,7 @@ let
 		hardeningDisable = [ "fortify" ];
 		preBuild = ''
 			touch encrypt/.git  # prevent submodule init by Makefile
-		'' + lib.optionalString stdenv.isDarwin ''
+		'' + lib.optionalString stdenv.hostPlatform.isDarwin ''
 			mkdir -p $out/Library/CoreServices
 			cp -R ${unisonPackage}/Library/CoreServices/Unison.app $out/Library/CoreServices/
 			chmod -R u+w $out/Library/CoreServices/Unison.app
@@ -134,14 +134,14 @@ let
 				"INSTALL_GROUP="
 			]}'
 		'';
-		dontInstall = stdenv.isDarwin;
-		installPhase = lib.optionalString stdenv.isLinux ''
+		dontInstall = stdenv.hostPlatform.isDarwin;
+		installPhase = lib.optionalString stdenv.hostPlatform.isLinux ''
 			mkdir -p $out/bin $out/lib
 			cp ${unisonPackage}/bin/unison $out/bin/
 			cp libintercept.so $out/lib/
 		'';
 		# link against system C library
-		postFixup = lib.optionalString stdenv.isLinux ''
+		postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
 			${patchelf}/bin/patchelf --remove-rpath $out/lib/*
 		'';
 		passthru.updateScript = "nixUpdate --version branch";

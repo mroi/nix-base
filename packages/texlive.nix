@@ -16,7 +16,7 @@ in stdenv.mkDerivation ({
 	propagatedUserEnvPkgs = [ tex ];
 	phases = "installPhase fixupPhase installCheckPhase";
 
-} // lib.optionalAttrs stdenv.isDarwin rec {
+} // lib.optionalAttrs stdenv.hostPlatform.isDarwin rec {
 
 	__noChroot = true;
 	fontsConf = makeFontsConf { fontDirectories = [

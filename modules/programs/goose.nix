@@ -5,7 +5,7 @@
 	config = lib.mkIf config.programs.goose.enable {
 
 		assertions = [{
-			assertion = config.programs.goose.enable -> pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64;
+			assertion = config.programs.goose.enable -> pkgs.stdenv.hostPlatform.isDarwin && pkgs.stdenv.hostPlatform.isAarch64;
 			message = "Goose AI is only available on Darwin";
 		}];
 

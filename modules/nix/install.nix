@@ -23,7 +23,7 @@
 
 	config = lib.mkIf config.nix.enable {
 
-		fileSystems."/nix" = lib.mkIf pkgs.stdenv.isDarwin {
+		fileSystems."/nix" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 			fsType = "APFSX";
 			encrypted = true;
 			ownership = true;
@@ -43,7 +43,7 @@
 				members = [ "_nix" ];
 				description = "Nix Build Group";
 			};
-			groups.kvm = lib.mkIf pkgs.stdenv.isLinux {
+			groups.kvm = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
 				members = [ "_nix" ];
 			};
 		};
@@ -65,7 +65,7 @@
 				"XDG_CACHE_HOME=/nix/var"
 			];
 			group = "nix";
-			socket = lib.mkIf pkgs.stdenv.isLinux "/nix/var/nix/daemon-socket/socket";
+			socket = lib.mkIf pkgs.stdenv.hostPlatform.isLinux "/nix/var/nix/daemon-socket/socket";
 			waitForPath = "/nix/store";
 		};
 
@@ -87,7 +87,7 @@
 			if ! test -f /nix/var/ssh/id_ed25519 ; then
 				trace sudo ssh-keygen -q -t ed25519 -N ''' -C ''' -f /nix/var/ssh/id_ed25519
 				makeFile 600:root:nix /nix/var/ssh/id_ed25519
-				${lib.optionalString pkgs.stdenv.isDarwin "trace sudo chmod +a 'group:staff allow read' /nix/var/ssh/id_ed25519"}
+				${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin "trace sudo chmod +a 'group:staff allow read' /nix/var/ssh/id_ed25519"}
 			fi
 		'');
 

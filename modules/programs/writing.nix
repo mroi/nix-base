@@ -6,7 +6,7 @@
 
 		{ environment.profile = [ "nix-base#texlive" ]; }
 
-		(lib.mkIf pkgs.stdenv.isDarwin {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 			environment.bundles."/Applications/Research.localized/LyX.app" = {
 				pkg = pkgs.callPackage ../../packages/lyx.nix {};

@@ -20,11 +20,11 @@
 
 	in {
 
-		security.checks = lib.genAttrs enableOptions (_: lib.mkDefault pkgs.stdenv.isDarwin);
+		security.checks = lib.genAttrs enableOptions (_: lib.mkDefault pkgs.stdenv.hostPlatform.isDarwin);
 
 		assertions = let
 			darwinOnly = option: {
-				assertion = config.security.checks."${option}" -> pkgs.stdenv.isDarwin;
+				assertion = config.security.checks."${option}" -> pkgs.stdenv.hostPlatform.isDarwin;
 				message = "security.checks.${option} is only available on Darwin";
 			};
 		in map darwinOnly enableOptions;

@@ -3,7 +3,7 @@
 	config = let
 
 		enable = config.system.packages != null || config.environment.bundles != {} ||
-			(config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.isDarwin));
+			(config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.hostPlatform.isDarwin));
 
 	in lib.mkIf enable {
 
@@ -24,7 +24,7 @@
 				echo ');'
 
 				{
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 					# scan data volume for firmlink in the root tree and for remaining non-firmlinked files
 					firmlinks() {
 						files="$(find "$1" -mindepth 1 -maxdepth 1 2> /dev/null || true)"
@@ -54,7 +54,7 @@
 					if test -r /etc/synthetic.conf ; then
 						roots="$roots$newline$(sed 's/^/\//' < /etc/synthetic.conf)"
 					fi
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 					roots=$(mount | sed -En '/^\// { s/^.* on (.*) type .*$/\1/ ; /(^\/media\/|^\/mnt\/)/d ; p ; }')
 		'' + ''
 

@@ -10,7 +10,7 @@
 
 	config = let
 
-		yescryptApplicable = (config.security.password.yescrypt.rounds != null) && pkgs.stdenv.isLinux;
+		yescryptApplicable = (config.security.password.yescrypt.rounds != null) && pkgs.stdenv.hostPlatform.isLinux;
 		yescryptPatch = pkgs.runCommand "password-crypt-rounds.patch" {} ''
 			substitute ${./password-crypt-rounds.patch} $out \
 				--subst-var-by ROUNDS "${toString config.security.password.yescrypt.rounds}"

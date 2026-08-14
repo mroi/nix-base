@@ -21,17 +21,17 @@
 	config = lib.mkIf (config.services.timeMachine.destinations != null) {
 
 		assertions = [{
-			assertion = config.services.timeMachine.destinations != [] -> pkgs.stdenv.isDarwin;
+			assertion = config.services.timeMachine.destinations != [] -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Time Machine is only available on Darwin";
 		} {
 			assertion = lib.all (s: (lib.hasPrefix "/Volumes/" s) || (lib.hasInfix "://" s)) config.services.timeMachine.destinations;
 			message = "Only local Time Machine destinations in /Volumes or network destinations are supported";
 		}];
 
-		warnings = lib.optional (config.services.timeMachine.destinations == [] && pkgs.stdenv.isDarwin)
+		warnings = lib.optional (config.services.timeMachine.destinations == [] && pkgs.stdenv.hostPlatform.isDarwin)
 			"No Time Machine backups configured for this machine";
 
-		system.activationScripts.timemachine = lib.mkIf pkgs.stdenv.isDarwin (''
+		system.activationScripts.timemachine = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (''
 			storeHeading 'Configuring Time Machine backup'
 
 			target='${lib.concatLines config.services.timeMachine.destinations}'
@@ -98,7 +98,7 @@
 			${config.system.cleanupScripts.timemachine}
 		'');
 
-		system.cleanupScripts.timemachine = lib.mkIf pkgs.stdenv.isDarwin ''
+		system.cleanupScripts.timemachine = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin ''
 			storeHeading 'Checking Time Machine backup'
 
 			lastBackups="$(/usr/libexec/PlistBuddy -x -c 'Print :Destinations' /Library/Preferences/com.apple.TimeMachine.plist 2> /dev/null | \

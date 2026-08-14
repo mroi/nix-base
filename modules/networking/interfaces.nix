@@ -78,7 +78,7 @@
 	in {
 
 		assertions = [{
-			assertion = config.networking.interfaces != {} -> pkgs.stdenv.isDarwin;
+			assertion = config.networking.interfaces != {} -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Network interface currently can only be configured on Darwin";
 		} {
 			assertion = checkAll (x: x ? ipv4.addresses -> lib.tail x.ipv4.addresses == []);

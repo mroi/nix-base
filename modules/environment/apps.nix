@@ -22,7 +22,7 @@
 	config = {
 
 		assertions = [{
-			assertion = config.environment.flatpak != "none" -> pkgs.stdenv.isLinux;
+			assertion = config.environment.flatpak != "none" -> pkgs.stdenv.hostPlatform.isLinux;
 			message = "Flatpak apps are only supported on Linux";
 		}];
 
@@ -30,7 +30,7 @@
 			storeHeading 'Installing and removing applications'
 
 			target='${lib.concatLines (map toString config.environment.apps)}'
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			current=$(mdfind 'kMDItemAppStoreAdamID > 0' | while read -r app ; do
 				mdls -attr kMDItemAppStoreAdamID -raw "$app" ; echo
 			done)
@@ -57,7 +57,7 @@
 				fi
 			}
 			forLines "$current" forCurrent
-		'' + lib.optionalString (pkgs.stdenv.isLinux && config.environment.flatpak != "none") ''
+		'' + lib.optionalString (pkgs.stdenv.hostPlatform.isLinux && config.environment.flatpak != "none") ''
 			current=$(flatpak --${config.environment.flatpak} list --app --columns=application)
 
 			# install missing apps
@@ -85,7 +85,7 @@
 
 		system.updateScripts.apps = lib.stringAfter [ "packages" ] (''
 			storeHeading -
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 			trace "${pkgs.lazyBuild pkgs.mas}/bin/mas" upgrade
 		'' + lib.getAttr config.environment.flatpak {
 			system = ''
@@ -119,11 +119,11 @@
 			none = "";
 		});
 
-		system.cleanupScripts.files = lib.mkIf (config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.isDarwin)) {
+		system.cleanupScripts.files = lib.mkIf (config.environment.apps != null && (config.environment.flatpak == "system" || pkgs.stdenv.hostPlatform.isDarwin)) {
 
 			text = lib.mkAfter (''
 				{
-			'' + lib.optionalString pkgs.stdenv.isDarwin ''
+			'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 					printInfo 'Collecting installed files: Mac App Store'
 					mdfind 'kMDItemAppStoreAdamID > 0' | while read -r app ; do
 						appid=$(mdls -attr kMDItemAppStoreAdamID -raw "$app")

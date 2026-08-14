@@ -76,7 +76,7 @@
 			};
 		};
 
-		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.isDarwin (map
+		services.timeMachine.excludePaths = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (map
 			(account: "/Users/${mkAccountName account}/Downloads")
 		accounts);
 	};

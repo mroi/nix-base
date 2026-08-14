@@ -31,11 +31,11 @@
 		users.shared.folder = null;
 
 		# adapt configuration for non-systemwide setups
-		environment.flatpak = if pkgs.stdenv.isLinux then "user" else "none";
+		environment.flatpak = if pkgs.stdenv.hostPlatform.isLinux then "user" else "none";
 		networking.firewall.enable = false;
 		nix.enable = false;
 		security.sudo.touchId = false;
-		security.sudo.adminFlagFile = pkgs.stdenv.isLinux;
+		security.sudo.adminFlagFile = pkgs.stdenv.hostPlatform.isLinux;
 		services.unison.enable = false;
 		users.guest.enable = false;
 	});

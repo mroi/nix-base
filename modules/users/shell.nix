@@ -33,11 +33,11 @@
 
 			shell=${lib.escapeShellArg config.users.defaultScriptShell}
 			if test -x "$shell" ; then
-		'' + lib.optionalString pkgs.stdenv.isLinux ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
 				if ! test -L /bin/sh -a "$(readlink /bin/sh)" = "''${shell#/bin/}" ; then
 					printError "The shell $shell must be installed as a dpkg diversion at /bin/sh"
 				fi
-		'' + lib.optionalString pkgs.stdenv.isDarwin ''
+		'' + lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 				makeLink 755:root:wheel /var/select/sh "$shell"
 		'' + ''
 			else

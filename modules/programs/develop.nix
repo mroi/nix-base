@@ -12,7 +12,7 @@
 
 	in lib.mkIf config.programs.develop.enable (lib.mkMerge [
 
-		(lib.mkIf pkgs.stdenv.isLinux {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
 
 			security.sandbox.enable = lib.mkDefault true;
 
@@ -22,7 +22,7 @@
 			];
 		})
 
-		(lib.mkIf pkgs.stdenv.isDarwin {
+		(lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 
 			# Apple developer tools
 			programs.xcode.enable = lib.mkDefault true;

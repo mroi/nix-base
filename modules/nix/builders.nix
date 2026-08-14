@@ -3,7 +3,7 @@
 	options.nix.builders = {
 
 		linux = lib.mkEnableOption "Linux builder VM" // {
-			default = pkgs.stdenv.isDarwin;
+			default = pkgs.stdenv.hostPlatform.isDarwin;
 		};
 	};
 

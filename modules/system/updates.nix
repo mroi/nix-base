@@ -35,7 +35,7 @@
 	in lib.mkIf isEnabled {
 
 		assertions = [{
-			assertion = isEnabled -> pkgs.stdenv.isDarwin;
+			assertion = isEnabled -> pkgs.stdenv.hostPlatform.isDarwin;
 			message = "Automatic updates of system software is only supported on Darwin";
 		}];
 
@@ -62,7 +62,7 @@
 			makePref /Library/Preferences/com.apple.commerce.plist AutoUpdate bool ${lib.boolToString cfg.autoAppUpdate}
 		'';
 
-		system.updateScripts.system = lib.mkIf pkgs.stdenv.isDarwin ''
+		system.updateScripts.system = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin ''
 			storeHeading -
 			trace softwareupdate --install --all
 		'';

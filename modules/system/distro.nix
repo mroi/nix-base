@@ -12,10 +12,10 @@
 	config = lib.mkMerge [
 		{
 			assertions = [{
-				assertion = config.system.distribution != "macOS" -> pkgs.stdenv.isLinux;
+				assertion = config.system.distribution != "macOS" -> pkgs.stdenv.hostPlatform.isLinux;
 				message = "The only supported Darwin variant is macOS";
 			} {
-				assertion = config.system.distribution == "macOS" -> pkgs.stdenv.isDarwin;
+				assertion = config.system.distribution == "macOS" -> pkgs.stdenv.hostPlatform.isDarwin;
 				message = "System variant macOS is only supported on Darwin";
 			}];
 		}
@@ -29,9 +29,9 @@
 				{ name = "linux-image-generic-hwe-24.04"; includeRecommends = true; }
 				"bsdutils" "diffutils" "findutils" "util-linux"
 				"dash" "grep" "gzip" "hostname" "login" "ncurses-base" "ncurses-bin"
-			] ++ lib.optionals pkgs.stdenv.isx86_64 [
+			] ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
 				"grub-pc"
-			] ++ lib.optionals pkgs.stdenv.isAarch64 [
+			] ++ lib.optionals pkgs.stdenv.hostPlatform.isAarch64 [
 				"grub-efi-arm64"
 			]);
 
@@ -64,7 +64,7 @@
 				];
 			};
 
-			environment.extensions = lib.mkIf pkgs.stdenv.isDarwin {
+			environment.extensions = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
 				"com.apple.photo-editing"."com.apple.MarkupUI.MarkupPhotoExtension" = true;
 				"com.apple.quicklook.preview"."com.apple.tips.TipsQuicklook" = true;
 				"com.apple.share-services"."com.apple.CloudSharingUI.CopyLink" = true;

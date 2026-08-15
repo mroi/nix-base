@@ -2,6 +2,7 @@
 
 	options.services.ollama = {
 		enable = lib.mkEnableOption "Ollama local LLM server";
+		mlx = lib.mkEnableOption "Ollama MLX backend";
 		models = lib.mkOption {
 			type = lib.types.listOf lib.types.str;
 			example = [ "devstral:latest" ];
@@ -49,7 +50,9 @@
 
 		system.activationScripts.ollama = let
 
-			ollama = lib.getExe (pkgs.callPackage ../../packages/ollama.nix {});
+			ollama = lib.getExe (pkgs.callPackage ../../packages/ollama.nix {
+				mlxBackend = config.services.ollama.mlx;
+			});
 			datadir = config.users.users._ollama.home;
 
 		in lib.stringAfter [ "users" "services" ] (''

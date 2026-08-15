@@ -1,9 +1,33 @@
-# ollama patched for launchd integration and defaulting to no chat history
-{ lib, stdenv, ollama, writeText }:
+# ollama with MLX backend, patched for launchd integration and defaulting to no chat history
+{ lib, stdenvNoCC, ollama, apple-sdk_26, cacert, zsh, writeScriptBin, writeText, mlxBackend ? false }:
 
-# TODO: build ollama using the MLX backend
-ollama.overrideAttrs (attrs: {
-	patches = attrs.patches or [] ++ lib.optional stdenv.hostPlatform.isDarwin (writeText "launchd-integration.patch" ''
+assert mlxBackend -> stdenvNoCC.hostPlatform.isDarwin;
+
+let
+
+	# impurely expose the platform Metal compiler
+	metal = stdenvNoCC.mkDerivation {
+		name = "metal-impure";
+		__noChroot = true;
+		buildCommand = ''
+			mkdir -p $out/bin
+			metal=$(SDKROOT= /usr/bin/xcrun -f metal)
+			if test $? -ne 0 ; then
+				echo 'The Metal toolchain is required.'
+				echo 'Run: xcodebuild -downloadComponent MetalToolchain'
+			fi
+			ln -s "$metal" $out/bin/
+		'';
+	};
+
+	# MLX build requires sw_vers
+	sw_vers = writeScriptBin "sw_vers" ''#!/bin/sh
+		echo '${apple-sdk_26.version}'
+	'';
+
+in ollama.overrideAttrs (attrs: {
+
+	patches = attrs.patches or [] ++ lib.optional stdenvNoCC.hostPlatform.isDarwin (writeText "launchd-integration.patch" ''
 		--- a/cmd/cmd.go	1970-01-01 01:00:01
 		+++ b/cmd/cmd.go	2026-02-11 10:58:55
 		@@ -27,6 +27,7 @@
@@ -126,4 +150,17 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC|os.O_APPEND, 0o600)
 	'');
+
+} // lib.optionalAttrs mlxBackend {
+
+	# build with MLX backend on Darwin
+	__noChroot = true;
+	cmakeFlags = attrs.cmakeFlags or [] ++ [ "-DOLLAMA_MLX_BACKENDS=metal_v4" ];
+	buildInputs = attrs.buildInputs ++ [ apple-sdk_26 ];
+	nativeBuildInputs = attrs.nativeBuildInputs ++ [ metal zsh cacert sw_vers ];
+	postPatch = attrs.postPatch + ''
+		# disable tests that fail in the Nix sandbox
+		rm x/internal/mlxthread/*_test.go
+		rm x/models/glm4_moe_lite/*_test.go
+	'';
 })

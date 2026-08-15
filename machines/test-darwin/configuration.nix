@@ -13,4 +13,6 @@
 		"nix-base#arq-restore"
 		"nixpkgs#shellcheck"
 	];
+
+	services.ollama.mlx = true;
 }

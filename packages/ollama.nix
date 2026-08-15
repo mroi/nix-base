@@ -6,7 +6,7 @@ ollama.overrideAttrs (attrs: {
 	patches = attrs.patches or [] ++ lib.optional stdenv.hostPlatform.isDarwin (writeText "launchd-integration.patch" ''
 		--- a/cmd/cmd.go	1970-01-01 01:00:01
 		+++ b/cmd/cmd.go	2026-02-11 10:58:55
-		@@ -25,6 +25,7 @@
+		@@ -27,6 +27,7 @@
 		 	"sync/atomic"
 		 	"syscall"
 		 	"time"
@@ -14,9 +14,9 @@ ollama.overrideAttrs (attrs: {
 		 
 		 	"github.com/containerd/console"
 		 	"github.com/mattn/go-runewidth"
-		@@ -52,6 +53,12 @@
+		@@ -57,6 +58,12 @@
+		 	xcreate "github.com/ollama/ollama/x/create"
 		 	xcreateclient "github.com/ollama/ollama/x/create/client"
-		 	"github.com/ollama/ollama/x/imagegen"
 		 )
 		+
 		+/*
@@ -25,9 +25,9 @@ ollama.overrideAttrs (attrs: {
 		+*/
 		+import "C"
 		 
-		 const ConnectInstructions = "If your browser did not open, navigate to:\n    %s\n\n"
-		 
-		@@ -1689,12 +1696,18 @@
+		 func init() {
+		 	// Override default selectors to use Bubbletea TUI instead of raw terminal I/O.
+		@@ -2012,12 +2019,18 @@
 		 	return nil
 		 }
 		 
@@ -48,7 +48,7 @@ ollama.overrideAttrs (attrs: {
 		 	if err != nil {
 		 		return err
 		 	}
-		@@ -1751,6 +1764,27 @@
+		@@ -2074,6 +2087,27 @@
 		 		fmt.Printf("Your new public key is: \n\n%s\n", publicKeyBytes)
 		 	}
 		 	return nil
@@ -76,7 +76,7 @@ ollama.overrideAttrs (attrs: {
 		 }
 		 
 		 func checkServerHeartbeat(cmd *cobra.Command, _ []string) error {
-		@@ -1906,6 +1940,8 @@
+		@@ -2375,6 +2409,8 @@
 		 		RunE:    RunServer,
 		 	}
 		 
@@ -88,7 +88,7 @@ ollama.overrideAttrs (attrs: {
 	'') ++ lib.singleton (writeText "default-no-history.patch" ''
 		--- a/envconfig/config.go
 		+++ b/envconfig/config.go
-		@@ -191,7 +191,7 @@
+		@@ -221,7 +221,7 @@
 		 	// KvCacheType is the quantization type for the K/V cache.
 		 	KvCacheType = String("OLLAMA_KV_CACHE_TYPE")
 		 	// NoHistory disables readline history.

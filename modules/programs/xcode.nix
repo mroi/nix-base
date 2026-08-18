@@ -28,9 +28,30 @@
 					version = null;
 				};
 				install = ''
-					printInfo 'Check here for current Xcode beta versions:'
-					printInfo 'https://developer.apple.com/download/all/?q=Xcode'
-					printInfo "Install manually to $out"
+					if test -r "$out/Contents/Info.plist" ; then
+						version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$out/Contents/Info.plist")
+					else
+						version=0
+					fi
+					if test -r "$out/Contents/Resources/BetaVersion.plist" ; then
+						seed=$(/usr/libexec/PlistBuddy -c 'Print :seedNumber' "$out/Contents/Resources/BetaVersion.plist")
+					else
+						seed=0
+					fi
+					installed="Xcode ''${version%.*} Beta $seed"
+
+					available=$(curl --silent https://developer.apple.com/tutorials/data/index/xcode-release-notes | \
+						jq --raw-output 'first(.interfaceLanguages.swift[0].children[] | select(.type == "article")).title | rtrimstr(" Release Notes")')
+					if test "$available" != "''${available% Beta *}" ; then
+						if test "$installed" != "$available" ; then
+							printWarning 'New Xcode Beta version available'
+							printInfo "Download $available and manually install to $out:"
+							printInfo 'https://developer.apple.com/download/all/?q=Xcode'
+						fi
+					else
+						printWarning "Current $available release is not a Beta version"
+						printInfo 'Consider disabling Nix option programs.xcode.beta'
+					fi
 					unset out
 				'';
 			};

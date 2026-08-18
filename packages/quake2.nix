@@ -71,7 +71,7 @@ stdenvNoCC.mkDerivation rec {
 		version=$(echo "''${tag#QUAKE2_}" | tr _ .)
 		# fetch compiled version info from MacSourcePorts
 		curl --silent 'https://api.github.com/repos/MacSourcePorts/MSPBuildSystem/releases?per_page=100' | \
-			jq --raw-output '[.[] | select(.name | startswith("yquake2"))][0] | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
+			jq --raw-output 'first(.[] | select(.name | startswith("yquake2"))) | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
 			if read -r file url hash && test "$file" = "yquake2-''${version}.dmg" ; then
 				updateVersion version "$version"
 				updateUrl url "$url"

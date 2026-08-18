@@ -44,7 +44,7 @@ stdenvNoCC.mkDerivation rec {
 		version=''${release#dhewm3 }
 		# fetch compiled version info from MacSourcePorts
 		curl --silent 'https://api.github.com/repos/MacSourcePorts/MSPBuildSystem/releases?per_page=100' | \
-			jq --raw-output '[.[] | select(.name | startswith("dhewm3"))][0] | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
+			jq --raw-output 'first(.[] | select(.name | startswith("dhewm3"))) | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
 			if read -r file url hash && test "$file" = "dhewm3-''${version}.dmg" ; then
 				updateVersion version "$version"
 				updateUrl url "$url"

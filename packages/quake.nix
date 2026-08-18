@@ -67,7 +67,7 @@ stdenvNoCC.mkDerivation rec {
 		version=$(curl --silent https://api.github.com/repos/Novum/vkQuake/releases/latest | jq --raw-output .tag_name)
 		# fetch compiled version info from MacSourcePorts
 		curl --silent 'https://api.github.com/repos/MacSourcePorts/MSPBuildSystem/releases?per_page=100' | \
-			jq --raw-output '[.[] | select(.name | startswith("vkQuake"))][0] | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
+			jq --raw-output 'first(.[] | select(.name | startswith("vkQuake"))) | .assets[0] | "\(.name) \(.browser_download_url) \(.digest)"' | \
 			if read -r file url hash && test "$file" = "vkQuake-''${version}.dmg" ; then
 				updateVersion version "$version"
 				updateUrl url "$url"

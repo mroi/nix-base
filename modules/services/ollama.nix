@@ -34,7 +34,7 @@
 			command = "${config.users.users._ollama.home}/bin/ollama serve --launchd";
 			environment = [
 				"OLLAMA_MODELS=${config.users.users._ollama.home}"
-				"OLLAMA_CONTEXT_LENGTH=1048576"
+				"OLLAMA_CONTEXT_LENGTH=262144"
 				"OLLAMA_KEEP_ALIVE=30m"
 				# optimize settings for long-context models (reduce memory load)
 				"OLLAMA_FLASH_ATTENTION=1"

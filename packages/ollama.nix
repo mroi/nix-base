@@ -5,20 +5,11 @@ assert mlxBackend -> stdenvNoCC.hostPlatform.isDarwin;
 
 let
 
-	# impurely expose the platform Metal compiler
-	metal = stdenvNoCC.mkDerivation {
-		name = "metal-impure";
-		__noChroot = true;
-		buildCommand = ''
-			mkdir -p $out/bin
-			metal=$(SDKROOT= /usr/bin/xcrun -f metal)
-			if test $? -ne 0 ; then
-				echo 'The Metal toolchain is required.'
-				echo 'Run: xcodebuild -downloadComponent MetalToolchain'
-			fi
-			ln -s "$metal" $out/bin/
-		'';
-	};
+	# expose the platform Metal compiler
+	metal = writeScriptBin "metal" ''#!/bin/sh
+		metal=$(DEVELOPER_DIR= SDKROOT= /usr/bin/xcrun -f metal)
+		"$metal" "$@"
+	'';
 
 	# MLX build requires sw_vers
 	sw_vers = writeScriptBin "sw_vers" ''#!/bin/sh

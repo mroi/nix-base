@@ -98,6 +98,16 @@
 			"							end"
 		];
 
+		# derive Ollama configuration
+		ollamaModels = lib.pipe config.services.llms.providers [
+			lib.attrValues
+			(lib.filter (x: x.type == "ollama"))
+			(lib.filter (x: x.url == "http://localhost:11434"))
+			(lib.catAttrs "models")
+			(map lib.attrNames)
+			lib.flatten
+		];
+
 	in lib.mkIf (config.services.llms.providers != {}) {
 
 		assertions = [{
@@ -109,6 +119,9 @@
 			];
 			message = "Configured output limits must be smaller than the context length";
 		}];
+
+		services.ollama.enable = lib.mkDefault (ollamaModels != []);
+		services.ollama.models = ollamaModels;
 
 		system.activationScripts.llms = ''
 			storeHeading 'LLM providers and models'

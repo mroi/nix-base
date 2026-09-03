@@ -9,6 +9,21 @@
 			message = "Goose AI is only available on Darwin";
 		}];
 
+		# configure a general purpose small local model
+		services.llms.providers.ollama = {
+			name = "Ollama";
+			aliases = [ "local" ];
+			type = "ollama";
+			url = "http://localhost:11434";
+			models."huihui_ai/qwen3.5-abliterated:9b" = {
+				name = "Qwen 3.5 9b";
+				context = 262144;
+				outputLimit = 65536;
+			};
+		};
+		programs.opencode.settings.model = lib.mkDefault "ollama/huihui_ai/qwen3.5-abliterated:9b";
+		programs.opencode.settings.small_model = lib.mkDefault "ollama/huihui_ai/qwen3.5-abliterated:9b";
+
 		# Goose itself can run unsandboxed due to its reasonable tool call permissions scheme.
 		# MCP services launced by Goose however should be invidivually sanboxed to mitigate
 		# supply chain attacks or rogue tool accesses by the LLM.

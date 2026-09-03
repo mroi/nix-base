@@ -13,8 +13,8 @@
 		in pkgs.fetchurl {
 			inherit url;
 			pname = "arq-installer";
-			version = "7.47.3";
-			hash = "sha256-Q7zkeVcuIN4qfLd4XE86VSxBowM7Rf7XWCRWMCq4II4=";
+			version = "7.48";
+			hash = "sha256-auz1m6ai10B/6NKTrA/tH6/HqCf9u+aD8kMgB3sZot4=";
 			passthru.updateScript = ''
 				version=$(curl --silent ${releaseNotes} | \
 					xmllint --html --xpath '/html/body/h1[1]/text()' - 2> /dev/null | \
@@ -24,19 +24,19 @@
 					shaExpected=$(curl --silent ${releaseNotes} | \
 						xmllint --html --xpath '/html/body/p[2]/text()' - 2> /dev/null | \
 						sed 's/^.*= *//')
+					hashExpected=$(nix hash convert --from base16 --hash-algo sha256 "$shaExpected")
 					curl --silent --output Arq.pkg ${url}
-					shaObtained=$(sha256sum Arq.pkg | sed 's/ .*//')
-					hash=$(nix hash file Arq.pkg)
-					if test "$shaExpected" != "$shaObtained" ; then
+					hashObtained=$(nix hash file Arq.pkg)
+					if test "$hashExpected" != "$hashObtained" ; then
 						printWarning 'Hash mismatch for downloaded Arq.pkg'
-						printInfo "expected: $shaExpected"
-						printInfo "obtained: $shaObtained"
-						hash=${lib.fakeHash}
+						printInfo "expected: $hashExpected"
+						printInfo "obtained: $hashObtained"
+						hashExpected=${lib.fakeHash}
 					fi
 					if ! $isDarwin || ! checkSig Arq.pkg 48ZCSDVL96 ; then
-						hash=${lib.fakeHash}
+						hashExpected=${lib.fakeHash}
 					fi
-					updateHash hash "$hash"
+					updateHash hash "$hashExpected"
 					rm Arq.pkg
 				fi
 			'';

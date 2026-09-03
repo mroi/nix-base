@@ -5,15 +5,16 @@
 	config = let
 
 		vmware-fusion-installer = let
-			marketingVersion = "26H1";
+			marketingVersion = "26H1u1";
+			buildNumber = "25689522";
 		in pkgs.requireFile {
-			name = "VMware-Fusion-${marketingVersion}-25388279_universal.dmg";
+			name = "VMware-Fusion-${marketingVersion}-${buildNumber}_universal.dmg";
 			url = "https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion&freeDownloads=true";
 			# nix hash convert --from base16 --hash-algo sha256 <hash in hex from website>
-			hash = "sha256-wdNzqiG+JWdOPsxRiBniVXhd6p1FbYdHvLCipZJEvfY=";
+			hash = "sha256-3xkR+N5lGBikPCDKEFRAPafjlTTxWi4OD51B/89yirg=";
 			meta.license = [];
 		} // {
-			version = "26.0.0";
+			version = "26.0.1";
 			passthru.updateScript = ''
 				fusion=$(curl --silent https://techdocs.broadcom.com | grep -F 'data-divisions' | \
 					xmllint --recover --xpath 'string(//@data-divisions)' - 2> /dev/null | \
@@ -26,6 +27,7 @@
 				if didUpdate ; then
 					updateHash hash ${lib.fakeHash}
 					updateVersion version 0
+					updateVersion buildNumber 0
 				fi
 			'';
 		};

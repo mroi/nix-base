@@ -2,15 +2,7 @@
 
 	options.programs.develop.enable = lib.mkEnableOption "developer programs";
 
-	config = let
-
-		smallCodingModel = {
-			name = "huihui_ai/qwen3.5-abliterated:9b";
-			contextLength = 262144;
-			outputLimit = 81920;
-		};
-
-	in lib.mkIf config.programs.develop.enable (lib.mkMerge [
+	config = lib.mkIf config.programs.develop.enable (lib.mkMerge [
 
 		(lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
 
@@ -28,17 +20,8 @@
 			programs.xcode.enable = lib.mkDefault true;
 			programs.sfSymbols.enable = lib.mkDefault true;
 
-			# OpenCode with local coding model
+			# OpenCode
 			programs.opencode.enable = lib.mkDefault true;
-			programs.opencode.settings.model = "ollama/${smallCodingModel.name}";
-			programs.opencode.settings.small_model = "ollama/${smallCodingModel.name}";
-			programs.opencode.settings.provider.ollama.models."${smallCodingModel.name}".limit = {
-				context = smallCodingModel.contextLength;
-				output = smallCodingModel.outputLimit;
-			};
-			services.ollama.enable = lib.mkDefault true;
-			services.ollama.models = [ smallCodingModel.name ];
-
 			# OpenCode by default is not sandboxed, enable discretionary sandboxing
 			security.sandbox.enable = lib.mkDefault true;
 			security.sandbox.rules = { ... }: "\${XCODE_SANDBOX_EXTRA_RULES}";

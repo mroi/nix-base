@@ -6,35 +6,32 @@
 		"$schema" = "https://opencode.ai/config.json";
 	} // config.programs.opencode.settings);
 
-	# model substrings that will be included in opencode config
-	codingModels = [ "gemma" "laguna" "qwen" ];
+	# model configuration
+	opencodeConfig = {
+		provider = lib.mapAttrs opencodeProvider config.services.llms.providers;
+	};
 
-	prettyModelName = name: lib.pipe name [
-		lib.toLower
-		# separate into user "/" name version specifier ":" size
-		(lib.match "([^/]*/)?([^0-9-]+)(-[^0-9]*)?([0-9.]+)([^:]*):([^_-]*)([_-].*)?")
-		# put together pretty name
-		(x: "${lib.elemAt x 1} ${lib.elemAt x 3}" + lib.optionalString ((lib.elemAt x 5) != "latest") " ${lib.elemAt x 5}")
-		# capitalize first letter
-		(x: "${lib.toUpper (lib.substring 0 1 x)}${lib.substring 1 (-1) x}")
-	];
+	opencodeProvider = let
+		openaiCompatible = value: {
+			npm = "@ai-sdk/openai-compatible";
+			options.baseURL = "${value.url}/v1";
+		};
+	in _: value: {
+		inherit (value) name;
+		models = lib.mapAttrs opencodeModel value.models;
+	} // lib.getAttr value.type {
+		github-copilot = {};
+		litellm = openaiCompatible value;
+		ollama = openaiCompatible value;
+		openai = openaiCompatible value;
+	};
 
-	ollamaProvider = lib.optionalAttrs (config.services.ollama.models != []) {
-		provider = {
-			ollama = {
-				npm = "@ai-sdk/openai-compatible";
-				name = "Ollama";
-				options.baseURL = "http://localhost:11434/v1";
-				models = lib.pipe config.services.ollama.models [
-					(lib.filter (x: lib.any (y: lib.hasInfix y (lib.toLower x)) codingModels))
-					(map (x: { name = "${x}"; value = {
-						name = prettyModelName x;
-						reasoning = true;
-						tools = true;
-					};}))
-					lib.listToAttrs
-				];
-			};
+	opencodeModel = _: value: {
+		inherit (value) name;
+		limit.context = value.context;
+		limit.output = value.outputLimit;
+		options = lib.mkIf (value.thinking != null) {
+			reasoning_effort = value.thinking;
 		};
 	};
 
@@ -67,7 +64,7 @@ in {
 		programs.opencode.settings = {
 			autoupdate = false;
 			default_agent = "plan";
-		} // ollamaProvider // mcpServers;
+		} // opencodeConfig // mcpServers;
 
 		system.activationScripts.opencode = lib.mkIf (config.programs.opencode.settings != {}) (
 			lib.stringAfter [ "shared" ] (''

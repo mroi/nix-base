@@ -17,6 +17,7 @@
 			url = "http://localhost:11434";
 			models."huihui_ai/qwen3.5-abliterated:9b" = {
 				name = "Qwen 3.5 9b";
+				tags = [ "small" ];
 				context = 262144;
 				outputLimit = 65536;
 			};

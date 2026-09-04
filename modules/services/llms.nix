@@ -26,6 +26,11 @@
 							type = lib.types.str;
 							description = "A user-readable name for this model.";
 						};
+						tags = lib.mkOption {
+							type = lib.types.listOf lib.types.str;
+							default = [];
+							description = "User-defined tags for this model.";
+						};
 						context = lib.mkOption {
 							type = lib.types.int;
 							description = "The context window length of this model.";
@@ -56,13 +61,24 @@
 
 	config = let
 
+		# add pseudo-providers derived from the model tags
+		providersByTags = lib.concatMapAttrs (name: value: lib.mergeAttrsList ([{
+			${name} = value // { inherit name; };
+		}] ++ lib.forEach (lib.concatAttrValues (lib.mapAttrs (_: x: x.tags) value.models)) (tag: {
+			"${name}-${tag}" = value // {
+				inherit name;
+				aliases = map (x: "${x}-${tag}") value.aliases;
+				models = lib.filterAttrs (_: x: lib.elem tag x.tags) value.models;
+			};
+		}))) config.services.llms.providers;
+
 		# fish function to query configured models
 		fishFile = pkgs.writeText "nix-llms.fish" (lib.concatLines (lib.flatten ([
 			"function __nix_llms --description 'query configured LLMs'"
 			"	switch $argv[1]"
 			"		case ''"
-			"			echo '${lib.concatStringsSep " " (lib.attrNames config.services.llms.providers)}'"
-		] ++ map fishProvider (lib.attrsToList config.services.llms.providers) ++ [
+			"			echo '${lib.concatStringsSep " " (lib.attrNames providersByTags)}'"
+		] ++ map fishProvider (lib.attrsToList providersByTags) ++ [
 			"		case '*'; return 1"
 			"	end"
 			"end"
@@ -71,7 +87,7 @@
 		fishProvider = { name, value }: [
 			"		case '${name}'${lib.concatStringsSep " " ([""] ++ value.aliases)}"
 			"			switch $argv[2]"
-			"				case ''; echo ${name}"
+			"				case ''; echo ${value.name}"
 			"				case type; echo ${value.type}"
 			"				case url; echo ${value.url}"
 			"				case model"
@@ -84,17 +100,20 @@
 		] ++ map fishModel (lib.attrsToList value.models) ++ [
 			"						case '*'; return 1"
 			"					end"
+			"				case '*'; return 1"
 			"			end"
 		];
 
 		fishModel = { name, value }: [
 			"						case '${name}'"
 			"							switch $argv[4]"
+			"								case ''; echo ${name}"
 			"								case context; echo ${toString value.context}"
 			"								case outputLimit; echo ${toString value.outputLimit}"
 		] ++ lib.optionals (value.thinking != null) [
 			"								case thinking; echo ${value.thinking}"
 		] ++ [
+			"								case '*'; return 1"
 			"							end"
 		];
 

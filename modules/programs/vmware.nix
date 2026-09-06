@@ -46,11 +46,11 @@
 				pkg = vmware-fusion-installer;
 				install = ''
 					checkSig "$pkg" EG7KH642X6
-					trace hdiutil attach -quiet "$pkg"
+					trace diskutil image attach "$pkg"
 					trace open -W '/Volumes/VMware Fusion/VMware Fusion.app'
 					checkSig "$out" EG7KH642X6
 					makeIcon "$out" ${./vmware-icon.cpgz}
-					trace hdiutil eject -quiet '/Volumes/VMware Fusion'
+					trace diskutil eject '/Volumes/VMware Fusion'
 				'';
 			};
 		};

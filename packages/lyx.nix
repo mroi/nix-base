@@ -11,6 +11,7 @@ stdenvNoCC.mkDerivation rec {
 	};
 
 	__noChroot = true;
+	# FIXME: hdiutil is deprecated and should be replaced with diskutil, but this fails in the Nix builder
 	unpackPhase = ''
 		mkdir dmg
 		/usr/bin/hdiutil attach $src -readonly -mountpoint $PWD/dmg

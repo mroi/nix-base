@@ -41,6 +41,11 @@
 		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { sslServer = true; };
 	};
 
+	networking.firewall.block = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [
+		# prevent syslogd (which is not sandboxed) from opening UDP ports
+		"/usr/sbin/syslogd"
+	];
+
 	system.files.connections = [
 		# Git repositories
 		"(.*/\.git)/description"

@@ -151,7 +151,7 @@ in ollama.overrideAttrs (attrs: {
 	nativeBuildInputs = attrs.nativeBuildInputs ++ [ metal zsh cacert sw_vers ];
 	postPatch = attrs.postPatch + ''
 		# disable tests that fail in the Nix sandbox
-		rm x/internal/mlxthread/*_test.go
-		rm x/models/glm4_moe_lite/*_test.go
+		rm mlx/mlxthread/*_test.go
+		rm mlxrunner/model/glm4_moe_lite/*_test.go
 	'';
 })

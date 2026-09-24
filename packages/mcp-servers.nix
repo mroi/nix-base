@@ -8,7 +8,7 @@
 	};
 
 	# cut-off time for auto-loaded package dependencies to get them somewhat pinned
-	depsTimestamp = "1787964612";
+	depsTimestamp = "1789994327";
 	depsDate= lib.getAttr stdenv.hostPlatform.uname.system {
 		Linux = "$(date --date=@${depsTimestamp} +%Y-%m-%d)";
 		Darwin = "$(date -r ${depsTimestamp} +%Y-%m-%d)";

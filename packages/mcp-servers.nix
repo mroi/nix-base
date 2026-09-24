@@ -2,9 +2,9 @@
 { lib, stdenv, writeShellScriptBin, nodejs-slim, uv, mcp-nixos, fetchFromGitHub, swift, git, cacert }: let
 
 	versions = {
-		duckduckgo = "0.6.1";
-		pdf-reader = "4.1.3";
 		apple-docs = "1.0.1";
+		pdf-reader = "5.0.2";
+		web-search = "0.6.1";
 	};
 
 	# cut-off time for auto-loaded package dependencies to get them somewhat pinned
@@ -21,8 +21,8 @@
 	servers = {
 
 		nixos = "exec ${mcp-nixos}/bin/mcp-nixos \"$@\"";
-		duckduckgo = "exec ${uvx} duckduckgo-mcp-server==${versions.duckduckgo} \"$@\"";
-		pdf-reader = "exec ${npx} @sylphx/pdf-reader-mcp@${versions.pdf-reader} \"$@\"";
+		pdf-reader = "exec ${npx} @sylphx/citra@${versions.pdf-reader} \"$@\"";
+		web-search = "exec ${uvx} duckduckgo-mcp-server==${versions.web-search} \"$@\"";
 
 	} // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
 
@@ -113,8 +113,8 @@ in (writeShellScriptBin "mcp-servers" ''
 				updateVersion "$1" "$version"
 			}
 
-			updatePyPI duckduckgo duckduckgo-mcp-server
-			updateNPM pdf-reader @sylphx/pdf-reader-mcp
+			updatePyPI web-search duckduckgo-mcp-server
+			updateNPM pdf-reader @sylphx/citra
 		fi
 
 		# apple-docs

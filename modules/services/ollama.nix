@@ -68,8 +68,9 @@
 		'' + ''
 
 			target='${lib.concatLines config.services.ollama.models}'
-			current="$(cd ${datadir}/manifests/registry.ollama.ai 2> /dev/null || exit 0 ; \
+			current="$(cd ${datadir}/manifests 2> /dev/null || exit 0 ; \
 				find -- * -type f | while read -r model ; do
+					model=''${model#registry.ollama.ai/}
 					model=''${model#library/}
 					echo "''${model%/*}:''${model##*/}"
 				done

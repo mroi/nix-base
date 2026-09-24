@@ -37,11 +37,13 @@
 				${lib.concatLines (map keyScript config.services.openssh.passwordlessKeys)}
 
 				# remove stored keys from the ssh agent
-				oldIFS=$IFS
-				IFS=$(printf '\n\t')
-				# shellcheck disable=SC2086
-				ssh-add -d $stored 2> /dev/null
-				IFS=$oldIFS
+				if test "$stored" ; then
+					oldIFS=$IFS
+					IFS=$(printf '\n\t')
+					# shellcheck disable=SC2086
+					ssh-add -d $stored 2> /dev/null
+					IFS=$oldIFS
+				fi
 
 			else
 				printWarning 'No connection to SSH authentication agent'

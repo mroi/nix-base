@@ -5,7 +5,7 @@
 	config = let
 
 		flakeRepo = "mroi/aws-ssh-proxy";
-		flakeRev = "7f8b83ec92f825894a281127803c2c51cac312a1";
+		flakeRev = "06e08705fa5eae9a2c90335a769e17836dcacd57";
 		flakeUrl = "github:${flakeRepo}/${flakeRev}";
 		flake = builtins.getFlake flakeUrl;
 		flakeAttr = "unison-sync";

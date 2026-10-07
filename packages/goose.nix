@@ -3,10 +3,10 @@
 
 fetchzip rec {
 	pname = "goose";
-	version = "1.51.0";
+	version = "1.53.0";
 
 	url = "https://github.com/aaif-goose/goose/releases/download/v${version}/Goose.zip";
-	hash = "sha256-ta36xl7sGg/UiGJ/lDMGEM4+lGF10ZjI1PC9YFB7udU=";
+	hash = "sha256-epcMFE+c8MkvAGvq+FZeUBYs1nP56o+k4uRSKmL4Cvs=";
 	stripRoot = false;
 
 	postFetch = ''

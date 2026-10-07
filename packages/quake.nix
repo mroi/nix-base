@@ -3,11 +3,11 @@
 
 stdenvNoCC.mkDerivation rec {
 	pname = "quake";
-	version = "1.35.0";
+	version = "1.36.0";
 
 	src = fetchurl {
-		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/vkQuake_1.35.0/vkQuake-1.35.0.dmg";
-		hash = "sha256-fvN6J7QK1iqdHmB9ZfxYDO9F3KGBZKqGJfPJW/a936k=";
+		url = "https://github.com/MacSourcePorts/MSPBuildSystem/releases/download/vkQuake-1.36.0/vkQuake-1.36.0.dmg";
+		hash = "sha256-CWOdnJN6F3ZYG2F/9sHzoALOnQeBNIOvR1045e7gVn0=";
 	};
 
 	nativeBuildInputs = [ undmg ];

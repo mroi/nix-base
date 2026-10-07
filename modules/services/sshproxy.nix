@@ -49,7 +49,7 @@
 					trace sudo cp "$out/Contents/Resources/de.reactorcontrol.ssh-proxy.plist" "$plist"
 					trace sudo /usr/libexec/PlistBuddy -c "Set UserName $(id -un)" "$plist"
 					trace sudo /usr/libexec/PlistBuddy -c "Set ProgramArguments:2 '${config.networking.hostName}'" "$plist"
-					trace sudo launchctl bootstrap system "$plist"
+					trace sudo launchctl bootstrap system "$plist" || true
 				'';
 			};
 		};

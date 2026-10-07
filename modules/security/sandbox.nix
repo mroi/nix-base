@@ -15,10 +15,12 @@
 		};
 	};
 
-	config = lib.mkIf config.security.sandbox.enable {
+	config = {
 
 		# bit of a hack: add internally generated sandbox package to Nix profile
-		environment.profile = [ "nix-base#baseConfigurations.\${_machine}.config.system.build.packages.sandbox" ];
+		environment.profile = lib.mkIf config.security.sandbox.enable [
+			"nix-base#baseConfigurations.\${_machine}.config.system.build.packages.sandbox"
+		];
 
 		system.build.packages.sandbox = let
 

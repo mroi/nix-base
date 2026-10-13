@@ -59,7 +59,7 @@
 			# make selected user files available inside the sandbox
 			commonSandboxRules = ''
 				${dir-ro "XDG_BIN_HOME" ""}
-				${dir-ro "XDG_CONFIG_HOME" "/git"}
+				${dir-ro "XDG_CONFIG_HOME" "/git/config"}
 				${dir-ro "XDG_CONFIG_HOME" "/shell"}
 			'' + lib.optionalString (isInstalled "fish") ''
 				${dir-ro "XDG_CONFIG_HOME" "/fish"}
@@ -200,7 +200,8 @@
 					)
 					(allow file*
 						(subpath (param "PWD"))
-						(subpath (param "TMP"))
+						(subpath (string-append (param "TMP") "/C"))
+						(subpath (string-append (param "TMP") "/T"))
 						(literal "/dev/tty")
 						(regex "^/dev/ttys[0-9]*")
 					)

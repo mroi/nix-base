@@ -124,6 +124,14 @@
 			# wrap some tools so they work inside the sandbox
 			PATH=${wrappers}/bin:$PATH
 
+			# normalize directory paths by resolving symlinks
+			resolve() {
+				save=$PWD
+				cd -P -- "$1" || return 1
+				pwd -P
+				cd -- "$save"
+			}
+
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
@@ -141,7 +149,7 @@
 			'' + ''
 					${ro "HOME" "/.bashrc"} \
 			'' + escapeRules commonSandboxRules + '' \
-					${rw "ROOT" "$(readlink -f \"$PWD\")"} \
+					${rw "ROOT" "$(resolve \"$PWD\")"} \
 					--dev /dev \
 					--proc /proc \
 					--tmpfs /tmp \
@@ -238,8 +246,8 @@
 					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
 					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \
 					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
-					-D PWD="$(readlink -f "$PWD")" \
-					-D TMP="$(readlink -f "$TMPDIR/..")" \
+					-D PWD="$(resolve "$PWD")" \
+					-D TMP="$(resolve "$TMPDIR/..")" \
 					"$@"
 			'';
 		});

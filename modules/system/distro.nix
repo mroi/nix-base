@@ -43,8 +43,8 @@
 				"io.elementary.screenshot"
 				"io.elementary.videos"
 				"org.gnome.Epiphany"
-				"org.gnome.Evince"
 				"org.gnome.FileRoller"
+				"org.gnome.Papers"
 				"org.gnome.font-viewer"
 			];
 

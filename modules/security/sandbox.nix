@@ -1,5 +1,12 @@
 { config, lib, pkgs, ... }: {
 
+	# this sandbox should implement the following security policy:
+	# * credentials and user files are not readable or writable from the sandbox,
+	#   except in explicitly exposed locations (e.g. PWD or config/state directories)
+	# * no data can be exfiltrated by writing to locations readable by other users,
+	#   a deliberate exception are writes to the Nix store by invoking the Nix daemon
+	# * data exfiltration to the internet is out of scope (currently not restricted)
+
 	options.security.sandbox = {
 		enable = lib.mkEnableOption "developer sandbox command";
 		init = lib.mkOption {

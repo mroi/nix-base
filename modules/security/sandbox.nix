@@ -1,5 +1,10 @@
 { config, lib, pkgs, ... }: {
 
+	# this sandbox should implement the following security policy:
+	# * no credentials or other sensitive files can be read from the sandbox
+	# * no data can be exfiltrated by writing to locations readable by other users
+	# * data exfiltration to the internet is out of scope (currently not restricted)
+
 	options.security.sandbox = {
 		enable = lib.mkEnableOption "developer sandbox command";
 		init = lib.mkOption {

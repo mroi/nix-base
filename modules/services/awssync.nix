@@ -24,9 +24,7 @@
 		system.build.packages = { inherit unison-sync; };
 
 		environment.profile = lib.mkIf (config.services.unison.awsSync && pkgs.stdenv.hostPlatform.isLinux) [
-			# "github:${flakeRepo}/${flakeBranch}#${flakeAttr}"
-			# FIXME: Linux needs an older version until Swift 6 is in Nixpkgs
-			"github:${flakeRepo}/${flakeBranch}-linux#${flakeAttr}"
+			"github:${flakeRepo}/${flakeBranch}#${flakeAttr}"
 		];
 		environment.bundles = lib.mkIf (config.services.unison.awsSync && pkgs.stdenv.hostPlatform.isDarwin) {
 			"${config.users.shared.folder}/${config.users.serviceDir}/UnisonSync.bundle" = {

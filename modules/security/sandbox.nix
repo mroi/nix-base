@@ -40,11 +40,11 @@
 
 			# functions to generate script for read-only or read-write access to a directory
 			ro = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = var: dir: "--ro-bind \"${lib.getAttr var prefixVars}${dir}\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Linux = var: dir: "--ro-bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = var: dir: "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 			rw = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = var: dir: "--bind \"${lib.getAttr var prefixVars}${dir}\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Linux = var: dir: "--bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = var: dir: "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 
@@ -149,7 +149,7 @@
 			'' + ''
 					${ro "HOME" "/.bashrc"} \
 			'' + escapeRules commonSandboxRules + '' \
-					${rw "ROOT" "$(resolve \"$PWD\")"} \
+					--bind "$(resolve "$PWD")" "$PWD" \
 					--dev /dev \
 					--proc /proc \
 					--tmpfs /tmp \
@@ -243,9 +243,9 @@
 					(system-network)
 				' \
 					-D HOME="$HOME" \
-					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
-					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \
-					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
+					-D XDG_BIN_HOME="$(resolve "${prefixVars.XDG_BIN_HOME}")" \
+					-D XDG_CONFIG_HOME="$(resolve "${prefixVars.XDG_CONFIG_HOME}")" \
+					-D XDG_STATE_HOME="$(resolve "${prefixVars.XDG_STATE_HOME}")" \
 					-D PWD="$(resolve "$PWD")" \
 					-D TMP="$(resolve "$TMPDIR/..")" \
 					"$@"

@@ -1,10 +1,8 @@
 # my custom build of the unison sync tool
 { lib, stdenv, stdenvNoCC, ocaml, xcodeenv, fetchFromGitHub, writeText, glibc, patchelf, unison,
-	intercept ? false, backDeploy ? false, static ? false }:
+	intercept ? false, static ? false }:
 
-assert intercept -> ! backDeploy;
 assert intercept -> ! static;
-assert backDeploy -> stdenv.hostPlatform.isDarwin;
 assert static -> stdenv.hostPlatform.isLinux;
 
 let
@@ -17,18 +15,11 @@ let
 		'';
 	});
 
-	# for building a back-deployable version for macOS
-	ocaml' = ocaml.overrideAttrs (attrs:
-		if backDeploy then {
-			preConfigure = "MACOSX_DEPLOYMENT_TARGET=10.7";
-		} else {}
-	);
-
 	# build Unison.app for Darwin
 	unisonDarwin = stdenvNoCC.mkDerivation {
 		inherit (unison) name pname version src meta;
 		__noChroot = true;
-		nativeBuildInputs = [ ocaml' xcode ];
+		nativeBuildInputs = [ ocaml xcode ];
 		patches = writeText "unison-fixes.patch" ''
 			--- a/src/uimac/Makefile
 			+++ b/src/uimac/Makefile
@@ -58,6 +49,7 @@ let
 		preBuild = ''
 			unset LD
 			unset DEVELOPER_DIR SDKROOT
+			export MACOSX_DEPLOYMENT_TARGET=14.0
 			export XCODEFLAGS='${lib.concatStringsSep " " [
 				"-arch ${stdenv.hostPlatform.darwinArch}"
 				"-scheme uimac"
@@ -65,15 +57,9 @@ let
 				"-derivedDataPath $$NIX_BUILD_TOP/DerivedData"
 				"MACOSX_DEPLOYMENT_TARGET=$$MACOSX_DEPLOYMENT_TARGET"
 			]}'
-		'' + lib.optionalString (!backDeploy) ''
-			export MACOSX_DEPLOYMENT_TARGET=14.0
-		'' + lib.optionalString backDeploy ''
-			export MACOSX_DEPLOYMENT_TARGET=10.7
 		'';
 		makeFlags = [
 			"-C src"
-		] ++ lib.optionals backDeploy [
-			"UISTYLE=text"
 		];
 		installPhase = ''
 			mkdir -p $out/Library/CoreServices

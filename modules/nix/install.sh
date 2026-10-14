@@ -111,7 +111,10 @@ if ! test -f /nix/var/nix/db/db.sqlite ; then
 		if $isx86_64 ; then
 			url=https://hydra.nixos.org/job/nix/master/binaryTarball.x86_64-darwin/latest/download/1
 		else
-			url=https://hydra.nixos.org/job/nix/master/binaryTarball.aarch64-darwin/latest/download/1
+			#url=https://hydra.nixos.org/job/nix/master/binaryTarball.aarch64-darwin/latest/download/1
+			# sandbox construction on Darwin generates rules exceeding maximum length
+			# https://github.com/NixOS/nix/issues/16613
+			url=https://hydra.nixos.org/build/349079336/download/1/nix-2.36.0pre20261011_651b0cd-aarch64-darwin.tar.xz
 		fi
 		trace curl --location --output nix.tar "$url"
 		trace sudo tar -x --file nix.tar --directory /nix/store --gname nix --strip-components 2 nix-\*/store

@@ -38,14 +38,19 @@
 				XDG_STATE_HOME = "\${XDG_STATE_HOME:-$HOME/.local/state}";
 			};
 
+			# check for potential data exfiltration
+			runtimeExfiltrationCheck = [ "XDG_CONFIG_HOME" "XDG_STATE_HOME" ];
+			writeAllowed = var: dir: lib.assertMsg (lib.elem var runtimeExfiltrationCheck && dir != "")
+				"writes to ${var} from the sandbox are disallowed to prevent data exfiltration";
+
 			# functions to generate script for read-only or read-write access to a directory
-			ro = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = var: dir: "--ro-bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
-				Darwin = var: dir: "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
+			ro = var: dir: lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = "--ro-bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Darwin = "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
-			rw = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = var: dir: "--bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
-				Darwin = var: dir: "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
+			rw = var: dir: assert writeAllowed var dir; lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+				Linux = "--bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Darwin = "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 
 			# escape the sandbox rules so they fit the script and allow shell expansions
@@ -124,13 +129,40 @@
 			# wrap some tools so they work inside the sandbox
 			PATH=${wrappers}/bin:$PATH
 
-			# normalize directory paths by resolving symlinks
+			# normalize paths by resolving symlinks
 			resolve() {
+				if test -d "$1" ; then
+					dir=$1 ; file=
+				else
+					dir=''${1%/*} ; file=/''${1##*/}
+				fi
 				save=$PWD
-				cd -P -- "$1" || return 1
-				pwd -P
+				cd -P -- "$dir" || return 1
+				echo "$(pwd -P)$file"
 				cd -- "$save"
 			}
+
+			# exfiltration check: prevent writes to directories readable by other users
+			isExfilRisk() {
+				test -e "$1" || return 1
+				mode=$(stat -f "%Lp" "$1" 2>/dev/null || stat -c "%a" "$1" 2>/dev/null;)
+				case "$mode" in
+					"" | *[134567] | *[134567]?)
+						# this directory allows world/group read/execute, check parent
+						parent="''${1%/*}"
+						if test "$parent" ; then isExfilRisk "$parent" ; else return 0 ; fi ;;
+					*) return 1 ;;  # no exfiltration risk
+				esac
+			}
+			for dir in \
+				${lib.concatStringsSep " " (map (x: lib.getAttr x prefixVars) runtimeExfiltrationCheck)} \
+				${if pkgs.stdenv.hostPlatform.isDarwin then "$TMPDIR/../C $TMPDIR/../T" else ""} \
+				"$PWD" ; do
+				if isExfilRisk "$(readlink -f "$dir")" ; then
+					echo "sandbox data exfiltration risk: $dir is readable by other users" >&2
+					if test "$dir" != "$PWD" ; then exit 1 ; fi  # critical if not a user choice
+				fi
+			done
 
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 

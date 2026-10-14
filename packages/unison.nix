@@ -32,16 +32,100 @@ let
 			 	codesign --verify --deep --strict build/Default/Unison.app
 			 # cltool was added into the .app after it was signed, so the signature is now
 			 # broken. It must be removed, cltool separately signed, and then the entire
-			--- a/src/uimac/Info.plist
-			+++ b/src/uimac/Info.plist
-			@@ -26,5 +26,7 @@
-			 	<string>MainMenu</string>
-			 	<key>NSPrincipalClass</key>
-			 	<string>NSApplication</string>
-			+	<key>UIDesignRequiresCompatibility</key>
-			+	<true/>
-			 </dict>
-			 </plist>
+			--- a/src/uimac/UnisonToolbar.m
+			+++ b/src/uimac/UnisonToolbar.m
+			@@ -53,78 +53,91 @@
+			     if ([itemIdent isEqual: QuitItemIdentifier]) {
+			                 [toolbarItem setLabel: @"Quit"];
+			                 [toolbarItem setImage: [NSImage imageNamed: @"quit.tif"]];
+			+                [toolbarItem setBordered:NO];
+			                 [toolbarItem setTarget:NSApp];
+			                 [toolbarItem setAction:@selector(terminate:)];
+			         }
+			         else if ([itemIdent isEqual: OpenItemIdentifier]) {
+			         [toolbarItem setLabel: @"Open"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"go.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(openButton:)];
+			     }
+			         else if ([itemIdent isEqual: NewItemIdentifier]) {
+			         [toolbarItem setLabel: @"New"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"add.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(createButton:)];
+			     }
+			         else if ([itemIdent isEqual: CancelItemIdentifier]) {
+			         [toolbarItem setLabel: @"Cancel"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"restart.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(chooseProfiles)];
+			     }
+			         else if ([itemIdent isEqual: SaveItemIdentifier]) {
+			         [toolbarItem setLabel: @"Save"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"save.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(saveProfileButton:)];
+			     }
+			         else if ([itemIdent isEqual: GoItemIdentifier]) {
+			         [toolbarItem setLabel: @"Go"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"go.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(syncButton:)];
+			     }
+			     else if ([itemIdent isEqual: RestartItemIdentifier]) {
+			         [toolbarItem setLabel: @"Restart"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"restart.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(restartButton:)];
+			     }
+			     else if ([itemIdent isEqual: RescanItemIdentifier]) {
+			         [toolbarItem setLabel: @"Rescan"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"rescan.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:myController];
+			         [toolbarItem setAction:@selector(rescan:)];
+			     }
+			     else if ([itemIdent isEqual: RToLItemIdentifier]) {
+			         [toolbarItem setLabel: @"Right to left"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"left.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:tableView];
+			         [toolbarItem setAction:@selector(copyRL:)];
+			     }
+			     else if ([itemIdent isEqual: MergeItemIdentifier]) {
+			         [toolbarItem setLabel: @"Merge"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"merge.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:tableView];
+			         [toolbarItem setAction:@selector(merge:)];
+			     }
+			         else if ([itemIdent isEqual: LToRItemIdentifier]) {
+			         [toolbarItem setLabel: @"Left to right"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"right.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:tableView];
+			         [toolbarItem setAction:@selector(copyLR:)];
+			         }
+			         else if ([itemIdent isEqual: SkipItemIdentifier]) {
+			         [toolbarItem setLabel: @"Skip"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"skip.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:tableView];
+			         [toolbarItem setAction:@selector(leaveAlone:)];
+			         }
+			         else if ([itemIdent isEqual: DiffItemIdentifier]) {
+			         [toolbarItem setLabel: @"Diff"];
+			         [toolbarItem setImage: [NSImage imageNamed: @"diff.tif"]];
+			+        [toolbarItem setBordered:NO];
+			         [toolbarItem setTarget:tableView];
+			         [toolbarItem setAction:@selector(showDiff:)];
+			         }
 		'';
 		postPatch = ''
 			cp ${./unison.icns} src/uimac/Unison.icns

@@ -48,7 +48,13 @@
 			};
 		};
 
-		environment.rootPaths = [ (lib.getExe pkgs.nix) ];
+		# pin Nix version to 2.34.8, sandboxing on macOS got fixed in a breaking way
+		# https://github.com/NixOS/nix/security/advisories/GHSA-m4vq-qf6v-82pj
+		# https://github.com/NixOS/nix/issues/16613
+		environment.rootPaths = let
+			flake = builtins.getFlake "github:NixOS/nixpkgs/1e184914bcdaa260539f7482dd82057fce5141c7";
+			nix = flake.legacyPackages."${pkgs.stdenv.hostPlatform.system}".nix;
+		in [ (lib.getExe nix) ];
 
 		environment.services.nix-daemon = {
 			label = "org.nixos.nix-daemon";

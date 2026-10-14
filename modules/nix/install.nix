@@ -48,7 +48,14 @@
 			};
 		};
 
-		environment.rootPaths = [ (lib.getExe pkgs.nix) ];
+		# pin Nix version to 2.34.8 until PR #16619 is released into Nixpkgs
+		# https://github.com/NixOS/nix/pull/16619
+		environment.rootPaths = let
+			versionCheck = pkgs.nix.version == pkgs.nixVersions.nix_2_34.version
+				&& (lib.compareVersions pkgs.nixVersions.nix_2_35.version "2.35.5") < 0;
+			flake = builtins.getFlake "github:NixOS/nixpkgs/1e184914bcdaa260539f7482dd82057fce5141c7";
+			nix = flake.legacyPackages."${pkgs.stdenv.hostPlatform.system}".nix;
+		in assert versionCheck; [ (lib.getExe nix) ];
 
 		environment.services.nix-daemon = {
 			label = "org.nixos.nix-daemon";

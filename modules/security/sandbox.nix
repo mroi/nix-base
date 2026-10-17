@@ -245,6 +245,13 @@
 						(literal "/dev/tty")
 						(regex "^/dev/ttys[0-9]*")
 					)
+					(deny file-write-mode
+						(literal (param "PWD"))
+						(literal (string-append (param "TMP") "/C"))
+						(literal (string-append (param "TMP") "/T"))
+						(literal "/dev/tty")
+						(regex "^/dev/ttys[0-9]*")
+					)
 
 					(allow mach-lookup
 						(global-name-prefix "com.apple.distributed_notifications")

@@ -52,7 +52,7 @@
 				Darwin = "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 			rw = var: dir: assert writeAllowed var dir; lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = "--bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Linux = "--bind \"\$(resolveWritable \"${lib.getAttr var prefixVars}${dir}\")\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 
@@ -192,6 +192,20 @@
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
+				# make sure the path is in an exfil-checked writable prefix after normalization
+				resolveWritable() {
+					resolved=$(resolve "$1")
+					case "$resolved/" in
+						${lib.concatStringsSep "|" (map (x: "\"${x}\"/*") writePrefixes)})
+							echo "$resolved"
+							;;
+						*)
+							echo "sandbox data exfiltration risk: $1 resolves to ''${resolved:-an unresolved path}" >&2
+							echo /dev/null
+							;;
+					esac
+				}
+
 				exec bwrap --unshare-all \
 					${ro "ROOT" "/bin"} \
 					${ro "ROOT" "/etc"} \

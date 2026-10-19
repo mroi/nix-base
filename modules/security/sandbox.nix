@@ -80,18 +80,31 @@
 			# wrap dev tools whose behavior collides with the sandbox
 			wrappers = pkgs.runCommand "sandbox-wrappers" {} ''
 				mkdir -p $out/bin
+
 				# swift needs --disable-sandbox
-				cat <<- 'EOF' > $out/bin/swift
+				cat <<- EOF > $out/bin/swift
 					#!/bin/sh
-					if test "$#" -eq 0 -o "$1" != "''${1#-}" ; then
+					swift() {
+						# find the original swift binary in PATH
+						unset -f swift
+						swift=\$(PATH="\''${PATH#*$out/bin:}" command -v swift)
+						if test "\$swift" ; then
+							exec "\$swift" "\$@"
+						else
+							echo "sandbox swift wrapper: no swift binary found in PATH" >&2
+							exit 127
+						fi
+					}
+					if test "\$#" -eq 0 -o "\$1" != "\''${1#-}" ; then
 						# invocation without subcommand
-						exec /usr/bin/swift "$@"
+						swift "\$@"
 					else
 						# invocation with subcommand
-						subcommand=$1 ; shift
-						exec /usr/bin/swift "$subcommand" --disable-sandbox "$@"
+						subcommand=\$1 ; shift
+						swift "\$subcommand" --disable-sandbox "\$@"
 					fi
 				EOF
+
 				cat <<- 'EOF' > $out/bin/xcodebuild
 					#!/bin/sh
 					if test "''${*#*-scheme }" != "$*" ; then
@@ -113,6 +126,7 @@
 							"$@"
 					fi
 				EOF
+
 				chmod a+x $out/bin/*
 			'';
 

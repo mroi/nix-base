@@ -202,8 +202,8 @@
 						(subpath (param "PWD"))
 						(subpath (param "TMP"))
 						(subpath "/private/tmp")
+						(literal (param "TTY"))
 						(literal "/dev/tty")
-						(regex "^/dev/ttys[0-9]*")
 					)
 					(deny file-ioctl (ioctl-command TIOCSTI))
 
@@ -245,6 +245,7 @@
 					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
 					-D PWD="$(readlink -f "$PWD")" \
 					-D TMP="$(readlink -f "$TMPDIR/..")" \
+					-D TTY="$(tty 2>/dev/null || echo /dev/null)" \
 					"$@"
 			'';
 		});

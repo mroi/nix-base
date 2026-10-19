@@ -207,14 +207,21 @@
 						(literal (string-append (param "HOME") "/Library"))
 						(literal (string-append (param "HOME") "/Library/Caches"))
 					)
+					${dir-ro "HOME" "/Library/Preferences/com.apple.LaunchServices"}
+
 			'' + lib.optionalString config.programs.xcode.enable ''
 					${dir-ro "XDG_CONFIG_HOME" "/swiftpm"}
 					${dir-ro "HOME" "/Library/Caches/com.apple.python/Applications/Xcode.app"}
 					${dir-ro "HOME" "/Library/Caches/org.swift.swiftpm"}
 					${dir-ro "HOME" "/Library/Developer/Xcode/Plug-ins"}
 					${dir-ro "HOME" "/Library/org.swift.swiftpm"}
-			'' + ''
-					${dir-ro "HOME" "/Library/Preferences/com.apple.LaunchServices"}
+					(allow user-preference-read
+						(preference-domain "com.apple.coresimulator")
+						(preference-domain "com.apple.dt.xcodebuild")
+						(preference-domain "com.apple.dt.xcode")
+						(preference-domain "xcodebuild")
+					)
+
 			'' + "'" + escapeRules commonSandboxRules + "'" + ''
 
 					(allow file*
@@ -238,10 +245,6 @@
 						(global-name "com.apple.mobileassetd.v2")
 					)
 					(allow user-preference-read
-						(preference-domain "com.apple.coresimulator")
-						(preference-domain "com.apple.dt.xcodebuild")
-						(preference-domain "com.apple.dt.xcode")
-						(preference-domain "xcodebuild")
 						(preference-domain "kCFPreferencesAnyApplication")
 					)
 

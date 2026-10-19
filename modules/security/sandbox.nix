@@ -174,6 +174,18 @@
 			# sandbox holds no file-write grants outside the prefixes and the deny
 			# file-write-mode rule freezes the writable roots.
 			isExfilRisk() {
+				# ACLs are too complex to parse in detail, flag as exfiltration risk
+				newline=$(printf '\nx')
+				newline=''${newline%x}
+				${lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+					acl=$(getfacl -c -- "$1" 2> /dev/null) || return 0
+					case "$acl" in *"$newline"*"$newline"*"$newline"*) return 0 ;; esac
+				''}
+				${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+					acl=$(ls -lde "$1" 2> /dev/null) || return 0
+					case "$acl" in *"$newline"*) return 0 ;; esac
+				''}
+				# check file mode and recurse
 				mode=$(stat -f "%Lp" "$1" 2> /dev/null || stat -c "%a" "$1" 2> /dev/null)
 				case "$mode" in
 					"" | *[134567] | *[134567]?)

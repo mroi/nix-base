@@ -162,7 +162,6 @@
 
 					(allow process-fork process-exec)
 					(allow signal (target self) (target children))
-					(allow job-creation)
 
 					(allow system-fsctl
 						(fsctl-command HFSIOC_SET_HOTFILE_STATE)

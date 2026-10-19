@@ -66,7 +66,7 @@
 				${dir-ro "XDG_CONFIG_HOME" "/fish"}
 				${dir-rw "XDG_STATE_HOME" "/fish"}
 			'' + lib.optionalString (isInstalled "git" || config.programs.xcode.enable) ''
-				${dir-ro "XDG_CONFIG_HOME" "/git"}
+				${dir-ro "XDG_CONFIG_HOME" "/git/config"}
 			'' + lib.optionalString (isInstalled "micro") ''
 				${dir-ro "XDG_CONFIG_HOME" "/micro"}
 				${dir-rw "XDG_CONFIG_HOME" "/micro/backups"}
@@ -219,7 +219,8 @@
 					)
 					(allow file*
 						(subpath (param "PWD"))
-						(subpath (param "TMP"))
+						(subpath (string-append (param "TMP") "/C"))
+						(subpath (string-append (param "TMP") "/T"))
 						(literal (param "TTY"))
 						(literal "/dev/tty")
 					)

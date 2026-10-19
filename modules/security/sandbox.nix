@@ -61,11 +61,12 @@
 			# make selected user files available inside the sandbox
 			commonSandboxRules = ''
 				${dir-ro "XDG_BIN_HOME" ""}
-				${dir-ro "XDG_CONFIG_HOME" "/git"}
 				${dir-ro "XDG_CONFIG_HOME" "/shell"}
 			'' + lib.optionalString (isInstalled "fish") ''
 				${dir-ro "XDG_CONFIG_HOME" "/fish"}
 				${dir-rw "XDG_STATE_HOME" "/fish"}
+			'' + lib.optionalString (isInstalled "git" || config.programs.xcode.enable) ''
+				${dir-ro "XDG_CONFIG_HOME" "/git"}
 			'' + lib.optionalString (isInstalled "micro") ''
 				${dir-ro "XDG_CONFIG_HOME" "/micro"}
 				${dir-rw "XDG_CONFIG_HOME" "/micro/backups"}
@@ -78,9 +79,10 @@
 			'' + config.security.sandbox.rules { inherit dir-ro dir-rw; };
 
 			# wrap dev tools whose behavior collides with the sandbox
-			wrappers = pkgs.runCommand "sandbox-wrappers" {} ''
+			wrappers = pkgs.runCommand "sandbox-wrappers" {} (''
 				mkdir -p $out/bin
 
+			'' + lib.optionalString (isInstalled "swift" || config.programs.xcode.enable) ''
 				# swift needs --disable-sandbox
 				cat <<- EOF > $out/bin/swift
 					#!/bin/sh
@@ -105,6 +107,7 @@
 					fi
 				EOF
 
+			'' + lib.optionalString config.programs.xcode.enable ''
 				cat <<- 'EOF' > $out/bin/xcodebuild
 					#!/bin/sh
 					if test "''${*#*-scheme }" != "$*" ; then
@@ -127,9 +130,9 @@
 							"$@"
 					fi
 				EOF
-
-				chmod a+x $out/bin/*
-			'';
+			'' + ''
+				find $out/bin -type f -exec chmod a+x {} \;
+			'');
 
 		in pkgs.writeScriptBin "box" (''#!/bin/sh
 
@@ -148,9 +151,10 @@
 					${dir-ro "ROOT" "/bin"} \
 					${dir-ro "ROOT" "/etc"} \
 					${dir-ro "ROOT" "/lib"} \
-					${dir-ro "ROOT" "/lib64"} \
 					${dir-ro "ROOT" "/usr"} \
 					${dir-ro "ROOT" "/run/systemd/resolve"} \
+			'' + lib.optionalString pkgs.stdenv.hostPlatform.isx86_64 ''
+					${dir-ro "ROOT" "/lib64"} \
 			'' + lib.optionalString config.nix.enable ''
 					${dir-ro "ROOT" "/nix"} \
 			'' + lib.optionalString (config.users.shared.folder != null) ''

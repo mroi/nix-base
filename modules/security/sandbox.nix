@@ -61,7 +61,6 @@
 			# make selected user files available inside the sandbox
 			commonSandboxRules = ''
 				${dir-ro "XDG_BIN_HOME" ""}
-				${dir-ro "XDG_CONFIG_HOME" "/shell"}
 			'' + lib.optionalString (isInstalled "fish") ''
 				${dir-ro "XDG_CONFIG_HOME" "/fish"}
 				${dir-rw "XDG_STATE_HOME" "/fish"}

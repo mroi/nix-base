@@ -69,11 +69,16 @@ in {
 		system.activationScripts.opencode = lib.mkIf (config.programs.opencode.settings != {}) (
 			lib.stringAfter [ "shared" ] (''
 				storeHeading 'OpenCode configuration'
+				userConfig=''${XDG_CONFIG_HOME:-$HOME/.config}
 			'' + lib.optionalString (config.users.shared.folder != null) ''
-				makeFile 644::${config.users.shared.group} '${config.users.shared.folder}/.local/config/opencode/config.json' ${configFile}
-				makeLink "''${XDG_CONFIG_HOME:-$HOME/.config}/opencode/config.json" '${config.users.shared.folder}/.local/config/opencode/config.json'
+				sharedConfig=${config.users.shared.folder}/''${userConfig#"$HOME/"}
+				makeDir 755::${config.users.shared.group} "$sharedConfig/opencode"
+				makeFile 644::${config.users.shared.group} "$sharedConfig/opencode/config.json" ${configFile}
+				makeDir "$userConfig/opencode"
+				makeLink "$userConfig/opencode/config.json" "$sharedConfig/opencode/config.json"
 			'' + lib.optionalString (config.users.shared.folder == null) ''
-				makeFile 644 "''${XDG_CONFIG_HOME:-$HOME/.config}/opencode/config.json" ${configFile}
+				makeDir "$userConfig/opencode"
+				makeFile 644 "$userConfig/opencode/config.json" ${configFile}
 			'')
 		);
 	};

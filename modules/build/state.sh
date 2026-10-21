@@ -387,7 +387,7 @@ makeUser() {
 				--force-badname \
 				"$name"
 		fi
-		if ! getent passwd "$name" | grep -q "^$name:x:$uid:$gid:$description,,,:$home:$shell$" ; then
+		if ! getent passwd "$name" | grep -Eq "^$name:x:$uid:$gid:$description(,,,)?:$home:$shell\$" ; then
 			deleteUser "$name"
 			makeUser <<- EOF
 				name="$name" ; uid="$uid" ; gid="$gid" ; group="$group" ; isHidden="$isHidden" ; home="$home" ; shell="$shell" ; description="$description"

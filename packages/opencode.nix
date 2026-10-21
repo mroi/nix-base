@@ -1,7 +1,12 @@
 # set environment variables to consolidate state in ~/.local/state/opencode
-{ opencode, runCommand, callPackage, mcp-servers ? callPackage (import ./mcp-servers.nix) {} }:
+{ opencode, runCommand, callPackage, mcp-servers ? callPackage (import ./mcp-servers.nix) {} }: let
 
-runCommand "opencode" { inherit (opencode) name; } ''
+	# pin to OpenCode 1.19, OpenCode 2 does not support model selection on the command line yet
+	# https://github.com/anomalyco/opencode/issues/56218
+	nixpkgs = builtins.getFlake "github:NixOS/nixpkgs/48571feca7fb156248ed747dab5860467c141768";
+	opencode = nixpkgs.legacyPackages."${mcp-servers.system}".opencode;
+
+in runCommand "opencode" { inherit (opencode) name; } ''
 	mkdir -p $out/bin
 	cat <<- EOF > $out/bin/opencode
 		#!/bin/sh

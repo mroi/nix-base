@@ -35,7 +35,6 @@
 		networking.firewall.enable = false;
 		nix.enable = false;
 		security.sudo.touchId = false;
-		security.sudo.adminFlagFile = pkgs.stdenv.hostPlatform.isLinux;
 		services.unison.enable = false;
 		users.guest.enable = false;
 	});

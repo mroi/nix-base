@@ -144,6 +144,20 @@
 			# wrap some tools so they work inside the sandbox
 			PATH=${wrappers}/bin:$PATH
 
+			# normalize paths by resolving symlinks
+			resolve() {
+				if ! test -e "$1" ; then echo "sandbox: $1 does not exist" >&2 ; fi
+				if test -d "$1" ; then
+					dir=$1 ; file=
+				else
+					dir=''${1%/*} ; file=/''${1##*/}
+				fi
+				save=$PWD
+				cd -P -- "$dir" || return 1
+				echo "$(pwd -P)$file"
+				cd -- "$save"
+			}
+
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
@@ -160,7 +174,7 @@
 			'' + ''
 					${ro "HOME" "/.bashrc"} \
 			'' + escapeRules (lib.concatLines commonSandboxRules) + '' \
-					${rw "ROOT" "$(readlink -f \"$PWD\")"} \
+					${rw "ROOT" "$(resolve \"$PWD\")"} \
 					--dev /dev \
 					--proc /proc \
 					--tmpfs /tmp \
@@ -262,8 +276,8 @@
 					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
 					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \
 					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
-					-D PWD="$(readlink -f "$PWD")" \
-					-D TMP="$(readlink -f "$TMPDIR/..")" \
+					-D PWD="$(resolve "$PWD")" \
+					-D TMP="$(resolve "$TMPDIR/..")" \
 					-D TTY="$(tty 2>/dev/null || echo /dev/null)" \
 					"$@"
 			'';

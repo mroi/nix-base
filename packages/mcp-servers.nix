@@ -1,14 +1,14 @@
 # a curated set of model-context-protocol (MCP) servers
-{ lib, stdenv, writeShellScriptBin, nodejs-slim, uv, mcp-nixos, fetchFromGitHub, swift, git, cacert }: let
+{ lib, stdenv, writeShellScriptBin, nodejs-slim, uv, mcp-nixos, fetchFromGitHub, swift, swiftpm, git, cacert }: let
 
 	versions = {
 		apple-docs = "1.0.1";
-		pdf-reader = "5.0.2";
-		web-search = "0.6.1";
+		pdf-reader = "8.5.5";
+		web-search = "0.7.0";
 	};
 
 	# cut-off time for auto-loaded package dependencies to get them somewhat pinned
-	depsTimestamp = "1789994327";
+	depsTimestamp = "1792506237";
 	depsDate= lib.getAttr stdenv.hostPlatform.uname.system {
 		Linux = "$(date --date=@${depsTimestamp} +%Y-%m-%d)";
 		Darwin = "$(date -r ${depsTimestamp} +%Y-%m-%d)";
@@ -21,7 +21,7 @@
 	servers = {
 
 		nixos = "exec ${mcp-nixos}/bin/mcp-nixos \"$@\"";
-		pdf-reader = "exec ${npx} @sylphx/citra@${versions.pdf-reader} \"$@\"";
+		pdf-reader = "exec ${npx} @sylphx/anymd@${versions.pdf-reader} \"$@\"";
 		web-search = "exec ${uvx} duckduckgo-mcp-server==${versions.web-search} \"$@\"";
 
 	} // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
@@ -41,12 +41,7 @@
 		};
 		patches = ./mcp-apple-docs.patch;
 		__noChroot = true;
-		# move the build to packaged swift once version 6 is available
-		nativeBuildInputs = assert lib.versionOlder swift.version "6"; [ git cacert ];
-		buildPhase = ''
-			unset DEVELOPER_DIR SDKROOT
-			/usr/bin/swift build --disable-sandbox --configuration release
-		'';
+		nativeBuildInputs = [ git cacert swift swiftpm ];
 		installPhase = "mkdir -p $out/bin ; cp .build/release/Apple-Docs-MCP $out/bin/";
 	};
 
@@ -114,7 +109,7 @@ in (writeShellScriptBin "mcp-servers" ''
 			}
 
 			updatePyPI web-search duckduckgo-mcp-server
-			updateNPM pdf-reader @sylphx/citra
+			updateNPM pdf-reader @sylphx/anymd
 		fi
 
 		# apple-docs

@@ -5,10 +5,22 @@ assert mlxBackend -> stdenvNoCC.hostPlatform.isDarwin;
 
 let
 
-	# expose the platform Metal compiler
-	metal = writeScriptBin "metal" ''#!/bin/sh
-		metal=$(DEVELOPER_DIR= SDKROOT= /usr/bin/xcrun -f metal)
-		"$metal" "$@"
+	# expose platform xcrun and resolve the metal tool manually, otherwise xcrun resolves metal to
+	# a stub, because the build user’s xcrun_db has no metal download registered
+	xcrun = writeScriptBin "xcrun" ''#!/bin/sh
+		unset DEVELOPER_DIR SDKROOT
+		metal=$(ls -d /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-*/Metal.xctoolchain/usr/bin/metal 2>/dev/null | head -1)
+		if ! test "$metal" ; then
+			echo 'Metal toolchain not found' ; exit 1
+		fi
+		case " $* " in
+			*' -f metal '*) echo "$metal" ; exit 0 ;;
+		esac
+		case "$1 $3" in
+			'-sdk metal') shift 3 ; exec "$metal" "$@" ;;
+			'metal '*) shift ; exec "$metal" "$@" ;;
+		esac
+		exec /usr/bin/xcrun "$@"
 	'';
 
 	# MLX build requires sw_vers
@@ -19,9 +31,9 @@ let
 in ollama.overrideAttrs (attrs: {
 
 	patches = attrs.patches or [] ++ lib.optional stdenvNoCC.hostPlatform.isDarwin (writeText "launchd-integration.patch" ''
-		--- a/cmd/cmd.go	1970-01-01 01:00:01
-		+++ b/cmd/cmd.go	2026-02-11 10:58:55
-		@@ -27,6 +27,7 @@
+		--- a/cmd/cmd.go
+		+++ b/cmd/cmd.go
+		@@ -28,6 +28,7 @@
 		 	"sync/atomic"
 		 	"syscall"
 		 	"time"
@@ -29,9 +41,9 @@ in ollama.overrideAttrs (attrs: {
 		 
 		 	"github.com/containerd/console"
 		 	"github.com/mattn/go-runewidth"
-		@@ -57,6 +58,12 @@
-		 	xcreate "github.com/ollama/ollama/x/create"
-		 	xcreateclient "github.com/ollama/ollama/x/create/client"
+		@@ -58,6 +59,12 @@
+		 	"github.com/ollama/ollama/types/syncmap"
+		 	"github.com/ollama/ollama/version"
 		 )
 		+
 		+/*
@@ -42,7 +54,7 @@ in ollama.overrideAttrs (attrs: {
 		 
 		 func init() {
 		 	// Override default selectors to use Bubbletea TUI instead of raw terminal I/O.
-		@@ -2012,12 +2019,18 @@
+		@@ -2220,12 +2227,18 @@
 		 	return nil
 		 }
 		 
@@ -63,7 +75,7 @@ in ollama.overrideAttrs (attrs: {
 		 	if err != nil {
 		 		return err
 		 	}
-		@@ -2074,6 +2087,27 @@
+		@@ -2282,6 +2295,27 @@
 		 		fmt.Printf("Your new public key is: \n\n%s\n", publicKeyBytes)
 		 	}
 		 	return nil
@@ -91,7 +103,7 @@ in ollama.overrideAttrs (attrs: {
 		 }
 		 
 		 func checkServerHeartbeat(cmd *cobra.Command, _ []string) error {
-		@@ -2375,6 +2409,8 @@
+		@@ -2609,6 +2643,8 @@
 		 		RunE:    RunServer,
 		 	}
 		 
@@ -148,7 +160,7 @@ in ollama.overrideAttrs (attrs: {
 	__noChroot = true;
 	cmakeFlags = attrs.cmakeFlags or [] ++ [ "-DOLLAMA_MLX_BACKENDS=metal_v4" ];
 	buildInputs = attrs.buildInputs ++ [ apple-sdk_26 ];
-	nativeBuildInputs = attrs.nativeBuildInputs ++ [ metal zsh cacert sw_vers ];
+	nativeBuildInputs = attrs.nativeBuildInputs ++ [ xcrun zsh cacert sw_vers ];
 	postPatch = attrs.postPatch + ''
 		# disable tests that fail in the Nix sandbox
 		rm mlx/mlxthread/*_test.go

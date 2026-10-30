@@ -59,15 +59,18 @@ in (writeShellScriptBin "mcp-servers" ''
 		exit 0
 	fi
 
-	# use temporary cache/data directory to isolate MCP server state from
-	# the user’s regular command line tools state
-	tmpdir=$TMPDIR/mcp-server-$USER-${depsTimestamp}
-	mkdir -p "$tmpdir"
-	for dir in "$TMPDIR/mcp-server-$USER"-* ; do test "$dir" = "$tmpdir" || rm -rf "$dir" ; done
-	export XDG_DATA_HOME=$tmpdir
-	export XDG_CACHE_HOME=$tmpdir
-	export NPM_CONFIG_CACHE=$tmpdir
-	cd $tmpdir
+	# MCP server downloads go into a custom cache directory
+	if test -d "''${XDG_STATE_HOME:-"$HOME/.local/state"}/opencode" ; then
+		cache=''${XDG_STATE_HOME:-"$HOME/.local/state"}/opencode/cache/mcp-servers/${depsTimestamp}
+	else
+		cache=''${XDG_CACHE_HOME:-"$HOME/.cache"}/mcp-servers/${depsTimestamp}
+	fi
+	mkdir -p "$cache" 2> /dev/null
+	for dir in "''${cache%/*}/"* ; do test "$dir" = "$cache" || rm -rf "$dir" ; done
+	export XDG_DATA_HOME=$cache
+	export XDG_CACHE_HOME=$cache
+	export NPM_CONFIG_CACHE=$cache
+	cd "$cache"
 
 	export NIX_SSL_CERT_FILE=${lib.getAttr stdenv.hostPlatform.uname.system {
 		Linux = "/etc/ssl/certs/ca-certificates.crt";

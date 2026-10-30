@@ -61,12 +61,11 @@
 			# make selected user files available inside the sandbox
 			commonSandboxRules = ''
 				${dir-ro "XDG_BIN_HOME" ""}
-				${dir-ro "XDG_CONFIG_HOME" "/shell"}
 			'' + lib.optionalString (isInstalled "fish") ''
 				${dir-ro "XDG_CONFIG_HOME" "/fish"}
 				${dir-rw "XDG_STATE_HOME" "/fish"}
 			'' + lib.optionalString (isInstalled "git" || config.programs.xcode.enable) ''
-				${dir-ro "XDG_CONFIG_HOME" "/git"}
+				${dir-ro "XDG_CONFIG_HOME" "/git/config"}
 			'' + lib.optionalString (isInstalled "micro") ''
 				${dir-ro "XDG_CONFIG_HOME" "/micro"}
 				${dir-rw "XDG_CONFIG_HOME" "/micro/backups"}
@@ -211,7 +210,6 @@
 						)
 						(literal (string-append (param "HOME") "/.CFUserTextEncoding"))
 						(literal (string-append (param "HOME") "/.gitconfig"))
-						(literal (string-append (param "HOME") "/.local"))
 						(literal (string-append (param "HOME") "/.zshenv"))
 						(literal (string-append (param "HOME") "/Library"))
 						(literal (string-append (param "HOME") "/Library/Caches"))

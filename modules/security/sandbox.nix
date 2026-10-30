@@ -173,7 +173,11 @@
 			# to debug sandbox violations on Darwin:
 			# log stream --predicate 'eventMessage CONTAINS "Sandbox:" AND eventMessage CONTAINS "deny"'
 			Darwin = ''
-				exec sandbox-exec -p '
+				# redirect TMPDIR to a custom directory, which is deleted after use
+				tmp=$(mktemp -d -t TemporaryDirectory)
+				trap "rm -rf \"$tmp\"" EXIT HUP TERM QUIT
+
+				TMPDIR="$tmp" sandbox-exec -p '
 					(version 1)
 					(deny default)
 					(debug deny)
@@ -215,6 +219,19 @@
 					${dir-ro "HOME" "/Library/Caches/org.swift.swiftpm"}
 					${dir-ro "HOME" "/Library/Developer/Xcode/Plug-ins"}
 					${dir-ro "HOME" "/Library/org.swift.swiftpm"}
+					(allow file-read-metadata
+						(literal (string-append (param "TMP") "/T"))
+					)
+					(allow file-read*
+						(literal (string-append (param "TMP") "/T/xcrun_db"))
+					)
+					; FIXME: these write targets are undesired, but necessary for swift builds
+					(allow file*
+						(subpath (string-append (param "TMP") "/C/clang/ModuleCache"))
+						(subpath (string-append (param "TMP") "/T/TemporaryItems"))
+						(regex (string-append "^" (regex-quote (param "TMP")) "/T/TemporaryDirectory\..*"))
+						(regex (string-append "^" (regex-quote (param "TMP")) "/T/swbuild\.tmp\..*"))
+					)
 					(allow user-preference-read
 						(preference-domain "com.apple.coresimulator")
 						(preference-domain "com.apple.dt.xcodebuild")
@@ -226,8 +243,6 @@
 
 					(allow file*
 						(subpath (param "PWD"))
-						(subpath (param "TMP"))
-						(subpath "/private/tmp")
 						(literal (param "TTY"))
 						(literal "/dev/tty")
 					)

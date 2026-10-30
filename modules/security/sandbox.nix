@@ -115,17 +115,23 @@
 						SWIFTPM_DISABLE_SANDBOX=1 exec /usr/bin/xcodebuild \
 							-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
 							ENABLE_USER_SCRIPT_SANDBOXING=NO \
-							OTHER_SWIFT_FLAGS=--disable-sandbox \
+							OTHER_SWIFT_FLAGS=-disable-sandbox \
 							"$@"
 					else
 						# use first available scheme
-						scheme=$(ls *.xcodeproj/xcshareddata/xcschemes/*.xcscheme | head -n1)
-						scheme=$(basename "$scheme" .xcscheme)
+						scheme=$(ls *.xcodeproj/xcshareddata/xcschemes/*.xcscheme 2> /dev/null | head -n1)
+						if test "$scheme" ; then
+							scheme=''${scheme##*/}
+							scheme=''${scheme%.xcscheme}
+						else
+							scheme=$(ls -d *.xcodeproj 2> /dev/null | head -n1)
+							scheme=''${scheme%.xcodeproj}
+						fi
 						SWIFTPM_DISABLE_SANDBOX=1 exec /usr/bin/xcodebuild \
 							-scheme "$scheme" \
 							-derivedDataPath "$TMPDIR/xcodebuild-$PPID" \
 							ENABLE_USER_SCRIPT_SANDBOXING=NO \
-							OTHER_SWIFT_FLAGS=--disable-sandbox \
+							OTHER_SWIFT_FLAGS=-disable-sandbox \
 							"$@"
 					fi
 				EOF

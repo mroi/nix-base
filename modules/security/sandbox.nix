@@ -167,11 +167,20 @@
 						(fsctl-command HFSIOC_SET_HOTFILE_STATE)
 					)
 
-					(allow file-read* file-test-existence
-						(require-all (file-mode #o0004) (require-not (subpath (param "HOME"))))
+					(allow file-read-metadata file-test-existence
 						(literal (param "HOME"))
+						(literal (param "XDG_BIN_HOME"))
 						(literal (param "XDG_CONFIG_HOME"))
 						(literal (param "XDG_STATE_HOME"))
+						(path-ancestors (param "HOME"))
+						(path-ancestors (param "XDG_BIN_HOME"))
+						(path-ancestors (param "XDG_CONFIG_HOME"))
+						(path-ancestors (param "XDG_STATE_HOME"))
+						(path-ancestors (param "PWD"))
+						(subpath "/dev")
+					)
+					(allow file-read* file-test-existence
+						(require-all (file-mode #o0004) (require-not (subpath (param "HOME"))))
 						(literal (string-append (param "HOME") "/.CFUserTextEncoding"))
 						(literal (string-append (param "HOME") "/.gitconfig"))
 						(literal (string-append (param "HOME") "/.local"))
@@ -188,10 +197,7 @@
 			'' + ''
 					${dir-ro "HOME" "/Library/Preferences/com.apple.LaunchServices"}
 			'' + "'" + escapeRules commonSandboxRules + "'" + ''
-					(allow file-read-metadata file-test-existence
-						(path-ancestors (param "PWD"))
-						(subpath "/dev")
-					)
+
 					(allow file*
 						(subpath (param "PWD"))
 						(subpath (param "TMP"))

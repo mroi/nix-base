@@ -79,6 +79,10 @@
 			'' + lib.optionalString (isInstalled "opencode") ''
 				${dir-ro "XDG_CONFIG_HOME" "/opencode"}
 				${dir-rw "XDG_STATE_HOME" "/opencode"}
+				${dir-rw (lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+					Linux = "XDG_CACHE_HOME";
+					Darwin = "VAR_CACHE";
+				}) "/mcp-servers"}
 			'' + lib.optionalString (config.environment.profile != []) ''
 				${dir-ro "XDG_STATE_HOME" "/nix"}
 			'' + lib.optionalString config.programs.xcode.enable ''

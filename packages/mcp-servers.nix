@@ -45,7 +45,7 @@
 		installPhase = "mkdir -p $out/bin ; cp .build/release/Apple-Docs-MCP $out/bin/";
 	};
 
-in (writeShellScriptBin "mcp-servers" ''
+in (writeShellScriptBin "mcp-servers" (''
 
 	if test "$#" -eq 0 ; then
 		echo "Usage: $0 <server> [...]"
@@ -59,15 +59,22 @@ in (writeShellScriptBin "mcp-servers" ''
 		exit 0
 	fi
 
-	# use temporary cache/data directory to isolate MCP server state from
-	# the user’s regular command line tools state
-	tmpdir=$TMPDIR/mcp-server-$USER-${depsTimestamp}
-	mkdir -p "$tmpdir"
-	for dir in "$TMPDIR/mcp-server-$USER"-* ; do test "$dir" = "$tmpdir" || rm -rf "$dir" ; done
-	export XDG_DATA_HOME=$tmpdir
-	export XDG_CACHE_HOME=$tmpdir
-	export NPM_CONFIG_CACHE=$tmpdir
-	cd $tmpdir
+'' + lib.optionalString stdenv.hostPlatform.isLinux ''
+	# re-initialize shell environment, as agent harnesses may divert XDG dirs
+	eval "$(unset XDG_CACHE_HOME ; "''${SHELL:-/bin/zsh}" -c 'echo export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$HOME/.cache}"')"
+	# MCP server downloads go into a custom cache directory
+	cache=$XDG_CACHE_HOME/mcp-servers/${depsTimestamp}
+'' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+	# MCP server downloads go into a custom cache directory
+	# do not use the TMPDIR variable, as agent harnesses may divert it
+	cache=$(getconf DARWIN_USER_CACHE_DIR)/mcp-servers/${depsTimestamp}
+'' + ''
+	mkdir -p "$cache" 2> /dev/null || exit 1
+	for dir in "''${cache%/*}/"* ; do test "$dir" = "$cache" || rm -rf "$dir" ; done
+	export XDG_DATA_HOME=$cache
+	export XDG_CACHE_HOME=$cache
+	export NPM_CONFIG_CACHE=$cache
+	cd "$cache" || exit 1
 
 	export NIX_SSL_CERT_FILE=${lib.getAttr stdenv.hostPlatform.uname.system {
 		Linux = "/etc/ssl/certs/ca-certificates.crt";
@@ -86,7 +93,7 @@ in (writeShellScriptBin "mcp-servers" ''
 		]}
 	esac
 
-'') // {
+'')) // {
 
 	# include the list of MCP servers in the derivation to externally generate configuration files
 	servers = lib.attrNames servers;

@@ -99,7 +99,7 @@
 		'');
 		system.activationScripts.root.text = lib.mkIf (config.users.root.stagingDirectory != null) (lib.mkAfter ''
 			nixSymlinkAfter=$(readlink "${config.users.root.stagingDirectory}/.nix/profile/bin/nix" || true)
-			if test "$nixSymlinkBefore" -a "$nixSymlinkBefore" != "$nixSymlinkAfter" ; then
+			if test "$nixSymlinkAfter" -a "$nixSymlinkBefore" != "$nixSymlinkAfter" ; then
 				restartService nix-daemon
 			fi
 		'');

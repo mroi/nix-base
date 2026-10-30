@@ -17,7 +17,7 @@
 		rules = lib.mkOption {
 			type = lib.types.functionTo lib.types.lines;
 			default = _: "";
-			example = lib.literalExpression "{ dir-ro, dir-rw }: ''\${dir-ro \"HOME\" \"/.vimrc\"}''";
+			example = lib.literalExpression "{ ro, rw }: ''\${ro \"HOME\" \"/.vimrc\"}''";
 			description = "A function to specify additional sandbox rules.";
 		};
 	};
@@ -41,11 +41,11 @@
 			};
 
 			# functions to generate script for read-only or read-write access to a directory
-			dir-ro = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+			ro = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 				Linux = var: dir: "--ro-bind \"${lib.getAttr var prefixVars}${dir}\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = var: dir: "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
-			dir-rw = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+			rw = lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 				Linux = var: dir: "--bind \"${lib.getAttr var prefixVars}${dir}\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = var: dir: "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
@@ -60,24 +60,24 @@
 
 			# make selected user files available inside the sandbox
 			commonSandboxRules = ''
-				${dir-ro "XDG_BIN_HOME" ""}
+				${ro "XDG_BIN_HOME" ""}
 			'' + lib.optionalString (isInstalled "fish") ''
-				${dir-ro "XDG_CONFIG_HOME" "/fish"}
-				${dir-rw "XDG_STATE_HOME" "/fish"}
+				${ro "XDG_CONFIG_HOME" "/fish"}
+				${rw "XDG_STATE_HOME" "/fish"}
 			'' + lib.optionalString (isInstalled "git" || config.programs.xcode.enable) ''
-				${dir-ro "XDG_CONFIG_HOME" "/git/config"}
+				${ro "XDG_CONFIG_HOME" "/git/config"}
 			'' + lib.optionalString (isInstalled "micro") ''
-				${dir-ro "XDG_CONFIG_HOME" "/micro"}
-				${dir-rw "XDG_CONFIG_HOME" "/micro/backups"}
-				${dir-rw "XDG_CONFIG_HOME" "/micro/buffers"}
+				${ro "XDG_CONFIG_HOME" "/micro"}
+				${rw "XDG_CONFIG_HOME" "/micro/backups"}
+				${rw "XDG_CONFIG_HOME" "/micro/buffers"}
 			'' + lib.optionalString (isInstalled "opencode") ''
-				${dir-ro "XDG_CONFIG_HOME" "/opencode"}
-				${dir-rw "XDG_STATE_HOME" "/opencode"}
+				${ro "XDG_CONFIG_HOME" "/opencode"}
+				${rw "XDG_STATE_HOME" "/opencode"}
 			'' + lib.optionalString (config.environment.profile != []) ''
-				${dir-ro "XDG_STATE_HOME" "/nix"}
+				${ro "XDG_STATE_HOME" "/nix"}
 			'' + lib.optionalString (config.users.shared.folder != null) ''
-				${dir-ro "ROOT" config.users.shared.folder}
-			'' + config.security.sandbox.rules { inherit dir-ro dir-rw; };
+				${ro "ROOT" config.users.shared.folder}
+			'' + config.security.sandbox.rules { inherit ro rw; };
 
 			# wrap dev tools whose behavior collides with the sandbox
 			wrappers = pkgs.runCommand "sandbox-wrappers" {} (''
@@ -149,19 +149,19 @@
 
 			Linux = ''
 				exec bwrap --unshare-all \
-					${dir-ro "ROOT" "/bin"} \
-					${dir-ro "ROOT" "/etc"} \
-					${dir-ro "ROOT" "/lib"} \
-					${dir-ro "ROOT" "/usr"} \
-					${dir-ro "ROOT" "/run/systemd/resolve"} \
+					${ro "ROOT" "/bin"} \
+					${ro "ROOT" "/etc"} \
+					${ro "ROOT" "/lib"} \
+					${ro "ROOT" "/usr"} \
+					${ro "ROOT" "/run/systemd/resolve"} \
 			'' + lib.optionalString pkgs.stdenv.hostPlatform.isx86_64 ''
-					${dir-ro "ROOT" "/lib64"} \
+					${ro "ROOT" "/lib64"} \
 			'' + lib.optionalString config.nix.enable ''
-					${dir-ro "ROOT" "/nix"} \
+					${ro "ROOT" "/nix"} \
 			'' + ''
-					${dir-ro "HOME" "/.bashrc"} \
+					${ro "HOME" "/.bashrc"} \
 			'' + escapeRules commonSandboxRules + '' \
-					${dir-rw "ROOT" "$(readlink -f \"$PWD\")"} \
+					${rw "ROOT" "$(readlink -f \"$PWD\")"} \
 					--dev /dev \
 					--proc /proc \
 					--tmpfs /tmp \
@@ -214,14 +214,14 @@
 						(literal (string-append (param "HOME") "/Library"))
 						(literal (string-append (param "HOME") "/Library/Caches"))
 					)
-					${dir-ro "HOME" "/Library/Preferences/com.apple.LaunchServices"}
+					${ro "HOME" "/Library/Preferences/com.apple.LaunchServices"}
 
 			'' + lib.optionalString config.programs.xcode.enable ''
-					${dir-ro "XDG_CONFIG_HOME" "/swiftpm"}
-					${dir-ro "HOME" "/Library/Caches/com.apple.python/Applications/Xcode.app"}
-					${dir-ro "HOME" "/Library/Caches/org.swift.swiftpm"}
-					${dir-ro "HOME" "/Library/Developer/Xcode/Plug-ins"}
-					${dir-ro "HOME" "/Library/org.swift.swiftpm"}
+					${ro "XDG_CONFIG_HOME" "/swiftpm"}
+					${ro "HOME" "/Library/Caches/com.apple.python/Applications/Xcode.app"}
+					${ro "HOME" "/Library/Caches/org.swift.swiftpm"}
+					${ro "HOME" "/Library/Developer/Xcode/Plug-ins"}
+					${ro "HOME" "/Library/org.swift.swiftpm"}
 					(allow file-read-metadata
 						(literal (string-append (param "TMP") "/T"))
 					)

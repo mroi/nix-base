@@ -24,7 +24,7 @@
 			programs.opencode.enable = lib.mkDefault true;
 			# OpenCode by default is not sandboxed, enable discretionary sandboxing
 			security.sandbox.enable = lib.mkDefault true;
-			security.sandbox.rules = { ... }: "\${XCODE_SANDBOX_EXTRA_RULES}";
+			security.sandbox.rules = { ... }: [ "\${XCODE_SANDBOX_EXTRA_RULES}" ];
 
 			# auxiliary developer tools
 			environment.bundles."/Applications/GitUp.app" = {

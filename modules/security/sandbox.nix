@@ -76,6 +76,8 @@
 				${dir-rw "XDG_STATE_HOME" "/opencode"}
 			'' + lib.optionalString (config.environment.profile != []) ''
 				${dir-ro "XDG_STATE_HOME" "/nix"}
+			'' + lib.optionalString (config.users.shared.folder != null) ''
+				${dir-ro "ROOT" config.users.shared.folder}
 			'' + config.security.sandbox.rules { inherit dir-ro dir-rw; };
 
 			# wrap dev tools whose behavior collides with the sandbox
@@ -157,8 +159,6 @@
 					${dir-ro "ROOT" "/lib64"} \
 			'' + lib.optionalString config.nix.enable ''
 					${dir-ro "ROOT" "/nix"} \
-			'' + lib.optionalString (config.users.shared.folder != null) ''
-					${dir-ro "ROOT" config.users.shared.folder} \
 			'' + ''
 					${dir-ro "HOME" "/.bashrc"} \
 			'' + escapeRules commonSandboxRules + '' \
@@ -190,7 +190,7 @@
 						(fsctl-command HFSIOC_SET_HOTFILE_STATE)
 					)
 
-					(allow file-read-metadata file-test-existence
+					(allow file-read* file-test-existence
 						(literal (param "HOME"))
 						(literal (param "XDG_BIN_HOME"))
 						(literal (param "XDG_CONFIG_HOME"))
@@ -203,7 +203,12 @@
 						(subpath "/dev")
 					)
 					(allow file-read* file-test-existence
-						(require-all (file-mode #o0004) (require-not (subpath (param "HOME"))))
+						(require-all (file-mode #o0004)
+							(require-not (subpath (param "HOME")))
+							(require-not (subpath "/Users"))
+							(require-not (subpath "/private/tmp"))
+							(require-not (subpath "/private/var/tmp"))
+						)
 						(literal (string-append (param "HOME") "/.CFUserTextEncoding"))
 						(literal (string-append (param "HOME") "/.gitconfig"))
 						(literal (string-append (param "HOME") "/.local"))
@@ -275,6 +280,7 @@
 					)
 					(system-network)
 				' \
+					-D ROOT="" \
 					-D HOME="$HOME" \
 					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
 					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \

@@ -15,9 +15,9 @@
 			description = "Shell code to execute at the beginning of the sandbox script.";
 		};
 		rules = lib.mkOption {
-			type = lib.types.functionTo lib.types.lines;
-			default = _: "";
-			example = lib.literalExpression "{ ro, rw }: ''\${ro \"HOME\" \"/.vimrc\"}''";
+			type = lib.types.functionTo (lib.types.listOf lib.types.str);
+			default = _: [];
+			example = lib.literalExpression "{ ro, rw }: [ (ro \"HOME\" \"/.vimrc\") ]";
 			description = "A function to specify additional sandbox rules.";
 		};
 	};
@@ -64,36 +64,36 @@
 			isInstalled = name: lib.any (lib.hasSuffix "#${name}") config.environment.profile;
 
 			# make selected user files available inside the sandbox
-			commonSandboxRules = ''
-				${ro "XDG_BIN_HOME" ""}
-			'' + lib.optionalString (isInstalled "fish") ''
-				${ro "XDG_CONFIG_HOME" "/fish"}
-				${rw "XDG_STATE_HOME" "/fish"}
-			'' + lib.optionalString (isInstalled "git" || config.programs.xcode.enable) ''
-				${ro "XDG_CONFIG_HOME" "/git/config"}
-			'' + lib.optionalString (isInstalled "micro") ''
-				${ro "XDG_CONFIG_HOME" "/micro"}
-				${rw "XDG_CONFIG_HOME" "/micro/backups"}
-				${rw "XDG_CONFIG_HOME" "/micro/buffers"}
-			'' + lib.optionalString (isInstalled "opencode") ''
-				${ro "XDG_CONFIG_HOME" "/opencode"}
-				${rw "XDG_STATE_HOME" "/opencode"}
-				${rw (lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
+			commonSandboxRules = [
+				(ro "XDG_BIN_HOME" "")
+			] ++ lib.optionals (isInstalled "fish") [
+				(ro "XDG_CONFIG_HOME" "/fish")
+				(rw "XDG_STATE_HOME" "/fish")
+			] ++ lib.optionals (isInstalled "git" || config.programs.xcode.enable) [
+				(ro "XDG_CONFIG_HOME" "/git/config")
+			] ++ lib.optionals (isInstalled "micro") [
+				(ro "XDG_CONFIG_HOME" "/micro")
+				(rw "XDG_CONFIG_HOME" "/micro/backups")
+				(rw "XDG_CONFIG_HOME" "/micro/buffers")
+			] ++ lib.optionals (isInstalled "opencode") [
+				(ro "XDG_CONFIG_HOME" "/opencode")
+				(rw "XDG_STATE_HOME" "/opencode")
+				(rw (lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 					Linux = "XDG_CACHE_HOME";
 					Darwin = "VAR_CACHE";
-				}) "/mcp-servers"}
-			'' + lib.optionalString (config.environment.profile != []) ''
-				${ro "XDG_STATE_HOME" "/nix"}
-			'' + lib.optionalString config.programs.xcode.enable ''
-				${ro "XDG_CONFIG_HOME" "/swiftpm"}
-				${ro "HOME" "/Library/Caches/com.apple.python/Applications/Xcode.app"}
-				${ro "HOME" "/Library/Caches/org.swift.swiftpm"}
-				${ro "HOME" "/Library/Developer/Xcode/Plug-ins"}
-				${ro "HOME" "/Library/org.swift.swiftpm"}
-				${ro "VAR_TEMP" "/xcrun_db"}
-			'' + lib.optionalString (config.users.shared.folder != null) ''
-				${ro "ROOT" config.users.shared.folder}
-			'' + config.security.sandbox.rules { inherit ro rw; };
+				}) "/mcp-servers")
+			] ++ lib.optionals (config.environment.profile != []) [
+				(ro "XDG_STATE_HOME" "/nix")
+			] ++ lib.optionals config.programs.xcode.enable [
+				(ro "XDG_CONFIG_HOME" "/swiftpm")
+				(ro "HOME" "/Library/Caches/com.apple.python/Applications/Xcode.app")
+				(ro "HOME" "/Library/Caches/org.swift.swiftpm")
+				(ro "HOME" "/Library/Developer/Xcode/Plug-ins")
+				(ro "HOME" "/Library/org.swift.swiftpm")
+				(ro "VAR_TEMP" "/xcrun_db")
+			] ++ lib.optionals (config.users.shared.folder != null) [
+				(ro "ROOT" config.users.shared.folder)
+			] ++ config.security.sandbox.rules { inherit ro rw; };
 
 			# wrap dev tools whose behavior collides with the sandbox
 			wrappers = pkgs.runCommand "sandbox-wrappers" {} (''
@@ -188,7 +188,7 @@
 					${ro "ROOT" "/nix"} \
 			'' + ''
 					${ro "HOME" "/.bashrc"} \
-			'' + escapeRules commonSandboxRules + '' \
+			'' + escapeRules (lib.concatLines commonSandboxRules) + '' \
 					${rw "ROOT" "$(readlink -f \"$PWD\")"} \
 					--dev /dev \
 					--proc /proc \
@@ -263,7 +263,7 @@
 						(preference-domain "xcodebuild")
 					)
 
-			'' + "'" + escapeRules commonSandboxRules + "'" + ''
+			'' + "'" + escapeRules (lib.concatLines commonSandboxRules) + "'" + ''
 
 					(allow file*
 						(subpath (param "PWD"))

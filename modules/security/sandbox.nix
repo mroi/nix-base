@@ -192,6 +192,9 @@
 				cd -- "$save" || return 1
 			}
 
+			newline=$(printf '\nx')
+			newline=''${newline%x}
+
 			# exfiltration check: prevent writes to directories readable by other users
 			# security model: sandbox can only write in PWD, and limited rw locations.
 			# * At startup, isExfilRisk walks the parent chain of every writable root
@@ -202,6 +205,16 @@
 			#   * On Darwin, the sandbox cannot write to paths outside the prefixes and
 			#     the deny file-write-mode rule locks permissions of writable prefixes.
 			isExfilRisk() {
+				# ACLs are too complex to parse in detail, flag as exfiltration risk
+				${lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+					acl=$(getfacl -c -- "$1" 2> /dev/null) || return 0
+					case "$acl" in *"$newline"*"$newline"*"$newline"*) return 0 ;; esac
+				''}
+				${lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+					acl=$(ls -lde "$1" 2> /dev/null) || return 0
+					case "$acl" in *"$newline"*) return 0 ;; esac
+				''}
+				# check file mode and recurse
 				mode=$(${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 					Linux = "stat -c %a \"$1\" 2> /dev/null";
 					Darwin = "stat -f %Lp \"$1\" 2> /dev/null";

@@ -38,6 +38,11 @@
 				XDG_BIN_HOME = "\${XDG_BIN_HOME:-$HOME/.local/bin}";
 				XDG_CONFIG_HOME = "\${XDG_CONFIG_HOME:-$HOME/.config}";
 				XDG_STATE_HOME = "\${XDG_STATE_HOME:-$HOME/.local/state}";
+			} // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+				XDG_CACHE_HOME = "\${XDG_CACHE_HOME:-$HOME/.cache}";
+			} // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+				VAR_CACHE = "\${TMPDIR%/T/}/C";
+				VAR_TEMP = "\${TMPDIR%/T/}/T";
 			};
 
 			# functions to generate script for read-only or read-write access to a directory
@@ -209,10 +214,14 @@
 						(literal (param "XDG_BIN_HOME"))
 						(literal (param "XDG_CONFIG_HOME"))
 						(literal (param "XDG_STATE_HOME"))
+						(literal (param "VAR_CACHE"))
+						(literal (param "VAR_TEMP"))
 						(path-ancestors (param "HOME"))
 						(path-ancestors (param "XDG_BIN_HOME"))
 						(path-ancestors (param "XDG_CONFIG_HOME"))
 						(path-ancestors (param "XDG_STATE_HOME"))
+						(path-ancestors (param "VAR_CACHE"))
+						(path-ancestors (param "VAR_TEMP"))
 						(path-ancestors (param "PWD"))
 						(subpath "/dev")
 					)
@@ -278,6 +287,8 @@
 					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
 					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \
 					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
+					-D VAR_CACHE="$(readlink -f "${prefixVars.VAR_CACHE}")" \
+					-D VAR_TEMP="$(readlink -f "${prefixVars.VAR_TEMP}")" \
 					-D PWD="$(readlink -f "$PWD")" \
 					-D TMP="$(readlink -f "$TMPDIR/..")" \
 					-D TTY="$(tty 2>/dev/null || echo /dev/null)" \

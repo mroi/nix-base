@@ -167,6 +167,23 @@
 			# wrap some tools so they work inside the sandbox
 			PATH=${wrappers}/bin:$PATH
 
+			# normalize paths by resolving symlinks (result in resolved variable to avoid caller subshell)
+			resolve() {
+				if ! test -e "$1" ; then
+					echo "sandbox: $1 does not exist" >&2 ; resolved=$1 ; return 0
+				fi
+				if test -d "$1" ; then
+					dir=$1 ; file=
+				else
+					dir=''${1%/*} ; file=/''${1##*/}
+				fi
+				test "$dir" || dir=/
+				save=$PWD
+				cd -P -- "$dir" || return 1
+				resolved=''${PWD%/}$file
+				cd -- "$save" || return 1
+			}
+
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
@@ -189,7 +206,7 @@
 			'' + ''
 					${ro "HOME" "/.bashrc"} \
 			'' + escapeRules (lib.concatLines commonSandboxRules) + '' \
-					${rw "ROOT" "$(readlink -f \"$PWD\")"} \
+					${rw "ROOT" "$(resolve \"$PWD\" && echo \"$resolved\")"} \
 					--dev /dev \
 					--proc /proc \
 					--tmpfs /tmp \
@@ -203,6 +220,12 @@
 				# redirect TMPDIR to a custom directory, which is deleted after use
 				tmp=$(mktemp -d -t TemporaryDirectory)
 				trap "rm -rf \"$tmp\"" EXIT HUP TERM QUIT
+
+				# resolve parameters for the sandbox
+				resolve "${prefixVars.VAR_CACHE}" || exit 1 ; resolved_VAR_CACHE=$resolved
+				resolve "${prefixVars.VAR_TEMP}" || exit 1 ; resolved_VAR_TEMP=$resolved
+				resolve "$PWD" || exit 1 ; resolved_PWD=$resolved
+				resolve "$tmp" || exit 1 ; resolved_TMP=$resolved
 
 				TMPDIR="$tmp" sandbox-exec -p '
 					(version 1)
@@ -306,10 +329,10 @@
 					-D XDG_BIN_HOME="${prefixVars.XDG_BIN_HOME}" \
 					-D XDG_CONFIG_HOME="${prefixVars.XDG_CONFIG_HOME}" \
 					-D XDG_STATE_HOME="${prefixVars.XDG_STATE_HOME}" \
-					-D VAR_CACHE="$(readlink -f "${prefixVars.VAR_CACHE}")" \
-					-D VAR_TEMP="$(readlink -f "${prefixVars.VAR_TEMP}")" \
-					-D PWD="$(readlink -f "$PWD")" \
-					-D TMP="$(readlink -f "$tmp")" \
+					-D VAR_CACHE="$resolved_VAR_CACHE" \
+					-D VAR_TEMP="$resolved_VAR_TEMP" \
+					-D PWD="$resolved_PWD" \
+					-D TMP="$resolved_TMP" \
 					-D TTY="$(tty 2>/dev/null || echo /dev/null)" \
 					"$@"
 			'';

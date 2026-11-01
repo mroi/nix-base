@@ -54,7 +54,8 @@
 					xmllint --xpath "/plist/dict/array/dict[string[text()='$uuid']]/key[text()='ProfileInstallDate']/following-sibling::string[1]/text()" - 2> /dev/null || \
 					echo '1970-01-01 00:00:00 +0000')
 				installTime=$(date -jf "%Y-%m-%d %H:%M:%S %z" "$installTime" +%s)
-				stagedTime=$(if test -f "$1" ; then stat -f %m "$1" ; else echo 0 ; fi)
+				stagedTime=0
+				if test -f "$1" ; then stagedTime=$(stat -f %m "$1") ; fi
 				if test "$installTime" -gt "$stagedTime" ; then
 					printInfo 'Profile was recently installed'
 					cp "$2" "$1"
@@ -130,7 +131,9 @@
 			# check for migration to a new machine
 			machine=$(ioreg -ard1 -c IOPlatformExpertDevice | \
 				xmllint --xpath '/plist/array/dict/key[text()="IOPlatformUUID"]/following-sibling::string[1]/text()' -)
-			if test ! -r "${profileStaging}/.machine" -o "$(cat "${profileStaging}/.machine")" != "$machine" ; then
+			previous=
+			if test -r "${profileStaging}/.machine" ; then read -r previous < "${profileStaging}/.machine" || true ; fi
+			if test "$previous" != "$machine" ; then
 				printInfo 'Initial profile installation on this machine'
 				rm -f "${profileStaging}/"*
 				makeDir 700 "${profileStaging}"

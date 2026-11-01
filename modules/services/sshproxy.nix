@@ -39,7 +39,7 @@
 			"${config.users.shared.folder}/${config.users.serviceDir}/SSHProxy.bundle" = {
 				pkg = ssh-proxy;
 				install = ''
-					makeDir 755::admin "$(dirname "$out")"
+					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/SSHProxy.bundle"
 				'' + lib.optionalString config.services.sshProxy.enableClient ''
 					makeDir 700 "$HOME/.ssh"

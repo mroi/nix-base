@@ -59,7 +59,8 @@ newline='
 '
 
 _ifsPrevious=$IFS
-_ifsLines=$(printf '\n\t')
+_ifsLines='
+	'
 
 forLines() {
 	IFS=$_ifsLines
@@ -78,7 +79,7 @@ hasLine() {
 
 # colored output
 
-if tput colors > /dev/null 2>&1 && test "$(tput colors)" -ge 16 ; then
+if _colors=$(tput colors 2> /dev/null) && test "${_colors:-0}" -ge 16 ; then
 	if test -t 1 ; then _hasColorStdout=true ; else _hasColorStdout=false ; fi
 	if test -t 2 ; then _hasColorStderr=true ; else _hasColorStderr=false ; fi
 else
@@ -86,14 +87,18 @@ else
 	_hasColorStderr=false
 fi
 
-_headingColor=$(if $_hasColorStdout ; then tput bold ; fi)
-_underline=$(if $_hasColorStdout ; then tput smul ; fi)
-_errorColor=$(if $_hasColorStderr ; then tput setaf 9 ; tput bold ; fi)
-_warningColor=$(if $_hasColorStderr ; then tput setaf 11 ; tput bold ; fi)
-_traceColor=$(if $_hasColorStdout ; then tput dim || printf "\033[2m" ; fi)
-_sudoColor=$(if $_hasColorStdout ; then tput setaf 5 ; fi)
-_resetStdout=$(if $_hasColorStdout ; then tput sgr0 ; fi)
-_resetStderr=$(if $_hasColorStderr ; then tput sgr0 ; fi)
+if $_hasColorStdout ; then
+	_headingColor=$(tput bold)
+	_underline=$(tput smul)
+	_traceColor=$(tput dim || printf "\033[2m")
+	_sudoColor=$(tput setaf 5)
+	_resetStdout=$(tput sgr0)
+fi
+if $_hasColorStderr ; then
+	_errorColor=$(tput setaf 9 ; tput bold)
+	_warningColor=$(tput setaf 11 ; tput bold)
+	_resetStderr=$(tput sgr0)
+fi
 
 # keep original stdin and stdout to access during redirects
 exec 3<&0
@@ -194,7 +199,9 @@ cdTemporaryDirectory() {
 	else
 		_tmpdir=${TMPDIR%/}
 	fi
-	_tmpdir=$(mktemp --directory --tmpdir="$_tmpdir" -t "rebuild$($isDarwin || echo .XXXXXXXX)")
+	_tmpSuffix=.XXXXXXXX
+	if $isDarwin ; then _tmpSuffix= ; fi
+	_tmpdir=$(mktemp --directory --tmpdir="$_tmpdir" -t "rebuild$_tmpSuffix")
 	# shellcheck disable=SC2064
 	trap "test ! -e .pids || xargs kill < .pids ; rm -rf \"$_tmpdir\"" EXIT HUP TERM QUIT
 	# shellcheck disable=SC2064
@@ -214,10 +221,8 @@ runSQL() {
 		echo $! > .pids
 	fi
 	# remember current output size to skip for query output
-	_sqlOutSize=$(
-		if $isLinux ; then stat -c %s .sqlite/out ; fi
-		if $isDarwin ; then stat -f %z .sqlite/out ; fi
-	)
+	if $isLinux ; then _sqlOutSize=$(stat -c %s .sqlite/out) ; fi
+	if $isDarwin ; then _sqlOutSize=$(stat -f %z .sqlite/out) ; fi
 	# run commands from stdin against the database
 	cat > .sqlite/in
 	# wait until the database has finished processing

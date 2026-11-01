@@ -30,7 +30,7 @@
 			"${config.users.shared.folder}/${config.users.serviceDir}/UnisonSync.bundle" = {
 				pkg = unison-sync;
 				install = ''
-					makeDir 755::admin "$(dirname "$out")"
+					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/UnisonSync.bundle"
 					makeDir 700 "$HOME/.ssh"
 					makeLink 700 "$HOME/.ssh/unison-connect" "$out/Contents/MacOS/unison-connect"

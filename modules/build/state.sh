@@ -215,7 +215,7 @@ makeTree() {
 	# shellcheck disable=SC2086
 	test -z "$_group" || trace $_sudo chgrp -Rh "$_group" "$1"
 
-	rm -rf source
+	if test -e source ; then rm -rf source ; fi
 }
 
 # extended attributes
@@ -350,7 +350,7 @@ makeVolume() {
 			*) fatalError "Inconsistent ownership status on the volume $name" ;;
 		esac
 		# hidden flag
-		hidden=$(if test "$hidden" ; then echo hidden ; else echo - ; fi)
+		if test "$hidden" ; then hidden=hidden ; else hidden=- ; fi
 		if test "$(stat -f %Sf "$mountPoint")" != "$hidden" ; then
 			trace sudo chflags "$hidden" "$mountPoint"
 		fi
@@ -471,7 +471,7 @@ makeGroup() {
 				name="$name" ; gid="$gid" ; members="$members" ; description="$description"
 			EOF
 		fi
-		echo "$members" | tr ' ' '\n' | while read -r _member && test "$_member" ; do
+		for _member in $members ; do
 			if ! getent group "$name" | grep -Fwq "$_member" ; then
 				trace sudo usermod --append --groups "$name" "$_member"
 			fi
@@ -491,7 +491,7 @@ makeGroup() {
 		if test "$gid" -a "$(_dsclRead PrimaryGroupID)" != "$gid" ; then
 			trace sudo dseditgroup -o edit -i "$gid" "$name"
 		fi
-		echo "$members" | tr ' ' '\n' | while read -r _member && test "$_member" ; do
+		for _member in $members ; do
 			if ! _dsclRead GroupMembership | grep -Fwq "$_member" ; then
 				trace sudo dseditgroup -o edit -t user -a "$_member" "$name"
 			fi
@@ -772,7 +772,8 @@ makePref() {
 			string|int|float)
 				if test "$(_getPref || true)" != "$1" ; then _setPref "$1" ; fi ;;
 			bool)
-				if test "$(_getPref || true)" != "$(case "$1" in (true) echo 1 ;; (false) echo 0 ;; esac)" ; then _setPref "$1" ; fi ;;
+				_expected= ; case "$1" in (true) _expected=1 ;; (false) _expected=0 ;; esac
+				if test "$(_getPref || true)" != "$_expected" ; then _setPref "$1" ; fi ;;
 			array)
 				_expected=$(printf '(' ; for _value ; do test "$_value" = "$1" || printf , ; printf '\n    "%s"' "$_value" ; done ; printf '\n)\n')
 				if test "$(_getPref || true)" != "$_expected" ; then _setPref "$@" ; fi ;;

@@ -23,7 +23,7 @@
 			storeHeading 'Gatekeeper configuration'
 
 			enable=${toString config.security.gatekeeper.enable}
-			status=$(spctl --status | grep -Fcw enabled || true)
+			case " $(spctl --status) " in (*enabled*) status=1 ;; (*) status=0 ;; esac
 
 			case "$enable,$status" in
 				1,0) trace sudo spctl --global-enable ;;

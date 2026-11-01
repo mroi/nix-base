@@ -85,7 +85,7 @@
 			"${shared}/${serviceDir}/Unison.app" = {
 				pkg = if cfg.intercept then unison-intercept else unison;
 				install = ''
-					makeDir 755::admin "$(dirname "$out")"
+					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/Library/CoreServices/Unison.app"
 				'';
 			};

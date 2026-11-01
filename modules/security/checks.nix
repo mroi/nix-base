@@ -36,23 +36,29 @@
 			known="${lib.concatLines config.security.checks.known}"
 
 		'' + lib.optionalString config.security.checks.SIP ''
-			if ! csrutil status | head -n1 | grep -Fqw enabled ; then
-				if csrutil status | head -n1 | grep -Fqw disabled ; then
+			sip=$(csrutil status)
+			sip=''${sip%%"$newline"*}
+			case " $sip " in
+				*enabled*) ;;
+				*disabled*)
 					printWarning 'System Integrity Protection is disabled'
-				else
+					printInfo 'Restart the computer to recovery mode and run: csrutil enable' ;;
+				*)
 					printWarning 'System Integrity Protection is not fully enabled'
-				fi
-				printInfo 'Restart the computer to recovery mode and run: csrutil enable'
-			fi
+					printInfo 'Restart the computer to recovery mode and run: csrutil enable' ;;
+			esac
 		'' + lib.optionalString config.security.checks.SSV ''
-			if ! csrutil authenticated-root status | head -n1 | grep -Fqw enabled ; then
-				if csrutil authenticated-root status | head -n1 | grep -Fqw disabled ; then
+			ssv=$(csrutil authenticated-root status)
+			ssv=''${ssv%%"$newline"*}
+			case " $ssv " in
+				*enabled*) ;;
+				*disabled*)
 					printWarning 'Booting from sealed system snapshot is disabled'
-				else
+					printInfo 'Restart the computer to recovery mode and run: csrutil authenticated-root enable' ;;
+				*)
 					printWarning 'Booting from sealed system snapshot is not fully enabled'
-				fi
-				printInfo 'Restart the computer to recovery mode and run: csrutil authenticated-root enable'
-			fi
+					printInfo 'Restart the computer to recovery mode and run: csrutil authenticated-root enable' ;;
+			esac
 
 		'' + lib.optionalString config.security.checks.injection ''
 			storeHeading -

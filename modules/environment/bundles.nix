@@ -23,10 +23,9 @@
 
 		bundleScript = mode: path: attrs: lib.optionalString (mode == "update") ''
 			# extract version string
-			if test -r '${path}/Contents/Info.plist' && plutil -extract CFBundleShortVersionString raw '${path}/Contents/Info.plist' > /dev/null 2>&1 ; then
-				version=$(plutil -extract CFBundleShortVersionString raw '${path}/Contents/Info.plist')
-			else
-				version=
+			version=
+			if test -r '${path}/Contents/Info.plist' ; then
+				version=$(plutil -extract CFBundleShortVersionString raw '${path}/Contents/Info.plist' 2> /dev/null) || version=
 			fi
 			# update when versions are different
 			if test "$version" != '${toString attrs.pkg.version}' ; then

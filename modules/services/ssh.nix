@@ -21,14 +21,16 @@
 			enable=${toString config.services.openssh.enable}
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 			Linux = ''
-				running=$(if systemctl is-enabled ssh.service > /dev/null 2>&1 ; then echo 1 ; fi)
+				running=
+				if systemctl is-enabled ssh.service > /dev/null 2>&1 ; then running=1 ; fi
 				case "$enable,$running" in
 					1,) trace sudo systemctl enable --now ssh.service ;;
 					,1) trace sudo systemctl disable --now ssh.service ;;
 				esac
 			'';
 			Darwin = ''
-				running=$(if launchctl print system/com.openssh.sshd > /dev/null 2>&1 ; then echo 1 ; fi)
+				running=
+				if launchctl print system/com.openssh.sshd > /dev/null 2>&1 ; then running=1 ; fi
 				case "$enable,$running" in
 					1,) trace sudo systemsetup -setremotelogin on ;;
 					,1) trace sudo systemsetup -setremotelogin off ;;

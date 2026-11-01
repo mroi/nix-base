@@ -18,9 +18,9 @@
 			storeHeading -
 
 		'' + lib.optionalString config.security.checks.XProtect ''
-			if xprotect status --json | grep -Fqw false ; then
-				printError 'XProtect malware scans are disabled'
-			fi
+			case " $(xprotect status --json) " in
+				*false*) printError 'XProtect malware scans are disabled' ;;
+			esac
 		'';
 
 		system.updateScripts.xprotect = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin ''

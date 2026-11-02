@@ -59,7 +59,7 @@
 				Darwin = "(allow file-read* file-test-existence (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 			rw = var: dir: assert writeAllowed var dir; lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
-				Linux = "--bind \"\$(resolve \"${lib.getAttr var prefixVars}${dir}\" && echo \"$resolved\")\" \"${lib.getAttr var prefixVars}${dir}\"";
+				Linux = "--bind \"\$(resolveWritable \"${lib.getAttr var prefixVars}${dir}\" && echo \"$resolved\")\" \"${lib.getAttr var prefixVars}${dir}\"";
 				Darwin = "(allow file* (subpath (string-append (param \"${var}\") \"${dir}\")))";
 			};
 
@@ -220,6 +220,32 @@
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
+				# make sure the path is strictly below an exfil-checked writable prefix
+				resolveWritable() {
+					# resolve follows directory symlinks, but not a final symlink to a file
+					if test ! -e "$1" -o \( -L "$1" -a ! -d "$1" \) ; then
+						echo "sandbox data exfiltration risk: $1 cannot be resolved safely" >&2
+						resolved=/dev/null
+						return 0
+					fi
+					resolve "$1" || return 1
+					target=$resolved
+					result=/dev/null
+					for prefix in ${lib.concatStringsSep " " (map (x: "\"${x}\"") writePrefixes)} ; do
+						if ! test -d "$prefix" ; then return 1 ; fi
+						resolve "$prefix" || return 1
+						# check that the writable path is within, but not equal to the writable prefix
+						case "$target" in
+							"$resolved") result=/dev/null ; break ;;
+							"$resolved"/*) result=$target ;;
+						esac
+					done
+					if test "$result" = /dev/null ; then
+						echo "sandbox data exfiltration risk: $1 resolves to ''${target:-an unresolved path}" >&2
+					fi
+					resolved=$result
+				}
+
 				# make sure sandbox escape via TIOCSTI is blocked
 				if test "$(sysctl --value dev.tty.legacy_tiocsti)" != 0 ; then
 					echo 'sandbox escape risk: TIOCSTI ioctl is available to unprivileged users' >&2

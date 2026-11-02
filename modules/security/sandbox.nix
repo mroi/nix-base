@@ -129,6 +129,12 @@
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
 			Linux = ''
+				# make sure sandbox escape via TIOCSTI is blocked
+				if test "$(sysctl --value dev.tty.legacy_tiocsti)" != 0 ; then
+					echo 'sandbox escape risk: TIOCSTI ioctl is available to unprivileged users' >&2
+					exit 1
+				fi
+
 				exec bwrap --unshare-all \
 					${dir-ro "ROOT" "/bin"} \
 					${dir-ro "ROOT" "/etc"} \
@@ -199,6 +205,7 @@
 						(literal "/dev/tty")
 						(regex "^/dev/ttys[0-9]*")
 					)
+					(deny file-ioctl (ioctl-command TIOCSTI))
 
 					(allow mach-lookup
 						(global-name-prefix "com.apple.distributed_notifications")

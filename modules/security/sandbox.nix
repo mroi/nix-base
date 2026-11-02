@@ -193,6 +193,14 @@
 			}
 
 			# exfiltration check: prevent writes to directories readable by other users
+			# security model: sandbox can only write in PWD, and limited rw locations.
+			# * At startup, isExfilRisk walks the parent chain of every writable root
+			#   and refuses to continue if other users could reach it.
+			# * At runtime, the permissions to a writable location cannot be increased:
+			#   * On Linux, parent paths of the bind mounts are immutable inside the
+			#     sandbox, and chmod of PWD itself is covered by the parent check below.
+			#   * On Darwin, the sandbox cannot write to paths outside the prefixes and
+			#     the deny file-write-mode rule locks permissions of writable prefixes.
 			isExfilRisk() {
 				mode=$(${lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 					Linux = "stat -c %a \"$1\" 2> /dev/null";
@@ -216,6 +224,15 @@
 					if test "$dir" != "$PWD" ; then exit 1 ; fi  # critical unless a user choice
 				fi
 			done
+			${lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+				# On Linux, chmod on writable prefixes is not prevented (as with Darwin’s
+				# deny file-write-mode). Thus, the sandbox can widen permissions of PWD.
+				# To mitigate, check that PWD’s parent is non-exfiltratable.
+				resolve "$PWD" || exit 1
+				if ! isExfilRisk "$resolved" && isExfilRisk "''${resolved%/*}" ; then
+					echo "sandbox data exfiltration risk: $PWD can become readable by other users" >&2
+				fi
+			''}
 
 		'' + lib.getAttr pkgs.stdenv.hostPlatform.uname.system {
 
@@ -353,6 +370,12 @@
 
 					(allow file*
 						(subpath (param "PWD"))
+						(subpath (param "TMP"))
+						(literal (param "TTY"))
+						(literal "/dev/tty")
+					)
+					(deny file-write-mode
+						(literal (param "PWD"))
 						(subpath (param "TMP"))
 						(literal (param "TTY"))
 						(literal "/dev/tty")

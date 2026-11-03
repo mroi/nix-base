@@ -6,6 +6,8 @@
 		"$schema" = "https://opencode.ai/config.json";
 	} // config.programs.opencode.settings);
 
+	opencode = lib.getExe' (pkgs.callPackage ../../packages/opencode.nix {}) "opencode";
+
 	# model configuration
 	opencodeConfig = {
 		provider = lib.mapAttrs opencodeProvider config.services.llms.providers;
@@ -81,5 +83,19 @@ in {
 				makeFile 644 "$userConfig/opencode/config.json" ${configFile}
 			'')
 		);
+
+		system.cleanupScripts.opencode = lib.mkIf config.programs.opencode.enable ''
+			storeHeading 'Deleting old OpenCode sessions'
+
+			db=''${XDG_STATE_HOME:-"$HOME/.local/state"}/opencode/opencode/opencode.db
+			age=$(( $(date +%s) - (31 * 24 * 3600) ))000
+			sqlite3 -tabs "$db" "SELECT id FROM session WHERE time_updated < $age" | {
+				if read -r first ; then
+					{ echo "$first" ; cat ; } | \
+						trace xargs --no-run-if-empty --max-args=1 ${opencode} --pure session delete
+					trace sqlite3 "$db" VACUUM
+				fi
+			}
+		'';
 	};
 }

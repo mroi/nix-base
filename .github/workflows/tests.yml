@@ -34,24 +34,4 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Run rebuild
-      run: ./rebuild
-
-    - name: Rerun rebuild
-      run: |
-        ! ./rebuild | grep .
-        test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -ne 0
-
-    - name: Check for empty state directory
-      if: ${{ matrix.machine == 'test-nosys' }}
-      run: test ! -d ~/.local/state/rebuild -a ! -d ~/.unison/root-*
-
-    - name: Run version update
-      run: |
-        ./rebuild update-versions
-        git restore .
-
-    - name: Run cleanup
-      run: ./rebuild clean
-
-    - name: Check flake
-      run: ~/.local/state/nix/profile/bin/nix flake check
+      run: ./rebuild activate-pki

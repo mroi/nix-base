@@ -295,6 +295,15 @@
 					printInfo "Please install manually: ''${TMPDIR:-/tmp}/trust-${mode}-target.plist"
 					exit $status
 				}
+
+		'' + lib.optionalString (mode == "system") ''
+				if test "$GITHUB_ACTION_FOO" ; then
+					# GitHub action runner needs unknown certificates to talk to its infrastructure
+					printInfo 'Execution on GitHub detected: reverting certificate trust'
+					echo '<plist version="1.0"><dict><key>trustList</key><dict/><key>trustVersion</key><integer>1</integer></dict></plist>' | \
+						trace sudo security trust-settings-import -d /dev/stdin
+				fi
+		'' + ''
 			fi
 
 			rm -f trust-${mode}-current.plist trust-${mode}-target.plist

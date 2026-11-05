@@ -295,6 +295,18 @@
 					printInfo "Please install manually: ''${TMPDIR:-/tmp}/trust-${mode}-target.plist"
 					exit $status
 				}
+
+		'' + lib.optionalString (mode == "system") ''
+				if test "$GITHUB_ACTION" ; then
+					# check access to runner infrastructure after reducing certificate trust
+					for host in github.com api.github.com broker.actions.githubusercontent.com pipelines.actions.githubusercontent.com results-receiver.actions.githubusercontent.com ; do
+						if ! security verify-cert "https://$host" > /dev/null 2>&1 ; then
+							security verify-cert -v "https://$host" 2> /dev/null || true
+							fatalError 'GitHub Actions runner infrastructure not trusted'
+						fi
+					done
+				fi
+		'' + ''
 			fi
 
 			rm -f trust-${mode}-current.plist trust-${mode}-target.plist

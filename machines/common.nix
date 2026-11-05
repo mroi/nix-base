@@ -37,8 +37,8 @@
 		"D1EB23A46D17D68FD92564C2F1F1601764D8E349" = { sslServer = true; };
 		# GlobalSign
 		"D69B561148F01C77C54578C10926DF5B856976AD" = { sslServer = true; };
-		# DigiCert Global Root G2
-		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { sslServer = true; };
+		# DigiCert Global Root G2: basicX509 needed by GitHub action runner
+		"DF3C24F9BFD666761B268073FE06D1CC8D4F82A4" = { basicX509 = true; sslServer = true; };
 	};
 
 	networking.firewall.block = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [

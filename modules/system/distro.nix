@@ -156,6 +156,7 @@
 				"com.apple.share-services"."com.apple.share.System.add-to-safari-reading-list" = true;
 				"com.apple.share-services"."com.apple.share.System.set-account-picture" = true;
 				"com.apple.share-services"."com.apple.share.System.set-desktop-image" = true;
+				"com.apple.spotlight.index"."com.apple.contacts.ContactsCoreSpotlightExtension" = true;
 				"com.apple.ui-services"."com.apple.MarkupUI.Markup" = true;
 				"com.apple.ui-services"."com.apple.sharing.ShareSheetUI" = true;
 			};

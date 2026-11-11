@@ -57,6 +57,8 @@
 				install = ''
 					installPackage "$pkg"
 					checkSig "$out" 48ZCSDVL96
+					# Arq Agent sometimes fails to relaunch after an update
+					trace sudo launchctl bootstrap system /Library/LaunchDaemons/com.haystacksoftware.arqagent.plist
 				'';
 			};
 		};

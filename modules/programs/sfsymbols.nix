@@ -5,7 +5,7 @@
 	config = let
 
 		sf-symbols-installer = let
-			version = "27.0";
+			version = "27.2";
 			major = lib.head (lib.match "([0-9]+)\..*" version);
 			# product ID: 042-53422
 			catalog = "https://swscan.apple.com/content/catalogs/others/index-27-26-15-14-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog";
@@ -16,7 +16,7 @@
 
 			src = pkgs.fetchurl {
 				url = "https://devimages-cdn.apple.com/design/resources/download/SF-Symbols-${major}.dmg";
-				hash = "sha256-+CcO24kOZpWTgthDLDhGmvNfCxtOavlrT41bhFlX16I=";
+				hash = "sha256-vPkA+e+pb2HD1HD998ttWoC0m/ZF2kSRnrnBg18CBG8=";
 			};
 
 			nativeBuildInputs = [ pkgs.undmg ];

@@ -56,7 +56,7 @@
 					trace chmod a+x $out/Contents/Resources/bin/goose
 
 					# re-sign
-					trace codesign --sign "$(id -F)" --preserve-metadata=entitlements --force  "$out"
+					signExecutable "$out"
 				'';
 			};
 		};

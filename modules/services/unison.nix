@@ -87,6 +87,7 @@
 				install = ''
 					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/Library/CoreServices/Unison.app"
+					signExecutable "$out"
 				'';
 			};
 		};

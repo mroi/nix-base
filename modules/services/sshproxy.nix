@@ -42,6 +42,7 @@
 					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/SSHProxy.bundle"
 					trace /usr/libexec/PlistBuddy -c "Set ProgramArguments:0 $out" "$out/Contents/Resources/de.reactorcontrol.ssh-proxy.plist"
+					signExecutable "$out"
 				'' + lib.optionalString config.services.sshProxy.enableClient ''
 					makeDir 700 "$HOME/.ssh"
 					makeLink 700 "$HOME/.ssh/ssh-connect" "$out/Contents/MacOS/ssh-connect"

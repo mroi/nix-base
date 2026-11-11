@@ -32,6 +32,7 @@
 				install = ''
 					makeDir 755::admin "''${out%/*}"
 					makeTree 755::admin "$out" "$pkg/UnisonSync.bundle"
+					signExecutable "$out"
 					makeDir 700 "$HOME/.ssh"
 					makeLink 700 "$HOME/.ssh/unison-connect" "$out/Contents/MacOS/unison-connect"
 				'';

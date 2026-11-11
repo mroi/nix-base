@@ -810,6 +810,16 @@ installPackage() {
 	rm "$_name"
 }
 
+# code signing
+signExecutable() {
+	_identity=$(id -F)
+	if ! codesign --dryrun --sign "$_identity" --force "$1" > /dev/null 2>&1 ; then
+		# no personal signing key, create ad-hoc signature
+		_identity=-
+	fi
+	trace codesign --sign "$_identity" --deep --force --preserve-metadata=identifier,entitlements,requirements,flags,runtime,launch-constraints,library-constraints "$1"
+}
+
 # commands in interactive scripts
 
 interactiveCommands() {

@@ -19,9 +19,15 @@
 				hash = "sha256-vPkA+e+pb2HD1HD998ttWoC0m/ZF2kSRnrnBg18CBG8=";
 			};
 
-			nativeBuildInputs = [ pkgs.undmg ];
-			sourceRoot = ".";
-			installPhase = "mv 'SF Symbols.pkg' $out";
+			__noChroot = true;
+			unpackPhase = ''
+				mkdir dmg
+				/usr/bin/hdiutil attach $src -readonly -mountpoint $PWD/dmg
+				cp -r dmg/SFSymbols.pkg ./
+				/usr/bin/hdiutil detach $PWD/dmg
+			'';
+
+			installPhase = "mv SFSymbols.pkg $out";
 
 			passthru.updateScript = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
 				if test "$(sw_vers -productVersion | cut -d. -f1)" -gt ${macOS} ; then

@@ -54,7 +54,7 @@
 		system.cleanupScripts.shared = ''
 			storeHeading 'Fixing file groups in shared folder'
 			find '${config.users.shared.folder}' \
-				! -group 0 ! -group ${config.users.shared.group} \
+				! -user 0 ! -group 0 ! -group ${config.users.shared.group} \
 				! -path '${config.users.shared.folder}/${config.users.stateDir}/nix/profiles/profile*' | \
 				while read -r file ; do trace chgrp -h ${config.users.shared.group} "$file" ; done
 		'';

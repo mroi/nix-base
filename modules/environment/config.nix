@@ -69,8 +69,9 @@
 					printInfo
 					printInfo 'Mail account payload in profile needs attention:'
 					printInfo '• Account visibility in Notes.app'
-					printInfo '• Account order and folder favorites in Mail.app'
 					printInfo '• Account settings: attachment download, mail deletion'
+					printInfo '• Account order and folder favorites in Mail.app'
+					printInfo '• Mail category grouping for this account'
 					printInfo '• Visibility in focus mode filters'
 				fi
 				if grep -Fqw com.apple.caldav.account "$1" ; then
